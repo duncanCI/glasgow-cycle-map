@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style> .leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; } .leaflet-container { overflow: hidden; } .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow { -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-user-drag: none; } .leaflet-tile::selection { background: transparent; } .leaflet-safari .leaflet-tile { image-rendering: -webkit-optimize-contrast; } .leaflet-safari .leaflet-tile-container { width: 1600px; height: 1600px; -webkit-transform-origin: 0 0; } .leaflet-marker-icon, .leaflet-marker-shadow { display: block; } .leaflet-container .leaflet-overlay-pane svg { max-width: none !important; max-height: none !important; } .leaflet-container .leaflet-marker-pane img, .leaflet-container .leaflet-shadow-pane img, .leaflet-container .leaflet-tile-pane img, .leaflet-container img.leaflet-image-layer, .leaflet-container .leaflet-tile { max-width: none !important; max-height: none !important; width: auto; padding: 0; } .leaflet-container img.leaflet-tile { mix-blend-mode: plus-lighter; } .leaflet-container.leaflet-touch-zoom { -ms-touch-action: pan-x pan-y; touch-action: pan-x pan-y; } .leaflet-container.leaflet-touch-drag { -ms-touch-action: pinch-zoom; touch-action: none; touch-action: pinch-zoom; } .leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { -ms-touch-action: none; touch-action: none; } .leaflet-container { -webkit-tap-highlight-color: transparent; } .leaflet-container a { -webkit-tap-highlight-color: rgba(51, 181, 229, 0.4); } .leaflet-tile { filter: inherit; visibility: hidden; } .leaflet-tile-loaded { visibility: inherit; } .leaflet-zoom-box { width: 0; height: 0; -moz-box-sizing: border-box; box-sizing: border-box; z-index: 800; } .leaflet-overlay-pane svg { -moz-user-select: none; } .leaflet-pane { z-index: 400; } .leaflet-tile-pane { z-index: 200; } .leaflet-overlay-pane { z-index: 400; } .leaflet-shadow-pane { z-index: 500; } .leaflet-marker-pane { z-index: 600; } .leaflet-tooltip-pane { z-index: 650; } .leaflet-popup-pane { z-index: 700; } .leaflet-map-pane canvas { z-index: 100; } .leaflet-map-pane svg { z-index: 200; } .leaflet-vml-shape { width: 1px; height: 1px; } .leaflet-control { position: relative; z-index: 800; pointer-events: visiblePainted; pointer-events: auto; } .leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; } .leaflet-top { top: 0; } .leaflet-right { right: 0; } .leaflet-bottom { bottom: 0; } .leaflet-left { left: 0; } .leaflet-control { float: left; clear: both; } .leaflet-right .leaflet-control { float: right; } .leaflet-top .leaflet-control { margin-top: 10px; } .leaflet-bottom .leaflet-control { margin-bottom: 10px; } .leaflet-left .leaflet-control { margin-left: 10px; } .leaflet-right .leaflet-control { margin-right: 10px; } .leaflet-fade-anim .leaflet-popup { opacity: 0; -webkit-transition: opacity 0.2s linear; -moz-transition: opacity 0.2s linear; transition: opacity 0.2s linear; } .leaflet-fade-anim .leaflet-map-pane .leaflet-popup { opacity: 1; } .leaflet-zoom-animated { -webkit-transform-origin: 0 0; -ms-transform-origin: 0 0; transform-origin: 0 0; } svg.leaflet-zoom-animated { will-change: transform; } .leaflet-zoom-anim .leaflet-zoom-animated { -webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1); -moz-transition: -moz-transform 0.25s cubic-bezier(0,0,0.25,1); transition: transform 0.25s cubic-bezier(0,0,0.25,1); } .leaflet-zoom-anim .leaflet-tile, .leaflet-pan-anim .leaflet-tile { -webkit-transition: none; -moz-transition: none; transition: none; } .leaflet-zoom-anim .leaflet-zoom-hide { visibility: hidden; } .leaflet-interactive { cursor: pointer; } .leaflet-grab { cursor: -webkit-grab; cursor: -moz-grab; cursor: grab; } .leaflet-crosshair, .leaflet-crosshair .leaflet-interactive { cursor: crosshair; } .leaflet-popup-pane, .leaflet-control { cursor: auto; } .leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-grab .leaflet-interactive, .leaflet-dragging .leaflet-marker-draggable { cursor: move; cursor: -webkit-grabbing; cursor: -moz-grabbing; cursor: grabbing; } .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-image-layer, .leaflet-pane > svg path, .leaflet-tile-container { pointer-events: none; } .leaflet-marker-icon.leaflet-interactive, .leaflet-image-layer.leaflet-interactive, .leaflet-pane > svg path.leaflet-interactive, svg.leaflet-image-layer.leaflet-interactive path { pointer-events: visiblePainted; pointer-events: auto; } .leaflet-container { background: #ddd; outline-offset: 1px; } .leaflet-container a { color: #0078A8; } .leaflet-zoom-box { border: 2px dotted #38f; background: rgba(255,255,255,0.5); } .leaflet-container { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-size: 12px; font-size: 0.75rem; line-height: 1.5; } .leaflet-bar { box-shadow: 0 1px 5px rgba(0,0,0,0.65); border-radius: 4px; } .leaflet-bar a { background-color: #fff; border-bottom: 1px solid #ccc; width: 26px; height: 26px; line-height: 26px; display: block; text-align: center; text-decoration: none; color: black; } .leaflet-bar a, .leaflet-control-layers-toggle { background-position: 50% 50%; background-repeat: no-repeat; display: block; } .leaflet-bar a:hover, .leaflet-bar a:focus { background-color: #f4f4f4; } .leaflet-bar a:first-child { border-top-left-radius: 4px; border-top-right-radius: 4px; } .leaflet-bar a:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-bottom: none; } .leaflet-bar a.leaflet-disabled { cursor: default; background-color: #f4f4f4; color: #bbb; } .leaflet-touch .leaflet-bar a { width: 30px; height: 30px; line-height: 30px; } .leaflet-touch .leaflet-bar a:first-child { border-top-left-radius: 2px; border-top-right-radius: 2px; } .leaflet-touch .leaflet-bar a:last-child { border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; } .leaflet-control-zoom-in, .leaflet-control-zoom-out { font: bold 18px 'Lucida Console', Monaco, monospace; text-indent: 1px; } .leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out { font-size: 22px; } .leaflet-control-layers { box-shadow: 0 1px 5px rgba(0,0,0,0.4); background: #fff; border-radius: 5px; } .leaflet-touch .leaflet-control-layers-toggle { width: 44px; height: 44px; } .leaflet-control-layers .leaflet-control-layers-list, .leaflet-control-layers-expanded .leaflet-control-layers-toggle { display: none; } .leaflet-control-layers-expanded .leaflet-control-layers-list { display: block; position: relative; } .leaflet-control-layers-expanded { padding: 6px 10px 6px 6px; color: #333; background: #fff; } .leaflet-control-layers-scrollbar { overflow-y: scroll; overflow-x: hidden; padding-right: 5px; } .leaflet-control-layers-selector { margin-top: 2px; position: relative; top: 1px; } .leaflet-control-layers label { display: block; font-size: 13px; font-size: 1.08333em; } .leaflet-control-layers-separator { height: 0; border-top: 1px solid #ddd; margin: 5px -10px 5px -6px; } .leaflet-container .leaflet-control-attribution { background: #fff; background: rgba(255, 255, 255, 0.8); margin: 0; } .leaflet-control-attribution, .leaflet-control-scale-line { padding: 0 5px; color: #333; line-height: 1.4; } .leaflet-control-attribution a { text-decoration: none; } .leaflet-control-attribution a:hover, .leaflet-control-attribution a:focus { text-decoration: underline; } .leaflet-attribution-flag { display: inline !important; vertical-align: baseline !important; width: 1em; height: 0.6669em; } .leaflet-left .leaflet-control-scale { margin-left: 5px; } .leaflet-bottom .leaflet-control-scale { margin-bottom: 5px; } .leaflet-control-scale-line { border: 2px solid #777; border-top: none; line-height: 1.1; padding: 2px 5px 1px; white-space: nowrap; -moz-box-sizing: border-box; box-sizing: border-box; background: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px #fff; } .leaflet-control-scale-line:not(:first-child) { border-top: 2px solid #777; border-bottom: none; margin-top: -2px; } .leaflet-control-scale-line:not(:first-child):not(:last-child) { border-bottom: 2px solid #777; } .leaflet-touch .leaflet-control-attribution, .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar { box-shadow: none; } .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar { border: 2px solid rgba(0,0,0,0.2); background-clip: padding-box; } .leaflet-popup { position: absolute; text-align: center; margin-bottom: 20px; } .leaflet-popup-content-wrapper { padding: 1px; text-align: left; border-radius: 12px; } .leaflet-popup-content { margin: 13px 24px 13px 20px; line-height: 1.3; font-size: 13px; font-size: 1.08333em; min-height: 1px; } .leaflet-popup-content p { margin: 17px 0; margin: 1.3em 0; } .leaflet-popup-tip-container { width: 40px; height: 20px; position: absolute; left: 50%; margin-top: -1px; margin-left: -20px; overflow: hidden; pointer-events: none; } .leaflet-popup-tip { width: 17px; height: 17px; padding: 1px; margin: -10px auto 0; pointer-events: auto; -webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -ms-transform: rotate(45deg); transform: rotate(45deg); } .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: white; color: #333; box-shadow: 0 3px 14px rgba(0,0,0,0.4); } .leaflet-container a.leaflet-popup-close-button { position: absolute; top: 0; right: 0; border: none; text-align: center; width: 24px; height: 24px; font: 16px/24px Tahoma, Verdana, sans-serif; color: #757575; text-decoration: none; background: transparent; } .leaflet-container a.leaflet-popup-close-button:hover, .leaflet-container a.leaflet-popup-close-button:focus { color: #585858; } .leaflet-popup-scrolled { overflow: auto; } .leaflet-oldie .leaflet-popup-content-wrapper { -ms-zoom: 1; } .leaflet-oldie .leaflet-popup-tip { width: 24px; margin: 0 auto; -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)"; filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678); } .leaflet-oldie .leaflet-control-zoom, .leaflet-oldie .leaflet-control-layers, .leaflet-oldie .leaflet-popup-content-wrapper, .leaflet-oldie .leaflet-popup-tip { border: 1px solid #999; } .leaflet-div-icon { background: #fff; border: 1px solid #666; } .leaflet-tooltip { position: absolute; padding: 6px; background-color: #fff; border: 1px solid #fff; border-radius: 3px; color: #222; white-space: nowrap; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,0.4); } .leaflet-tooltip.leaflet-interactive { cursor: pointer; pointer-events: auto; } .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { position: absolute; pointer-events: none; border: 6px solid transparent; background: transparent; content: ""; } .leaflet-tooltip-bottom { margin-top: 6px; } .leaflet-tooltip-top { margin-top: -6px; } .leaflet-tooltip-bottom:before, .leaflet-tooltip-top:before { left: 50%; margin-left: -6px; } .leaflet-tooltip-top:before { bottom: 0; margin-bottom: -12px; border-top-color: #fff; } .leaflet-tooltip-bottom:before { top: 0; margin-top: -12px; margin-left: -6px; border-bottom-color: #fff; } .leaflet-tooltip-left { margin-left: -6px; } .leaflet-tooltip-right { margin-left: 6px; } .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { top: 50%; margin-top: -6px; } .leaflet-tooltip-left:before { right: 0; margin-right: -12px; border-left-color: #fff; } .leaflet-tooltip-right:before { left: 0; margin-left: -12px; border-right-color: #fff; } @media print { .leaflet-control { -webkit-print-color-adjust: exact; print-color-adjust: exact; } } </style>
 <style>
+
 :root{
   --panel:#F6F7F4; --ink:#18211F; --muted:#56635F; --line:#C9D1CD; --land:#E3E8E4; --water:#B7D1DA; --accent:#0B6E99; --accent-ink:#FFFFFF;
   --c-high:#18794E; --c-med:#8AAE35; --c-low:#E0901B; --c-bad:#C0392B; --c-nr:#A1AAA7;
@@ -226,6 +227,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .cyc svg{transform:perspective(260px) rotateY(-18deg) rotateX(6deg);transform-origin:50% 85%;overflow:visible}
 .cyc.west svg{transform:scaleX(-1) perspective(260px) rotateY(-18deg) rotateX(6deg)}
 .cyc-wrap{width:72px;height:66px}
+.cyc canvas.r3{display:none;width:118px;height:118px}
+.cyc.r3on{transform:translate(-50%,-66%);filter:drop-shadow(0 0 1px rgba(255,255,255,.6))}
+.cyc.r3on canvas.r3{display:block}
+.cyc.r3on svg{display:none}
+.cyc-wrap .cyc.r3on{transform:translateY(24%)}
+.cyc3d.r3on canvas.r3{width:170px;height:170px}
+.cyc-wrap:has(.r3on){width:170px;height:170px}
 .cyc .flag{transform-box:fill-box;transform-origin:0 50%;animation:cyc-flag .45s ease-in-out infinite}
 .cyc .wave{transform-box:fill-box;transform-origin:0 100%;animation:cyc-wave .8s ease-in-out infinite}
 .cyc .scarf{transform-box:fill-box;transform-origin:100% 0;animation:cyc-scarf .55s ease-in-out infinite}
@@ -244,6 +252,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu[hidden]{display:none}
 .menu.right{left:auto;right:0}
 .menu.up{top:auto;bottom:calc(100% + 4px)}
+.menu select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px;margin-left:auto}
 .menu>button,.menu>a,.menu>label{font:inherit;font-size:0.9rem;text-align:left;padding:8px 10px;border:0;border-radius:5px;background:none;color:var(--ink);cursor:pointer;text-decoration:none;display:flex;gap:8px;align-items:center}
 .menu>button:hover,.menu>a:hover,.menu>label:hover,.menu>button:focus-visible,.menu>a:focus-visible{background:var(--chip)}
 .menu input{accent-color:var(--accent);width:16px;height:16px}
@@ -347,6 +356,8 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .legend{bottom:22px;right:6px;max-width:190px;font-size:0.72rem}
 }
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+/* anything marked hidden stays hidden, whatever display its class sets */
+[hidden]{display:none!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 </head>
@@ -447,7 +458,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <label class="check"><input type="checkbox" id="chk-qa"> Reach the network without riding on busy roads, as a family with young children would</label>
     <label class="check"><input type="checkbox" id="chk-cfx"> What if cycling were allowed both ways on quiet one-way streets? Glasgow has 95 km of them with no contraflow</label>
     </details>
-    <details class="group" open><summary>Map display</summary>
+    <details class="group"><summary>Map display</summary>
     <div class="ctl">
       <span class="ctl-label" id="lbl-colour">Colour streets by</span>
       <div class="seg" id="seg-colour" role="group" aria-labelledby="lbl-colour">
@@ -460,7 +471,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <div class="ctl row2"><label class="ctl-label" for="opt-theme">Colour theme</label><select id="opt-theme"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
     <label class="check"><input type="checkbox" id="chk-dz" checked> Shade neighbourhoods by share of streets within 800 m of the main network</label>
     </details>
-    <details class="group" open><summary>Layers</summary>
+    <details class="group"><summary>Layers</summary>
     <label class="check"><input type="checkbox" id="chk-dest" checked> Show landmark names used for the "places you can reach" checks</label>
     <label class="check"><input type="checkbox" id="chk-hot" checked> Show bike collision hotspots, 20 places with at least 4 recorded collisions within 50 m, coloured by risk for the cycling they carry</label>
     <label class="check"><input type="checkbox" id="chk-crash"> Show every recorded bike collision, 2016 to 2023, by severity</label>
@@ -533,10 +544,10 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       </div>
       <div class="fly-bar" id="fly-bar" hidden><strong>Flythrough</strong>
         <button type="button" class="chip primary" id="fly-play">Pause</button>
-        <label class="dock-conf"><input type="checkbox" id="fly-3d" checked> 3D with buildings</label>
-        <label class="dock-conf">View <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label>
         <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
+        <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
+          <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label></div></span>
         <button type="button" class="chip" id="fly-stop">Stop</button>
         <button type="button" class="chip" id="fly-help" aria-label="Flythrough controls" title="Zoom and tilt any time. Drag or rotate to pause and look around; Play glides back to the route. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
       <div id="dock-chart"><div class="ptip" id="ptip" hidden></div></div>
@@ -1141,8 +1152,11 @@ function renderCard(msg) {
     if (here || sN) fact('Bike collisions, 2016 to 2023', here + ' on this stretch' + (c[1] + c[2] ? ' (' + (c[1] + c[2]) + ' serious or fatal)' : '') + (nm && sN > here ? ', ' + sN + ' along ' + nm + (sK ? ' (' + sK + ' serious or fatal)' : '') : '') + '.' + (here && CRR.has(k) ? ' Risk on this stretch is ' + timesAvg(CRR.get(k)) + '.' : ''));
     const px = mx(sel.lng), py = my(sel.lat), h = HOT.find(q => Math.hypot(q.x - px, q.y - py) < mtoU(90));
     if (h) fact('Collision hotspot', h.n + ' bike collisions within 50 m of ' + (h.nm || 'here') + ', ' + h.ksi + ' serious or fatal, with about ' + (h.bpd || 0).toLocaleString('en-GB') + ' bikes a day passing through. That is ' + (h.rr ? timesAvg(h.rr) : 'unknown against the cycling here') + '.', h.rr >= 5 ? C.hot : C.hot2); }
-  card.append(facts);
-  const sec = el('section', 'reach'); sec.append(el('h4', null, 'Today against the plans'));
+  { const MORE = ['Speed limit', 'Modelled traffic', 'One-way', 'Cycling here', 'Community map', 'City Network plan', 'Listed constraints'];
+    const more = el('dl', 'facts'); [...facts.querySelectorAll('dt')].forEach(dt => { if (MORE.includes(dt.textContent)) { const dd = dt.nextElementSibling; more.append(dt, dd); } });
+    card.append(facts);
+    if (more.children.length) { const dm = el('details', 'more'); dm.append(el('summary', null, 'Street details and plans'), more); card.append(dm); } }
+  const sec = el('details', 'reach more'); sec.append(el('summary', null, 'Today against the plans'));
   const cols = [0, 1, 2, 3].map(s => { const rs = compute(s, state.gap, state.shared); return { rs, rt: route(rs, k) }; });
   const tbl = el('table', 'reach-t'); const th = el('tr'); th.append(el('th', null, '')); SCEN.forEach((s, i) => { const h = el('th', i === state.scen ? 'on' : null, s); h.scope = 'col'; th.append(h); }); tbl.append(th);
   const row = (label, fn, cls) => { const tr = el('tr'); const h = el('th', null, label); h.scope = 'row'; tr.append(h); cols.forEach((x, i) => { const [txt, ok] = fn(x); tr.append(el('td', (i === state.scen ? 'on ' : '') + (ok == null ? 'km' : ok ? 'yes' : 'no'), txt)); }); tbl.append(tr); };
@@ -1154,7 +1168,7 @@ function renderCard(msg) {
   card.append(sec);
   const d = N.pdz[k];
   if (d >= 0) {
-    const nb = el('section', 'nb'); nb.append(el('h4', null, 'This neighbourhood'));
+    const nb = el('details', 'nb more'); nb.append(el('summary', null, 'This neighbourhood'));
     const v = cols.map(x => Math.round(100 * x.rs.share[d]));
     nb.append(el('p', null, DZ[d].pop.toLocaleString('en-GB') + ' residents (data zone ' + DZ[d].id + '). Share of its streets within 800 m riding of the main protected network: ' + v[0] + '% on the May 2025 data, ' + v[1] + '% with community updates, ' + v[2] + '% with the 2032 programme, ' + v[3] + '% with the full plan.'));
     card.append(nb);
@@ -1172,7 +1186,7 @@ function wireMenu(btnId, menuId) {
 }
 document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenus(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenus(); });
-[['btn-menu', 'menu-top'], ['dock-sharebtn', 'menu-share'], ['dock-morebtn', 'menu-more'], ['btn-reportmenu', 'menu-report'], ['map-layersbtn', 'menu-layers']].forEach(p => wireMenu(p[0], p[1]));
+[['btn-menu', 'menu-top'], ['dock-sharebtn', 'menu-share'], ['dock-morebtn', 'menu-more'], ['btn-reportmenu', 'menu-report'], ['map-layersbtn', 'menu-layers'], ['fly-optbtn', 'menu-fly']].forEach(p => wireMenu(p[0], p[1]));
 // layers: one quick list on the map, kept in step with the Options tab and the key
 const LAYER_LIST = [['dest', 'chk-dest', 'Landmark names'], ['hot', 'chk-hot', 'Collision hotspots'], ['crash', 'chk-crash', 'Every bike collision'], ['dz', 'chk-dz', 'Neighbourhood shading'], ['comm', 'chk-comm', 'Community map lines'], ['plan', 'chk-plan', 'City Network plan'], ['owl', 'chk-ow', 'Quiet one-way streets'], ['mll', 'chk-ml', 'Possible missing links'], ['reports', 'chk-reports', 'Shared reports']];
 const setLayer = (id, on) => { const c = document.getElementById(id); if (c && c.checked !== on) { c.checked = on; c.dispatchEvent(new Event('change')); } };
@@ -1723,7 +1737,139 @@ function pedal(root, th, spin) {
   q.ck.setAttribute('x1', p2[0].toFixed(1)); q.ck.setAttribute('y1', p2[1].toFixed(1)); q.ck.setAttribute('x2', p1[0].toFixed(1)); q.ck.setAttribute('y2', p1[1].toFixed(1));
   q.s1.setAttribute('transform', 'rotate(' + spin.toFixed(1) + ' ' + CY.R[0] + ' ' + CY.R[1] + ')'); q.s2.setAttribute('transform', 'rotate(' + spin.toFixed(1) + ' ' + CY.F[0] + ' ' + CY.F[1] + ')');
 }
-const riderHTML = (lv, cls) => '<div class="cyc ' + (cls || '') + '" title="Riding as ' + RIDERS[lv].name + '">' + cyclistSVG(lv) + '</div>';
+// ---------- 3D rider: a procedural three.js cyclist, rendered into the flythrough marker ----------
+// Units are metres. The bike faces +x, y is up, z is across the bike.
+function makeRider3D(THREE, lv, preview) {
+  const r = RIDERS[lv], V = (x, y, z) => new THREE.Vector3(x, y, z || 0);
+  const M = (color, rough, metal, extra) => preview ? new THREE.MeshLambertMaterial(Object.assign({ color }, extra || {})) : new THREE.MeshStandardMaterial(Object.assign({ color, roughness: rough, metalness: metal || 0 }, extra || {}));
+  const mat = {
+    tyre: M(0x1a1c1e, 0.85), rim: M(0xc9d0d4, 0.25, 0.9), spoke: M(0x9aa3a8, 0.3, 0.8), frame: M(r.frame, 0.32, 0.55),
+    dark: M(0x24292c, 0.5, 0.3), kit: M(r.kit, 0.6), kit2: M(new THREE.Color(r.kit).multiplyScalar(0.7).getHex(), 0.65), legs: M(r.legs, 0.7),
+    skin: M(0xe8b48f, 0.6), helmet: M(r.helmet || r.hair || 0x333333, 0.22, 0.1), shoe: M(0x202326, 0.5), saddle: M(0x1b1d1f, 0.55),
+    accent: M(0xffffff, 0.4), child: M(0xe8871e, 0.6), red: M(0xe63946, 0.6, 0, { side: THREE.DoubleSide }), wicker: M(0xc8a165, 0.8), bread: M(0xd9a066, 0.7),
+    scarf: M(0xf4d35e, 0.6, 0, { side: THREE.DoubleSide }), pack: M(0x4e5d6c, 0.7), bottle: M(0x29b6f6, 0.3, 0, { transparent: true, opacity: 0.85 }), glass: M(0x111111, 0.1, 0.6) };
+  const root = new THREE.Group(), bike = new THREE.Group(), body = new THREE.Group(); root.add(bike); root.add(body);
+  const UP = V(0, 1, 0), tmp = new THREE.Vector3();
+  const cyl = (rad, m, seg) => new THREE.Mesh(new THREE.CylinderGeometry(rad, rad, 1, seg || 10), m);
+  const setLimb = (mesh, a, b) => { tmp.subVectors(b, a); const L = tmp.length(); mesh.position.copy(a).addScaledVector(tmp, 0.5); mesh.scale.set(1, Math.max(L, 1e-3), 1); mesh.quaternion.setFromUnitVectors(UP, tmp.normalize()); };
+  const tube = (a, b, rad, m, parent) => { const t = cyl(rad, m); setLimb(t, a, b); t.castShadow = true; (parent || bike).add(t); return t; };
+  const ball = (p, rad, m, parent) => { const s = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 12), m); s.position.copy(p); s.castShadow = true; (parent || body).add(s); return s; };
+  // geometry
+  const RW = 0.34, R = V(-0.52, RW), F = V(0.52, RW), BB = V(-0.08, 0.30), S = V(-0.22, 0.86), HT = V(0.36, 0.9), HB = V(0.40, 0.72), CR = 0.17;
+  const bars = r.drops ? V(0.47, 0.84) : r.lean > 30 ? V(0.44, 0.92) : V(0.32, 1.02);
+  // wheels
+  const wheels = [R, F].map(c => {
+    const w = new THREE.Group(); w.position.copy(c);
+    const tyre = new THREE.Mesh(new THREE.TorusGeometry(RW - 0.02, 0.026, 10, 40), mat.tyre); tyre.castShadow = true; w.add(tyre);
+    w.add(new THREE.Mesh(new THREE.TorusGeometry(RW - 0.05, 0.011, 6, 40), mat.rim));
+    for (let i = 0; i < 8; i++) { const sp = cyl(0.004, mat.spoke, 4); sp.scale.y = 2 * (RW - 0.05); sp.rotation.z = i * Math.PI / 8; w.add(sp); }
+    const hub = cyl(0.03, mat.rim); hub.scale.y = 0.08; hub.rotation.x = Math.PI / 2; w.add(hub);
+    bike.add(w); return w; });
+  // frame
+  tube(R, BB, 0.016, mat.frame); tube(R, S, 0.014, mat.frame); tube(BB, S, 0.02, mat.frame); tube(BB, HB, 0.024, mat.frame); tube(HB, HT, 0.026, mat.frame); tube(HB, F, 0.018, mat.frame);
+  if (r.step) tube(V(-0.12, 0.55), V(0.38, 0.62), 0.022, mat.frame); else tube(S, HT, 0.019, mat.frame);
+  tube(HT, bars, 0.015, mat.dark); tube(V(bars.x, bars.y, -0.22), V(bars.x, bars.y, 0.22), 0.013, mat.dark);
+  if (r.drops) [-0.2, 0.2].forEach(z => { tube(V(bars.x, bars.y, z), V(bars.x + 0.09, bars.y - 0.06, z), 0.012, mat.dark); tube(V(bars.x + 0.09, bars.y - 0.06, z), V(bars.x + 0.02, bars.y - 0.13, z), 0.012, mat.dark); });
+  const saddle = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.04, 0.12), mat.saddle); saddle.position.set(S.x - 0.02, S.y + 0.03, 0); saddle.castShadow = true; bike.add(saddle);
+  if (r.basket) { const bk = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.17, 0.3), mat.wicker); bk.position.set(0.6, 0.95, 0); bk.castShadow = true; bike.add(bk);
+    const loaf = cyl(0.035, mat.bread); loaf.scale.y = 0.42; loaf.position.set(0.63, 1.08, 0.05); loaf.rotation.z = -0.7; bike.add(loaf); }
+  if (r.bottle) { const b = cyl(0.035, mat.bottle); b.scale.y = 0.2; const mid = V(0.12, 0.5); b.position.copy(mid); b.rotation.z = -Math.atan2(HB.y - BB.y, HB.x - BB.x) + Math.PI / 2; bike.add(b); }
+  // cranks and pedals (animated)
+  const crankA = cyl(0.012, mat.dark), crankB = cyl(0.012, mat.dark); bike.add(crankA, crankB);
+  const pedA = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.02, 0.07), mat.dark), pedB = pedA.clone(); bike.add(pedA, pedB);
+  // rider body
+  const L = r.lean * Math.PI / 180, hip = V(-0.24, 0.97), sh = V(hip.x + 0.55 * Math.sin(L), hip.y + 0.55 * Math.cos(L));
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.13, 0.36, 6, 12) : new THREE.CylinderGeometry(0.13, 0.13, 0.5, 12), mat.kit);
+  torso.position.set((hip.x + sh.x) / 2, (hip.y + sh.y) / 2, 0); torso.rotation.z = -L; torso.scale.set(1, 1, 1.35); torso.castShadow = true; body.add(torso);
+  const pelvis = ball(V(hip.x, hip.y), 0.13, mat.legs); pelvis.scale.set(1, 0.8, 1.3);
+  const headC = V(sh.x + 0.17 * Math.sin(L + 0.35), sh.y + 0.17 * Math.cos(L + 0.35));
+  tube(V(sh.x, sh.y), headC, 0.045, mat.skin, body);
+  const head = ball(headC, 0.105, mat.skin);
+  if (r.aero) { const hm = ball(V(headC.x - 0.04, headC.y + 0.035), 0.12, mat.helmet); hm.scale.set(1.75, 0.8, 0.95); hm.rotation.z = 0.25; }
+  else if (r.helmet) { const hm = new THREE.Mesh(new THREE.SphereGeometry(0.118, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat.helmet); hm.position.set(headC.x - 0.01, headC.y + 0.01, 0); hm.rotation.z = -0.25; hm.castShadow = true; body.add(hm); }
+  else { const hair = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.2), mat.helmet); hair.position.copy(headC); hair.position.x -= 0.015; body.add(hair); }
+  if (r.shades) { const g = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.18), mat.glass); g.position.set(headC.x + 0.095, headC.y + 0.01, 0); body.add(g); }
+  if (r.backpack) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.28), mat.pack); p.position.set(torso.position.x - 0.14 * Math.cos(L), torso.position.y + 0.14 * Math.sin(L), 0); p.rotation.z = -L; p.castShadow = true; body.add(p); }
+  if (r.bib) { const b = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.12), mat.accent); b.position.set(torso.position.x - 0.13 * Math.cos(L), torso.position.y + 0.13 * Math.sin(L), 0); b.rotation.set(0, -Math.PI / 2, -L); body.add(b); }
+  let scarf = null; if (r.scarf) { scarf = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.07, 6, 1), mat.scarf); scarf.position.set(sh.x - 0.2, sh.y + 0.04, 0.06); body.add(scarf); }
+  // arms: shoulders to the bars, elbows bent a little
+  const arms = [-1, 1].map(sd => { const s0 = V(sh.x, sh.y - 0.02, 0.17 * sd), hand = V(bars.x, bars.y, 0.2 * sd);
+    const elbow = s0.clone().lerp(hand, 0.5).add(V(-0.03, -0.07, 0.04 * sd));
+    tube(s0, elbow, 0.045, mat.kit2, body); tube(elbow, hand, 0.038, mat.skin, body); ball(hand, 0.04, mat.skin); return s0; });
+  // legs (animated): thigh and shin per side
+  const legs = [-1, 1].map(sd => ({ sd, th: cyl(0.065, mat.legs), sn: cyl(0.05, mat.legs), kn: ball(V(0, 0), 0.06, mat.legs), ft: new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.06, 0.08), mat.shoe) }));
+  legs.forEach(g => { [g.th, g.sn, g.ft].forEach(m => { m.castShadow = true; body.add(m); }); });
+  // the child on the back, with a waving arm and a flag
+  let wave = null, flag = null;
+  if (r.child) {
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.12, 0.26), mat.dark); seat.position.set(-0.56, 0.8, 0); bike.add(seat);
+    tube(V(-0.56, 0.84), V(-0.56, 1.1), 0.075, mat.child, body); ball(V(-0.56, 1.2), 0.08, mat.skin);
+    const ch = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), M(0x7bc043, 0.25)); ch.position.set(-0.56, 1.21, 0); body.add(ch);
+    wave = new THREE.Group(); wave.position.set(-0.53, 1.08, 0.08); const wa = cyl(0.025, mat.child); wa.scale.y = 0.22; wa.position.y = 0.11; wave.add(wa); body.add(wave);
+    tube(V(-0.66, 0.8, -0.12), V(-0.8, 1.75, -0.12), 0.008, mat.spoke);
+    flag = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.15, 6, 1), mat.red); flag.position.set(-0.93, 1.68, -0.12); bike.add(flag);
+  }
+  // speed streaks for the faster riders
+  const streaks = [];
+  if (r.speed) for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.012, 0.012), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: r.speed * 0.8 })); s.position.set(-1.0 - i * 0.12, 0.5 + i * 0.25, (i % 2 ? 0.25 : -0.25)); root.add(s); streaks.push(s); }
+  const flagBase = flag ? Float32Array.from(flag.geometry.attributes.position.array) : null, scarfBase = scarf ? Float32Array.from(scarf.geometry.attributes.position.array) : null;
+  const knee2 = (h, p, a, b) => { const dx = p.x - h.x, dy = p.y - h.y; let d = Math.hypot(dx, dy); d = Math.min(d, a + b - 1e-3); const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d)))); return V(h.x + a * Math.cos(base + A), h.y + a * Math.sin(base + A)); };
+  function update(theta, spin, t) {
+    wheels.forEach(w => { w.rotation.z = -spin; });
+    const bob = 0.012 * Math.abs(Math.sin(theta)); body.position.y = bob; body.position.z = 0.008 * Math.sin(theta);
+    const p1 = V(BB.x + CR * Math.cos(theta), BB.y + CR * Math.sin(theta), 0.12), p2 = V(BB.x - CR * Math.cos(theta), BB.y - CR * Math.sin(theta), -0.12);
+    setLimb(crankA, V(BB.x, BB.y, 0.07), V(p1.x, p1.y, 0.07)); setLimb(crankB, V(BB.x, BB.y, -0.07), V(p2.x, p2.y, -0.07)); pedA.position.copy(p1); pedB.position.copy(p2);
+    legs.forEach((g, i) => { const p = i ? p1 : p2, h = V(-0.24, 0.95 - bob, 0.1 * g.sd), k = knee2(h, p, 0.44, 0.44); k.z = 0.11 * g.sd; const pp = V(p.x, p.y - bob, 0.12 * g.sd);
+      h.y += 0; setLimb(g.th, h, k); setLimb(g.sn, k, pp); g.kn.position.copy(k); g.ft.position.set(pp.x + 0.03, pp.y + 0.01, pp.z); });
+    if (wave) wave.rotation.x = -0.4 + 0.9 * Math.sin(t * 7);
+    if (flag) { const a = flag.geometry.attributes.position; for (let i = 0; i < a.count; i++) { const x = flagBase[3 * i]; a.setZ(i, 0.05 * Math.sin(t * 14 + x * 22) * (x + 0.13)); } a.needsUpdate = true; }
+    if (scarf) { const a = scarf.geometry.attributes.position; for (let i = 0; i < a.count; i++) { const x = scarfBase[3 * i]; a.setY(i, scarfBase[3 * i + 1] + 0.04 * Math.sin(t * 16 + x * 18) * (0.21 - x)); } a.needsUpdate = true; }
+    streaks.forEach((s, i) => { s.position.x = -0.9 - ((t * 3.2 + i * 0.3) % 1) * 0.6; s.material.opacity = (r.speed || 0) * 0.8 * (1 - ((t * 3.2 + i * 0.3) % 1)); });
+  }
+  update(0.6, 0, 0);
+  return { root, update };
+}
+// one small WebGL renderer draws the rider; each marker copies the frame into its own canvas
+const R3 = { THREE: null, loading: null, ok: false, renderer: null, scene: null, cam: null, rider: null, lv: -1 };
+function load3dRider() {
+  if (R3.loading) return R3.loading;
+  R3.loading = new Promise((res, rej) => {
+    if (window.THREE) return res();
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js'; sc.integrity = 'sha384-RRHfJ6w1mTlKUBMYT/hvnRiOzEB/vyRV3DrQOseb6oYfvaZSfdd0byS4bHps0k2R'; sc.crossOrigin = 'anonymous';
+    sc.onload = () => res(); sc.onerror = () => rej(new Error('three.js did not load')); document.head.append(sc);
+  }).then(() => {
+    const THREE = R3.THREE = window.THREE;
+    const rd = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); rd.setPixelRatio(1); rd.setSize(R3PX, R3PX); rd.setClearColor(0x000000, 0);
+    rd.shadowMap.enabled = true; rd.shadowMap.type = THREE.PCFSoftShadowMap; rd.outputEncoding = THREE.sRGBEncoding; rd.toneMapping = THREE.ACESFilmicToneMapping; rd.toneMappingExposure = 1.1;
+    const scene = new THREE.Scene();
+    scene.add(new THREE.HemisphereLight(0xdfefff, 0x3a3328, 0.85));
+    const sun = new THREE.DirectionalLight(0xfff2dd, 1.6); sun.position.set(1.6, 4, 2.4); sun.castShadow = true; sun.shadow.mapSize.set(512, 512);
+    Object.assign(sun.shadow.camera, { left: -1.6, right: 1.6, top: 1.6, bottom: -1.6, near: 0.5, far: 10 }); sun.shadow.radius = 4; scene.add(sun);
+    const rim = new THREE.DirectionalLight(0x9fd3ff, 0.6); rim.position.set(-2, 2, -3); scene.add(rim);
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(1.6, 40), new THREE.ShadowMaterial({ opacity: 0.38 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+    Object.assign(R3, { ok: true, renderer: rd, scene, cam: new THREE.PerspectiveCamera(26, 1, 0.1, 40) });
+  }).catch(() => { R3.ok = false; });
+  return R3.loading;
+}
+const R3PX = 220;
+function setRider3D(lv) {
+  if (!R3.ok || R3.lv === lv) return;
+  if (R3.rider) { R3.scene.remove(R3.rider.root); R3.rider.root.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); }
+  R3.rider = makeRider3D(R3.THREE, lv); R3.scene.add(R3.rider.root); R3.lv = lv;
+}
+// draw the rider facing yawDeg (0 = away from the camera), seen from elevDeg above the horizon, into canvas cv
+function drawRider3D(cv, yawDeg, elevDeg, theta, spin, t) {
+  if (!R3.ok || !R3.rider || !cv) return false;
+  const T = R3.THREE, d2r = Math.PI / 180, dist = 5.4, el = elevDeg * d2r;
+  R3.cam.position.set(0, 0.75 + dist * Math.sin(el), dist * Math.cos(el)); R3.cam.lookAt(0, 0.72, 0);
+  R3.rider.root.rotation.y = (90 - yawDeg) * d2r; R3.rider.update(theta, spin, t);
+  R3.renderer.render(R3.scene, R3.cam);
+  const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(R3.renderer.domElement, 0, 0, cv.width, cv.height);
+  return true;
+}
+
+const riderHTML = (lv, cls) => '<div class="cyc ' + (cls || '') + (R3.ok ? ' r3on' : '') + '" title="Riding as ' + RIDERS[lv].name + '"><canvas class="r3" width="' + R3PX + '" height="' + R3PX + '"></canvas>' + cyclistSVG(lv) + '</div>';
+function refreshRider() { if (!FLY.on) return; if (R3.ok) setRider3D(RT.conf); flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d'); }
 const flyMk = L.marker([0, 0], { icon: L.divIcon({ className: 'fly-pin', html: riderHTML(1), iconSize: [0, 0] }), interactive: false, keyboard: false });
 function bearing(a, b) { const y = Math.sin((b.lon - a.lon) * D2R) * Math.cos(b.lat * D2R), x = Math.cos(a.lat * D2R) * Math.sin(b.lat * D2R) - Math.sin(a.lat * D2R) * Math.cos(b.lat * D2R) * Math.cos((b.lon - a.lon) * D2R); return (Math.atan2(y, x) / D2R + 360) % 360; }
 function flyPoint(d) {
@@ -1738,7 +1884,7 @@ function flyStep(dt, force) {
   const follow = FLY.playing || force;
   if (FLY.playing) FLY.d += dt * 25 * FLY.speed * Math.max(0.45, 1 - FLY.turn / 110); // 25 m a second at 1x, easing off through sharp turns
   if (FLY.d >= R.total) { FLY.d = R.total; FLY.playing = false; $('fly-play').textContent = 'Replay'; }
-  const p = flyPoint(FLY.d);
+  const p = flyPoint(FLY.d), localHd = p.hd;
   const tgt = bearing(flyPoint(Math.max(0, FLY.d - 30)), flyPoint(Math.min(R.total, FLY.d + 90)));
   const ease = tau => (FLY.playing && dt > 0) ? 1 - Math.exp(-dt / tau) : 1;
   FLY.hd3 = FLY.hd3 == null ? tgt : lerpAngle(FLY.hd3, tgt, ease(1.2));
@@ -1749,6 +1895,11 @@ function flyStep(dt, force) {
   const e2 = flyMk.getElement && flyMk.getElement(), c2 = e2 && e2.querySelector('.cyc');
   if (c2) { const h = FLY.hd3 % 360; if (h > 190 && h < 350) FLY.west = true; else if (h > 10 && h < 170) FLY.west = false; c2.classList.toggle('west', !!FLY.west); c2.classList.toggle('paused', !FLY.playing); pedal(c2.querySelector('svg'), FLY.crank, spin); }
   if (ml3dMk) { const c3 = ml3dMk.getElement().querySelector('.cyc'); if (c3) c3.classList.toggle('paused', !FLY.playing); pedal(ml3dMk.getElement().querySelector('svg'), FLY.crank, spin); }
+  if (R3.ok && R3.rider) {
+    const tt = performance.now() / 1000, spinR = FLY.crank * 2.6;
+    if (c2) drawRider3D(c2.querySelector('canvas.r3'), localHd, 52, -FLY.crank, spinR, FLY.playing ? tt : 0);
+    if (ml3dMk && FLY.three && ml3dReady) drawRider3D(ml3dMk.getElement().querySelector('canvas.r3'), localHd - ml3d.getBearing(), Math.max(12, 90 - ml3d.getPitch()), -FLY.crank, spinR, FLY.playing ? tt : 0);
+  }
   if (follow && !(FLY.three && ml3dReady)) map.setView([FLY.cy, FLY.cx], map.getZoom(), { animate: false });
   if (FLY.three && ml3dReady) { if (follow) ml3d.jumpTo({ center: [FLY.cx, FLY.cy], bearing: FLY.hd3 }); if (ml3dMk) ml3dMk.setLngLat([p.lon, p.lat]); }
   if (R._cursor) R._cursor(p);
@@ -1759,6 +1910,7 @@ function startFly() {
   if (!RT.result || !RT.result.prof) return;
   FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup();
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
+  load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
   map.setZoom(Math.max(map.getZoom(), 16), { animate: false });
   FLY.hd3 = null; FLY.cx = FLY.cy = null; FLY.turn = 0; if (FLY.three) open3d(flyPoint(0));
@@ -1927,7 +2079,7 @@ function showConf() {
   ['dock-conf', 'rt-conf'].forEach(i => { const s = $(i); if (s && document.activeElement !== s) s.value = RT.conf; if (s) s.setAttribute('aria-valuetext', LEVELS[RT.conf].name); });
   $('dock-conf-name').textContent = LEVELS[RT.conf].name; $('conf-now').textContent = LEVELS[RT.conf].name + ': ' + LEVELS[RT.conf].note;
 }
-function setConf(v, now) { const nv = Math.max(0, Math.min(4, v)); const changed = nv !== RT.conf; RT.conf = nv; showConf(); clearTimeout(confT); if (now) { if (changed || RT.confDirty) { RT.confDirty = false; buildRoute(); } } else if (changed) { RT.confDirty = true; confT = setTimeout(() => { RT.confDirty = false; buildRoute(); }, 350); } }
+function setConf(v, now) { const nv = Math.max(0, Math.min(4, v)); const changed = nv !== RT.conf; RT.conf = nv; showConf(); if (changed) refreshRider(); clearTimeout(confT); if (now) { if (changed || RT.confDirty) { RT.confDirty = false; buildRoute(); } } else if (changed) { RT.confDirty = true; confT = setTimeout(() => { RT.confDirty = false; buildRoute(); }, 350); } }
 ['dock-conf', 'rt-conf'].forEach(i => { $(i).addEventListener('input', e => setConf(+e.target.value)); $(i).addEventListener('change', e => setConf(+e.target.value, true)); });
 $('dock-gpx').addEventListener('click', downloadGpx);
 $('dock-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.value); });
