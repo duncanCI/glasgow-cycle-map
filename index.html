@@ -1808,8 +1808,9 @@ async function open3d(p) {
       const c = ml3d.getCenter(), h = (FLY.hd3 || 0) * D2R, dx = (c.lng - P.lon) * 111320 * Math.cos(P.lat * D2R), dy = (c.lat - P.lat) * 110540;
       const lim = v => Math.max(-400, Math.min(400, v)); // stay in the rider's vicinity
       FLY.off3 = [lim(dx * Math.sin(h) + dy * Math.cos(h)), lim(dx * Math.cos(h) - dy * Math.sin(h))];
-      FLY.bOff = ((ml3d.getBearing() - (FLY.hd3 || 0) + 540) % 360) - 180; FLY.cx = P.lon; FLY.cy = P.lat; FLY.b3.ptr = false; };
-    const release = () => { if (!FLY.b3.ptr) return; clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 450); ml3d.once('moveend', () => { clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 60); }); };
+      FLY.bOff = ((ml3d.getBearing() - (FLY.hd3 || 0) + 540) % 360) - 180; FLY.cx = P.lon; FLY.cy = P.lat; FLY.b3.ptr = false; FLY.awaitME = false; };
+    const release = () => { if (!FLY.b3.ptr) return; clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 450); FLY.awaitME = true; };
+    ml3d.on('moveend', () => { if (!FLY.awaitME || !FLY.b3.ptr) return; FLY.awaitME = false; clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 60); });
     cc.addEventListener('pointerdown', grab, true); cc.addEventListener('touchstart', grab, { capture: true, passive: true });
     window.addEventListener('pointerup', release); window.addEventListener('pointercancel', release); window.addEventListener('touchend', release);
     cc.addEventListener('wheel', () => { FLY.b3.wheel = true; clearTimeout(FLY.wheelT); FLY.wheelT = setTimeout(() => { FLY.b3.wheel = false; }, 220); }, { passive: true });
@@ -1888,13 +1889,14 @@ async function buildPhoto(lon, lat) {
     mesh(tp, geo => geo.setAttribute('uv', new T.Float32BufferAttribute(tuv, 2)), new T.MeshBasicMaterial({ map: tex, side: T.DoubleSide }));
     mesh(pp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(pc, 3)), new T.MeshBasicMaterial({ vertexColors: true, side: T.DoubleSide }));
     mesh(wp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(wc, 3)), new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide }));
+    if (!grp.children.length) { plainBuildings(true); PB.lastBuild = performance.now() - 1800; return; } // building tiles not in yet: keep the plain ones and try again soon
     PB.layer.setGroup(grp, new T.Matrix4().makeTranslation(o.x, o.y, o.z).scale(new T.Vector3(s, -s, s)));
-    PB.centre = [lon, lat];
-    if (ml3d.getLayer('gcm-buildings')) ml3d.setLayoutProperty('gcm-buildings', 'visibility', 'none');
+    PB.centre = [lon, lat]; plainBuildings(false);
   } catch (e) {
     PB.failed = true; removePhoto();
   } finally { PB.busy = false; }
 }
+function plainBuildings(show) { if (ml3d && ml3d.getLayer('gcm-buildings')) ml3d.setPaintProperty('gcm-buildings', 'fill-extrusion-opacity', show ? 0.78 : 0); }
 function addPhoto() {
   if (!ml3d || !photoWanted()) return;
   if (!ml3d.getLayer('gcm-photo')) { PB.layer = makePhotoLayer(R3.THREE); ml3d.addLayer(PB.layer); }
@@ -1904,7 +1906,7 @@ function addPhoto() {
 function removePhoto() {
   if (!ml3d) return;
   if (ml3d.getLayer('gcm-photo')) ml3d.removeLayer('gcm-photo'); PB.layer = null; PB.centre = null;
-  if (ml3d.getLayer('gcm-buildings')) ml3d.setLayoutProperty('gcm-buildings', 'visibility', 'visible');
+  plainBuildings(true);
   try { if (ml3d.getSource('gcm-dem')) ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
 }
 // rebuild when the rider has moved on, or new building tiles have arrived; never more than every 2.5 seconds
@@ -2238,7 +2240,7 @@ function profileSvg(R, W, H) {
   const show = evt => { if (FLY.on) return; const p = at(evt); if (p) showP(p); };
   R._cursor = p => showP(p, true);
   hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
-  hit.addEventListener('click', evt => { const p = at(evt); if (!p) return; if (FLY.on) { FLY.d = p.d; FLY.hd3 = null; FLY.cx = FLY.cy = null; flyStep(0, true); } else map.panTo([p.lat, p.lon]); });
+  hit.addEventListener('click', evt => { const p = at(evt); if (!p) return; if (FLY.on) { clearTimeout(FLY.settleT); FLY.awaitME = false; FLY.b3 = {}; FLY.b2 = {}; FLY.off3 = FLY.off2 = null; FLY.d = p.d; FLY.hd3 = null; FLY.cx = FLY.cy = null; flyStep(0, true); } else map.panTo([p.lat, p.lon]); });
   hit.addEventListener('pointerleave', () => { if (FLY.on) return; PTIP.hidden = true; cur.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); hoverMk.remove(); });
   return s;
 }
