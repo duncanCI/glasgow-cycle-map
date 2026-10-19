@@ -259,7 +259,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .dock-ctrls{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:4px}
 .dock-ctrls select{width:auto;padding:3px 6px;font-size:0.82rem;border-radius:999px}
 #dock-chart{position:relative}
-.ptip{position:absolute;z-index:5;pointer-events:none;background:var(--panel);color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:6px 9px;font-size:0.8rem;line-height:1.35;box-shadow:0 2px 8px rgba(0,0,0,.3);white-space:nowrap;transform:translate(-50%,-100%)}
+.ptip.below{transform:translate(-50%,0)}
+.ptip{max-width:min(320px,calc(100vw - 24px));white-space:normal;position:absolute;z-index:5;pointer-events:none;background:var(--panel);color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:6px 9px;font-size:0.8rem;line-height:1.35;box-shadow:0 2px 8px rgba(0,0,0,.3);transform:translate(-50%,-100%)}
 .ptip .pt-type{display:flex;align-items:center;gap:6px;font-weight:700}
 .ptip .pt-type i{display:inline-block;width:12px;height:12px;border-radius:3px}
 .ptip .pt-row{color:var(--muted)}
@@ -1973,7 +1974,10 @@ function profileSvg(R, W, H) {
     PTIP.append(ty); if (p.nm) PTIP.append(el('div', null, p.nm)); PTIP.append(el('div', 'pt-row', fmtKm(p.d) + ' km in, ' + Math.round(p.e) + ' m above sea level, ' + grade));
     const box = s.getBoundingClientRect(), hb = s.parentNode.getBoundingClientRect(); PTIP.hidden = false;
     const px = (X(p.d) / W) * box.width + (box.left - hb.left), py = (Y(p.e) / H) * box.height + (box.top - hb.top) - 10;
-    PTIP.style.left = Math.max(90, Math.min(hb.width - 90, px)) + 'px'; PTIP.style.top = Math.max(46, py) + 'px';
+    // keep the whole tooltip on screen: measure it, then clamp it inside the strip; flip below the point if there's no room above
+    const tw = PTIP.offsetWidth || 200, th = PTIP.offsetHeight || 60, vw = Math.min(hb.width, window.innerWidth - Math.max(0, hb.left));
+    PTIP.style.left = Math.round(Math.max(tw / 2 + 6 - Math.min(0, hb.left), Math.min(vw - tw / 2 - 6, px))) + 'px';
+    const below = py - th < 4; PTIP.classList.toggle('below', below); PTIP.style.top = Math.round(below ? py + 24 : py) + 'px';
     if (!nomarker) hoverMk.setLatLng([p.lat, p.lon]).addTo(map); };
   const show = evt => { if (FLY.on) return; const p = at(evt); if (p) showP(p); };
   R._cursor = p => showP(p, true);
