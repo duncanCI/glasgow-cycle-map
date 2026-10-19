@@ -283,7 +283,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .fly-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:0.85rem}
 .fly-bar select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px}
 .fly-pin{width:0;height:0}
-.fly3d{position:absolute;left:0;right:0;top:0;bottom:var(--dock-h,150px);z-index:1080;background:var(--land)}
+.fly3d{position:absolute;left:0;right:0;top:0;bottom:var(--dock-h,150px);z-index:1080;background:#59634f}
 .fly3d[hidden]{display:none}
 #fly3d-map{position:absolute;inset:0}
 .fly-arrow3d{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:30px solid #FFC400;filter:drop-shadow(0 0 2px #000)}
@@ -842,7 +842,7 @@ function route(res, k) {
 }
 
 // map
-const map = L.map('map', { zoomAnimation: true, fadeAnimation: true, markerZoomAnimation: true, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 110, wheelDebounceTime: 30, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
+const map = L.map('map', { zoomAnimation: true, fadeAnimation: true, markerZoomAnimation: true, zoomSnap: 0, zoomDelta: 0.5, scrollWheelZoom: false, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
 map.attributionControl.setPrefix(false);
 map.attributionControl.addAttribution('<a href="#" data-about>Sources and credits</a>');
 map.getContainer().addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-about]'); if (a) { e.preventDefault(); e.stopPropagation(); showTab('about'); const s = document.getElementById('sources'); if (s) s.scrollIntoView({ block: 'start' }); } }, true);
@@ -875,23 +875,48 @@ function readColours() {
 }
 readColours();
 let raf = 0; function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
-map.on('move zoom resize viewreset', schedule);
-// during an animated zoom, scale the last drawing smoothly (as Leaflet's own renderers do), then redraw sharp at the end
-let drawZoom = null, drawCenter = null;
-map.on('zoomanim', ev => {
+// redraw only when needed: after a pan or zoom settles, or when a pan runs past the drawn margin; while zooming,
+// the last drawing is scaled smoothly (as Leaflet's own renderers do) and redrawn sharp at the end
+const PADF = 0.15;
+let drawZoom = null, drawCenter = null, drawPad = [0, 0], drawOrigin = null;
+const WZ = { on: false, target: 0, pt: null, raf: 0, last: 0 };
+const pastMargin = () => { if (!drawOrigin) return true; const c = map.containerPointToLayerPoint([0, 0]); return Math.abs(c.x - drawOrigin.x) > drawPad[0] * 0.85 || Math.abs(c.y - drawOrigin.y) > drawPad[1] * 0.85; };
+const zooming = () => drawZoom != null && Math.abs(map.getZoom() - drawZoom) > 1e-4;
+function scaleLast(center, zoom) {
   if (drawZoom == null || !L.DomUtil.setTransform || !map._getNewPixelOrigin) return;
-  const scale = map.getZoomScale(ev.zoom, drawZoom), half = map.getSize().multiplyBy(0.5);
-  const off = half.multiplyBy(-scale).add(map.project(drawCenter, ev.zoom)).subtract(map._getNewPixelOrigin(ev.center, ev.zoom));
-  L.DomUtil.setTransform(cv, off, scale);
-});
+  const scale = map.getZoomScale(zoom, drawZoom), half = map.getSize().multiplyBy(0.5).add(L.point(drawPad[0], drawPad[1]));
+  L.DomUtil.setTransform(cv, half.multiplyBy(-scale).add(map.project(drawCenter, zoom)).subtract(map._getNewPixelOrigin(center, zoom)), scale);
+}
+map.on('zoomanim', ev => scaleLast(ev.center, ev.zoom));
+map.on('zoom', () => { if (!map._animatingZoom && zooming()) scaleLast(map.getCenter(), map.getZoom()); });
+map.on('move', () => { if (!map._animatingZoom && !zooming() && !WZ.on && pastMargin()) schedule(); });
+map.on('moveend', () => { if (!WZ.on && (zooming() || pastMargin())) schedule(); });
+map.on('zoomend resize viewreset', () => { if (!WZ.on) schedule(); });
+// smooth wheel and trackpad zoom: glide towards the target zoom about the pointer, the way pinch-zoom does, and redraw once at the end
+function wzFrame() {
+  WZ.raf = 0; const z = map.getZoom(), dz = WZ.target - z, idle = performance.now() - WZ.last > 140;
+  if (Math.abs(dz) < 0.004 && idle) { WZ.on = false; const c = map.getCenter(); if (map.options.zoomAnimation && map._animateZoom) map._animateZoom(c, map._limitZoom(WZ.target), true, false); else map._resetView(c, map._limitZoom(WZ.target)); setTimeout(schedule, 30); return; }
+  const nz = Math.abs(dz) < 0.004 ? WZ.target : z + dz * 0.32, scale = map.getZoomScale(nz, z), half = map.getSize().divideBy(2);
+  const nc = map.containerPointToLatLng(half.add(WZ.pt.subtract(half).multiplyBy(1 - 1 / scale)));
+  map._move(nc, nz, { pinch: true, round: false }); WZ.raf = requestAnimationFrame(wzFrame);
+}
+map.getContainer().addEventListener('wheel', e => {
+  if (e.target.closest && e.target.closest('.legend, .menu, .dock, .tip, .leaflet-popup, .fly-bar, .panel, .fly3d')) return;
+  e.preventDefault(); if (map._animatingZoom) return;
+  let d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 600 : e.deltaY;
+  const rate = e.ctrlKey ? 0.012 : Math.abs(d) >= 40 ? 0.0045 : 0.0065;
+  if (!WZ.on) { WZ.on = true; WZ.target = map.getZoom(); map._stop(); map._moveStart(true, false); }
+  WZ.target = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), WZ.target - d * rate)); WZ.pt = map.mouseEventToContainerPoint(e); WZ.last = performance.now();
+  if (!WZ.raf) WZ.raf = requestAnimationFrame(wzFrame);
+}, { passive: false });
 const baseWidth = z => z <= 11 ? 0.5 : z <= 12 ? 0.8 : z <= 13 ? 1.2 : z <= 14 ? 1.8 : z <= 15 ? 2.6 : 3.6;
 const bandOf = d => d <= BANDS[0] ? 0 : d <= BANDS[1] ? 1 : d <= BANDS[2] ? 2 : d <= BANDS[3] ? 3 : 4;
 let sel = null; // {k, lat, lng, r: route}
 function animProgress() { const a = state.anim; if (!a) return 1; const p = Math.min(1, (performance.now() - a.t0) / a.dur); if (p < 1) schedule(); else state.anim = null; return p; }
 function draw() {
-  const s = map.getSize(), dpr = window.devicePixelRatio || 1;
+  const s0 = map.getSize(), PX = Math.round(s0.x * PADF), PY = Math.round(s0.y * PADF), s = { x: s0.x + 2 * PX, y: s0.y + 2 * PY }, dpr = window.devicePixelRatio || 1;
   if (cv.width !== Math.round(s.x * dpr) || cv.height !== Math.round(s.y * dpr)) { cv.width = Math.round(s.x * dpr); cv.height = Math.round(s.y * dpr); cv.style.width = s.x + 'px'; cv.style.height = s.y + 'px'; }
-  const c0 = map.containerPointToLayerPoint([0, 0]); L.DomUtil.setPosition(cv, c0); drawZoom = map.getZoom(); drawCenter = map.getCenter();
+  const c0 = map.containerPointToLayerPoint([-PX, -PY]); L.DomUtil.setPosition(cv, c0); drawZoom = map.getZoom(); drawCenter = map.getCenter(); drawPad = [PX, PY]; drawOrigin = map.containerPointToLayerPoint([0, 0]);
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, s.x, s.y);
   const z = map.getZoom(), sc = Math.pow(2, z), org = map.getPixelOrigin();
   const ox = org.x + c0.x, oy = org.y + c0.y, vx0 = ox / sc, vy0 = oy / sc, vx1 = (ox + s.x) / sc, vy1 = (oy + s.y) / sc;
@@ -1652,7 +1677,7 @@ const SAT_STYLE = () => ({ version: 8,
   sources: {
     sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community' },
     omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '&copy; OpenMapTiles &copy; OpenStreetMap contributors' } },
-  layers: [{ id: 'sat', type: 'raster', source: 'sat' }] });
+  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#59634f' } }, { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-fade-duration': 0 } }] });
 const style3d = () => FLY.style === 'map' ? 'https://tiles.openfreemap.org/styles/liberty' : SAT_STYLE();
 function on3dStyle() {
   const st = ml3d.getStyle() || { layers: [] }, src = ml3d.getSource('openmaptiles') ? 'openmaptiles' : ml3d.getSource('omt') ? 'omt' : null;
@@ -1668,6 +1693,7 @@ async function open3d(p) {
   if (!ml3d) {
     ml3d = new maplibregl.Map({ container: 'fly3d-map', style: style3d(), center: [p.lon, p.lat], zoom: 16.6, pitch: 62, bearing: p.hd, maxPitch: 75, attributionControl: { compact: true }, fadeDuration: 0 });
     ml3d.on('style.load', on3dStyle);
+    if (window.ResizeObserver) new ResizeObserver(() => { if (ml3d) ml3d.resize(); }).observe($('fly3d'));
     ml3d.on('error', e => {
       if (e && e.sourceId === 'gcm-dem') { try { ml3d.setTerrain(null); } catch (x) {} }
       if (e && e.sourceId === 'sat' && FLY.style === 'sat' && !FLY.satFailed) { FLY.satFailed = true; FLY.style = 'map'; $('fly-style').value = 'map'; ml3dReady = false; ml3d.setStyle(style3d()); toast('Satellite imagery did not load, so the 3D view uses the map instead.'); }
@@ -1925,7 +1951,7 @@ function flyStep(dt, force) {
   }
   FLY.lastP = p;
   const busy = o => Object.keys(o).some(k => o[k]);
-  if (follow && !(FLY.three && ml3dReady) && !busy(FLY.b2)) map.setView([FLY.cy + (FLY.off2 ? FLY.off2[0] : 0), FLY.cx + (FLY.off2 ? FLY.off2[1] : 0)], map.getZoom(), { animate: false });
+  if (follow && !(FLY.three && ml3dReady) && !busy(FLY.b2) && !WZ.on) { const tp = map.latLngToContainerPoint([FLY.cy + (FLY.off2 ? FLY.off2[0] : 0), FLY.cx + (FLY.off2 ? FLY.off2[1] : 0)]), half = map.getSize().divideBy(2), dv = tp.subtract(half); if (Math.abs(dv.x) + Math.abs(dv.y) > 0.3) map.panBy(dv, { animate: false }); }
   if (FLY.three && ml3dReady) {
     if (follow && !busy(FLY.b3)) { let cx = FLY.cx, cy = FLY.cy;
       if (FLY.off3) { const h = FLY.hd3 * D2R, a = FLY.off3[0], c = FLY.off3[1]; cx += (a * Math.sin(h) + c * Math.cos(h)) / (111320 * Math.cos(cy * D2R)); cy += (a * Math.cos(h) - c * Math.sin(h)) / 110540; }
@@ -1942,7 +1968,7 @@ function startFly() {
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
-  map.setZoom(Math.max(map.getZoom(), 16), { animate: false }); if (map.options) { map.options.scrollWheelZoom = 'center'; map.options.touchZoom = 'center'; }
+  map.setZoom(Math.max(map.getZoom(), 16), { animate: false }); if (map.options) map.options.touchZoom = 'center';
   FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {};
   FLY.hd3 = null; FLY.cx = FLY.cy = null; FLY.turn = 0; if (FLY.three) open3d(flyPoint(0));
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
@@ -1950,7 +1976,7 @@ function startFly() {
 function stopFly() {
   if (!FLY.on) return; FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
   const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
-  if (map.options) { map.options.scrollWheelZoom = true; map.options.touchZoom = true; }
+  if (map.options) map.options.touchZoom = true;
   flyMk.remove(); if (RT.result) fitRoute();
 }
 $('dock-fly').addEventListener('click', startFly);
