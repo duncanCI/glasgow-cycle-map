@@ -13,4 +13,6 @@ Run from the repository root with Python 3.11 or later and `geopandas`, `pyogrio
 5. Run `prep_route.py` to add one-way flags (writing `data/network3.json`) and build the height grid (`data/elev.json`) from Mapzen Terrain Tiles.
 6. Run `prep_flow.py` to add contraflow permissions, quiet one-way streets and possible missing links (writing `data/network4.json`).
 7. Run `prep_grade.py` to mark junctions on bridges and in tunnels and re-snap the planned City Network (writing `data/network5.json`).
-8. Paste `data/network5.json` into the `net-data` script tag and `data/elev.json` into the `elev-data` script tag in `index.html`. The weekly workflow fills the `comm-data` tag itself.
+8. Run `fetch_crash.py` then `prep_crash.py` to add bike collisions and hotspots from the council's STATS19 layer (writing `data/network6.json`).
+9. Download `rnet_2025-05-01.gpkg` from the same NPT release as `rnet.gpkg`, then run `prep_risk.py` to scale its cycle flows to the council's counters and compute collision risk (writing `data/network7.json`).
+10. Paste `data/network7.json` into the `net-data` script tag and `data/elev.json` into the `elev-data` script tag in `index.html`. The weekly workflow fills the `comm-data` tag itself.

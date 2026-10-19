@@ -43,6 +43,22 @@ Some links still won't be rideable: steps the data misses, kissing gates, or bar
 
 Every street, path or community-map link within the radius (in metres, default 15) is removed from the network and the route planner the next time the page loads.
 
+## Using the map
+
+The page opens on an example route, from the University of Glasgow to Queen's Park, which runs 84% on protected track. The side panel keeps search, sharing and help in a fixed header, with tabs for the overview, your route, the selected place, options and the method. The network switch sits on the map itself, and the route's exports sit on the height profile, so nothing important needs a scroll. The map key folds away and remembers your choice, and a short tip greets first-time visitors.
+
+"Share" copies a link to exactly what is on screen: the view, network, options, layers, route, stops and selected street are all stored in the address, so anyone opening the link sees the same thing.
+
+## Bike collisions
+
+The map includes the 828 personal-injury collisions involving a cyclist or a pedal cycle in Glasgow in the Department for Transport's STATS19 data, as published by Glasgow City Council for 2016 to 2023 (569 slight, 250 serious, 9 fatal). The council's file holds very few collisions for 2019, and only collisions reported to the police are recorded, so the counts understate the risk.
+
+- **Hotspots** (on by default) ring the 20 places with at least 4 bike collisions within 50 m. The worst is Pollokshaws Toll, where Barrhead Road meets Pollokshaws Road: 13 collisions, 4 of them serious.
+- **Every collision** can be shown by severity from the Options tab.
+- **Clicking a street** shows its collisions, and those along the whole named street, plus any nearby hotspot.
+- **Risk for the cycling a street carries.** Collision counts also follow how many people cycle somewhere, so each street and hotspot is set against its cycling: the Network Planning Tool's modelled daily flows, scaled to Glasgow City Council's automatic cycle counters (84 counters, counted flows a median 1.34 times the model, rank correlation 0.69). Pollokshaws Toll carries about 206 bikes a day and has about 17 times the city's average collision rate for that much cycling. Hotspots are coloured by this risk.
+- **Routes** count the recorded collisions on the streets they use. Protected track stays the main routing preference: with "Also steer away from unprotected streets with high collision risk" on (the default), only unprotected streets are penalised, by 150 m of extra riding per unit of risk above the city average, up to 1.2 km, and half that on "Balanced". A route never leaves protected track to avoid collisions.
+
 ## Route planner
 
 Right-click the map, or press and hold on a phone, and choose "Route from here" and "Route to here". The route follows the network for the selected scenario, so the same trip can be compared today and under the plans. Drag the A and B pins to move them, and right-click again to add stops, which can also be dragged or removed.
@@ -103,6 +119,8 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Data zones, population, deprivation decile | Network Planning Tool data zones file, from National Records of Scotland and the Scottish Index of Multiple Deprivation 2020 | Open Government Licence v3.0 |
 | Routes built since May 2025 | Glasgow Cycle Map: Now and Future, by u/Correct-Audience-421, refreshed weekly | Used with the author's permission |
 | Heights | Mapzen Terrain Tiles on AWS Open Data, from SRTM in Scotland, resampled to about 37 m | Open data, attribution to Mapzen and SRTM (NASA) |
+| Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
+| Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Background map | OpenStreetMap standard tiles, shown in greyscale | © OpenStreetMap contributors, used under the OpenStreetMap tile usage policy |
 
 The network data embedded in `index.html` is a derived database of OpenStreetMap and is published under the [Open Database Licence 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The code is MIT licensed (see `LICENSE`).
