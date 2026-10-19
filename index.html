@@ -227,13 +227,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .cyc svg{transform:perspective(260px) rotateY(-18deg) rotateX(6deg);transform-origin:50% 85%;overflow:visible}
 .cyc.west svg{transform:scaleX(-1) perspective(260px) rotateY(-18deg) rotateX(6deg)}
 .cyc-wrap{width:72px;height:66px}
-.cyc canvas.r3{display:none;width:118px;height:118px}
-.cyc.r3on{transform:translate(-50%,-66%);filter:drop-shadow(0 0 1px rgba(255,255,255,.6))}
+.cyc canvas.r3{display:none;width:84px;height:84px}
+.cyc.r3on{transform:translate(-50%,-66%);filter:none}
 .cyc.r3on canvas.r3{display:block}
 .cyc.r3on svg{display:none}
 .cyc-wrap .cyc.r3on{transform:translateY(24%)}
-.cyc3d.r3on canvas.r3{width:170px;height:170px}
-.cyc-wrap:has(.r3on){width:170px;height:170px}
+.cyc3d.r3on canvas.r3{width:104px;height:104px}
+.cyc-wrap:has(.r3on){width:104px;height:104px}
 .cyc .flag{transform-box:fill-box;transform-origin:0 50%;animation:cyc-flag .45s ease-in-out infinite}
 .cyc .wave{transform-box:fill-box;transform-origin:0 100%;animation:cyc-wave .8s ease-in-out infinite}
 .cyc .scarf{transform-box:fill-box;transform-origin:100% 0;animation:cyc-scarf .55s ease-in-out infinite}
@@ -496,7 +496,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <li>City Network plans, city boundary, automatic cycle counters and road collisions (DfT STATS19): Glasgow City Council. Contains public sector information licensed under the Open Government Licence v3.0.</li>
         <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
         <li>Heights: Mapzen Terrain Tiles on AWS Open Data, from SRTM (NASA).</li>
-        <li>3D flythrough: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
+        <li>3D virtual cycle: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
         <li>Background maps: &copy; OpenStreetMap contributors (light grey and streets); CyclOSM; satellite imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community.</li>
       </ul></details>
     
@@ -535,7 +535,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <div class="dock" id="dock" hidden aria-label="Route height profile">
       <div class="dock-head"><strong id="dock-sum"></strong>
         <span class="dock-actions">
-          <button type="button" class="chip primary" id="dock-fly">Fly the route</button>
+          <button type="button" class="chip primary" id="dock-fly">Virtual cycle</button>
           <button type="button" class="chip" id="dock-compare" aria-haspopup="dialog">Compare</button>
           <span class="menu-wrap"><button type="button" class="chip" id="dock-sharebtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-share">Share or export</button>
             <div class="menu up" id="menu-share" role="menu" hidden><button type="button" role="menuitem" id="dock-share">Copy a link to this view</button><button type="button" role="menuitem" id="dock-gpx">Download GPX for Strava</button><a role="menuitem" id="dock-gmaps" href="#" target="_blank" rel="noopener">Open in Google Maps</a></div></span>
@@ -547,14 +547,14 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <label class="dock-conf">Network <select id="dock-scen"><option value="0">Today, May 2025</option><option value="1">Today, with updates</option><option value="2">2032 programme</option><option value="3">Full plan</option></select></label>
         <label class="dock-conf">Confidence <input type="range" id="dock-conf" min="0" max="4" step="1" value="1" list="conf-ticks" aria-describedby="dock-conf-name"><span id="dock-conf-name">Cautious</span></label><datalist id="conf-ticks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
       </div>
-      <div class="fly-bar" id="fly-bar" hidden><strong>Flythrough</strong>
+      <div class="fly-bar" id="fly-bar" hidden><strong>Virtual cycle</strong>
         <button type="button" class="chip primary" id="fly-play">Pause</button>
         <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
           <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label></div></span>
         <button type="button" class="chip" id="fly-stop">Stop</button>
-        <button type="button" class="chip" id="fly-help" aria-label="Flythrough controls" title="Zoom and tilt any time. Drag or rotate to pause and look around; Play glides back to the route. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
+        <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="Zoom and tilt any time. Drag or rotate to pause and look around; Play glides back to the route. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
       <div id="dock-chart"><div class="ptip" id="ptip" hidden></div></div>
       <div class="dock-key" id="dock-key" aria-label="What the profile colours mean"></div>
     </div>
@@ -569,7 +569,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <li><strong>Read the profile.</strong> The strip at the bottom of the map shows height, time and how much is protected. Move along it to follow the route, and export to Strava or Google Maps from there.</li>
     <li><strong>Compare networks.</strong> Use the switch at the top right of the map: today on the May 2025 data, today with community updates, the 2032 programme or the full plan.</li>
     <li><strong>Test ideas.</strong> The Options tab has the family test, the contraflow what-if, the gap allowance and extra layers.</li>
-    <li><strong>Fly the route.</strong> "Fly the route" on the profile strip follows the route with a pedalling cyclist who matches your confidence setting, at up to 8 times speed. "Open Street View here" shows the street at that point in Google Street View, facing the way you ride.</li>
+    <li><strong>Virtual cycle.</strong> "Virtual cycle" on the profile strip rides the route for you in 3D over satellite imagery, with a cyclist who matches your confidence setting, at up to 8 times speed. "Open Street View here" shows the street at that point, facing the way you ride.</li>
     <li><strong>Share what you see.</strong> Share copies a link to the exact view, route and settings on screen. Opening the page normally always starts from the example route, and "Reset to the starting view" in the More menu clears any saved layout.</li>
   </ol>
   <form method="dialog"><button class="btn">Close</button></form>
@@ -1658,11 +1658,11 @@ function on3dStyle() {
   if (src && !st.layers.some(l => l.type === 'fill-extrusion')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: src, 'source-layer': 'building', minzoom: 13,
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
   try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], encoding: 'terrarium', tileSize: 256, maxzoom: 14 }); ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
-  set3dRoute(); ml3dReady = true; flyStep(0, true);
+  ml3dReady = true; set3dRoute(); flyStep(0, true);
 }
 async function open3d(p) {
-  try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load, so the flythrough stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
-  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { toast('This browser cannot show the 3D view, so the flythrough stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
+  try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load, so the virtual cycle stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
+  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { toast('This browser cannot show the 3D view, so the virtual cycle stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
   $('fly3d').hidden = false;
   if (!ml3d) {
     ml3d = new maplibregl.Map({ container: 'fly3d-map', style: style3d(), center: [p.lon, p.lat], zoom: 16.6, pitch: 62, bearing: p.hd, maxPitch: 75, attributionControl: { compact: true }, fadeDuration: 0 });
@@ -1675,7 +1675,7 @@ async function open3d(p) {
     const pauseByHand = ev => { if (ev && ev.originalEvent && FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } };
     ml3d.on('dragstart', pauseByHand); ml3d.on('rotatestart', pauseByHand);
     const rider = document.createElement('div'); rider.className = 'cyc-wrap'; rider.innerHTML = riderHTML(RT.conf, 'cyc3d');
-    ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
+    ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport', opacity: '1', opacityWhenCovered: '1' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
 }
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
@@ -1847,13 +1847,14 @@ function load3dRider() {
     sc.onload = () => res(); sc.onerror = () => rej(new Error('three.js did not load')); document.head.append(sc);
   }).then(() => {
     const THREE = R3.THREE = window.THREE;
+    if (THREE.ColorManagement && 'legacyMode' in THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
     const rd = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); rd.setPixelRatio(1); rd.setSize(R3PX, R3PX); rd.setClearColor(0x000000, 0);
-    rd.shadowMap.enabled = true; rd.shadowMap.type = THREE.PCFSoftShadowMap; rd.outputEncoding = THREE.sRGBEncoding; rd.toneMapping = THREE.ACESFilmicToneMapping; rd.toneMappingExposure = 1.1;
+    rd.shadowMap.enabled = true; rd.shadowMap.type = THREE.PCFSoftShadowMap; rd.outputEncoding = THREE.sRGBEncoding; rd.toneMapping = THREE.NoToneMapping;
     const scene = new THREE.Scene();
-    scene.add(new THREE.HemisphereLight(0xdfefff, 0x3a3328, 0.85));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 1.6); sun.position.set(1.6, 4, 2.4); sun.castShadow = true; sun.shadow.mapSize.set(512, 512);
+    scene.add(new THREE.HemisphereLight(0xdfefff, 0x3a3328, 0.75));
+    const sun = new THREE.DirectionalLight(0xfff2dd, 1.25); sun.position.set(1.6, 4, 2.4); sun.castShadow = true; sun.shadow.mapSize.set(512, 512);
     Object.assign(sun.shadow.camera, { left: -1.6, right: 1.6, top: 1.6, bottom: -1.6, near: 0.5, far: 10 }); sun.shadow.radius = 4; scene.add(sun);
-    const rim = new THREE.DirectionalLight(0x9fd3ff, 0.6); rim.position.set(-2, 2, -3); scene.add(rim);
+    const rim = new THREE.DirectionalLight(0x9fd3ff, 0.45); rim.position.set(-2, 2, -3); scene.add(rim);
     const ground = new THREE.Mesh(new THREE.CircleGeometry(1.6, 40), new THREE.ShadowMaterial({ opacity: 0.38 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
     Object.assign(R3, { ok: true, renderer: rd, scene, cam: new THREE.PerspectiveCamera(26, 1, 0.1, 40) });
   }).catch(() => { R3.ok = false; });
