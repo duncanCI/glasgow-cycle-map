@@ -357,7 +357,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <div class="brand-row"><span class="brand">Glasgow protected cycle map</span>
         <div class="top-actions"><button type="button" class="iconbtn" id="btn-share">Share</button>
           <span class="menu-wrap"><button type="button" class="iconbtn" id="btn-menu" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-top" aria-label="More">More</button>
-            <div class="menu" id="menu-top" role="menu" hidden><button type="button" role="menuitem" id="btn-help">How to use this map</button><button type="button" role="menuitem" id="btn-theme">Theme: Auto</button></div></span>
+            <div class="menu" id="menu-top" role="menu" hidden><button type="button" role="menuitem" id="btn-help">How to use this map</button><button type="button" role="menuitem" id="btn-theme">Theme: Auto</button><button type="button" role="menuitem" id="btn-reset">Reset to the starting view</button></div></span>
           <button type="button" class="iconbtn mobile-only" id="btn-collapse-m" aria-label="Hide the panel and show the full map" title="Show the full map"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
       <div class="searchrow"><label class="sr-only" for="search">Check a street</label><input id="search" type="search" list="names" placeholder="Search a street, for example Victoria Road" autocomplete="off"><datalist id="names"></datalist></div>
       <nav class="tabs" role="tablist" aria-label="Sections">
@@ -554,7 +554,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <li><strong>Compare networks.</strong> Use the switch at the top right of the map: today on the May 2025 data, today with community updates, the 2032 programme or the full plan.</li>
     <li><strong>Test ideas.</strong> The Options tab has the family test, the contraflow what-if, the gap allowance and extra layers.</li>
     <li><strong>Fly the route.</strong> "Fly the route" on the profile strip follows the route with a pedalling cyclist who matches your confidence setting, at up to 8 times speed. "Open Street View here" shows the street at that point in Google Street View, facing the way you ride.</li>
-    <li><strong>Share what you see.</strong> Share copies a link to the exact view, route and settings on screen.</li>
+    <li><strong>Share what you see.</strong> Share copies a link to the exact view, route and settings on screen. Opening the page normally always starts from the example route, and "Reset to the starting view" in the More menu clears any saved layout.</li>
   </ol>
   <form method="dialog"><button class="btn">Close</button></form>
 </dialog>
@@ -573,6 +573,8 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 <script id="strip-data" type="application/json">{}</script>
 <script>(function () {
 'use strict';
+const APP_VER = '2026-10-19c';
+try { if (localStorage.getItem('gcm-ver') !== APP_VER) { ['gcm-panel', 'gcm-panel-w', 'gcm-key'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('gcm-ver', APP_VER); } } catch (e) {}
 const N = JSON.parse(document.getElementById('net-data').textContent);
 const STRIPS = JSON.parse(document.getElementById('strip-data').textContent);
 const P = N.pu.length;
@@ -1912,6 +1914,7 @@ const openHelp = () => { const d = $('help'); if (d.showModal) d.showModal(); el
 const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 const hideTip = () => { $('tip').hidden = true; store.set('gcm-tip', '1'); };
 $('btn-help').addEventListener('click', openHelp);
+$('btn-reset').addEventListener('click', () => { try { Object.keys(localStorage).filter(k => k.startsWith('gcm-')).forEach(k => localStorage.removeItem(k)); } catch (e) {} location.replace(location.pathname); });
 $('tip-help').addEventListener('click', () => { hideTip(); openHelp(); });
 $('tip-close').addEventListener('click', hideTip);
 const lgw = $('legend-wrap');
@@ -1934,7 +1937,7 @@ function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = fals
 const LAYERS = { dest: 'chk-dest', hot: 'chk-hot', crash: 'chk-crash', dz: 'chk-dz', comm: 'chk-comm', owl: 'chk-ow', mll: 'chk-ml', plan: 'chk-plan', reports: 'chk-reports' };
 const f5 = v => v.toFixed(5);
 function stateToHash() {
-  const p = new URLSearchParams(), c = map.getCenter();
+  const p = new URLSearchParams(), c = map.getCenter(); p.set('v', '2');
   p.set('m', f5(c.lat) + ',' + f5(c.lng) + ',' + map.getZoom());
   p.set('s', state.scen); p.set('g', state.gap); p.set('c', state.colour); if (state.basemap !== 'grey') p.set('b', state.basemap);
   ['shared', 'qa', 'cfx'].forEach(k => { if (state[k]) p.set(k, '1'); });
@@ -1945,8 +1948,7 @@ function stateToHash() {
   return p.toString();
 }
 let hashT = 0, hashReady = false;
-function writeHash() { if (!hashReady) return; clearTimeout(hashT); hashT = setTimeout(() => { try { history.replaceState(null, '', '#' + stateToHash()); } catch (e) {} }, 250); }
-map.on('moveend', writeHash);
+function writeHash() { /* the view goes into a link only when sharing, so reloading starts afresh */ }
 function syncControls() {
   const seg = (id, i) => $(id).querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
   seg('seg-scen', state.scen); seg('seg-gap', [0, 100, 250].indexOf(state.gap)); seg('seg-colour', ['distance', 'comfort', 'infra'].indexOf(state.colour));
@@ -1964,7 +1966,7 @@ function readHash() {
   if (['distance', 'comfort', 'infra'].includes(p.get('c'))) state.colour = p.get('c');
   ['shared', 'qa', 'cfx'].forEach(k => { state[k] = p.get(k) === '1'; });
   state.basemap = p.get('b') in BASEMAPS ? p.get('b') : (p.has('l') && !p.get('l').split('.').includes('base') && !p.has('b') && p.get('l').indexOf('dz') < 0 ? 'grey' : 'grey');
-  if (p.has('l')) { const on = new Set(p.get('l').split('.')); Object.keys(LAYERS).forEach(k => { state[k] = on.has(k); }); }
+  if (p.has('l')) { const on = new Set(p.get('l').split('.')); Object.keys(LAYERS).forEach(k => { state[k] = on.has(k); }); if (!p.has('v')) state.dest = true; } // older links predate the landmark switch
   syncControls(); cache.clear(); update(true);
   const ll = s => { const a = (s || '').split(',').map(Number); return a.length >= 2 && a.every(isFinite) ? a : null; };
   const mv = ll(p.get('m')); if (mv) map.setView([mv[0], mv[1]], mv[2] || 14);
@@ -1975,8 +1977,7 @@ function readHash() {
   return true;
 }
 async function share() {
-  hashReady = true; try { history.replaceState(null, '', '#' + stateToHash()); } catch (e) {}
-  const url = location.href;
+  const url = location.origin + location.pathname + '#' + stateToHash();
   try {
     if (navigator.share && window.matchMedia('(pointer: coarse)').matches) { await navigator.share({ title: document.title, url }); return; }
     await navigator.clipboard.writeText(url); toast('Link copied. It opens this exact view, route and settings.');
@@ -1995,7 +1996,7 @@ if (store.get('gcm-panel') === '0') setPanel(true);
 setTheme(store.get('gcm-theme') || 'auto'); readColours(); setBasemap(state.basemap); showConf();
 update(); draw(); loadReports();
 if (!readHash()) loadDemo(true);
-hashReady = true; writeHash();
+try { if (location.hash) history.replaceState(null, '', location.pathname + location.search); } catch (e) {} // a shared view opens once; reloading starts afresh
 if (!store.get('gcm-tip')) $('tip').hidden = false;
 fetch('data/blocked.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
   if (!j || !Array.isArray(j.points) || !j.points.length) return;
