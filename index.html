@@ -126,6 +126,8 @@ details p{font-size:0.9rem;color:var(--muted);max-width:40em}
 .rt-bar{display:flex;height:14px;border-radius:3px;overflow:hidden;margin:6px 0 8px;border:1px solid var(--line)}
 .rt-bar span{display:block;height:100%}
 .rt-legend .lg-row{font-size:0.88rem}
+.sources{padding-left:1.2em;font-size:0.9rem;color:var(--muted)}
+.sources li{margin:5px 0}
 .rt-chart{width:100%;height:auto;display:block;touch-action:none;margin-top:4px}
 .rt-area{fill:var(--chip)}
 .rt-grid{stroke:var(--line);stroke-width:1}
@@ -149,7 +151,7 @@ details p{font-size:0.9rem;color:var(--muted);max-width:40em}
 .dock-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;font-size:0.9rem}
 .dock-tip{color:var(--muted);font-size:0.85rem;flex:1 1 220px}
 .dock.min #dock-chart{display:none}
-.mapwrap.has-dock .topbar{position:sticky;top:0;z-index:5;background:var(--panel);margin:-24px -22px 0;padding:12px 22px 0;border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:5;background:var(--panel);margin:-24px -22px 0;padding:12px 22px 0;border-bottom:1px solid var(--line)}
 .brand-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .brand{font-weight:700;font-size:0.95rem}
 .top-actions{display:flex;gap:6px}
@@ -180,7 +182,10 @@ dialog#help{max-width:540px;width:calc(100% - 32px);border:1.5px solid var(--ink
 dialog#help ol{padding-left:1.3em}
 dialog#help li{margin:8px 0}
 dialog::backdrop{background:rgba(0,0,0,.45)}
-.legend{bottom:calc(var(--dock-h,150px) + 12px)}
+.mapwrap.has-dock .legend{bottom:calc(var(--dock-h,150px) + 10px)}
+.dock-actions select,.maptools select{width:auto}
+.leaflet-control-attribution{max-width:min(520px,70vw);font-size:10.5px;line-height:1.35;padding:2px 6px!important}
+.leaflet-control-attribution a[data-about]{font-weight:700}
 .mapwrap.has-dock{--dock-h:150px}
 .mapwrap.has-dock .leaflet-bottom{bottom:var(--dock-h,150px)}
 .legend{position:absolute;right:10px;bottom:28px;z-index:500;background:var(--panel);color:var(--ink);border:1.5px solid var(--ink);border-radius:6px;padding:8px 10px;font-size:0.8rem;max-width:250px;box-shadow:0 2px 0 var(--ink)}
@@ -325,6 +330,16 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <label class="check"><input type="checkbox" id="chk-reports" checked> Show shared reports</label>
     </section>
     <section class="pane" role="tabpanel" id="pane-about" aria-labelledby="tab-about" hidden>
+      <h2 id="sources">Sources and credits</h2>
+      <ul class="sources">
+        <li>Streets, protected infrastructure, speed limits and one-way rules: &copy; OpenStreetMap contributors, under the Open Database Licence, via the Network Planning Tool for Scotland and Esri's OpenStreetMap services.</li>
+        <li>Traffic stress ratings and modelled cycle flows: Network Planning Tool for Scotland, May 2025 release.</li>
+        <li>Routes built since May 2025: Glasgow Cycle Map: Now and Future, by u/Correct-Audience-421, used with permission.</li>
+        <li>City Network plans, city boundary, automatic cycle counters and road collisions (DfT STATS19): Glasgow City Council. Contains public sector information licensed under the Open Government Licence v3.0.</li>
+        <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
+        <li>Heights: Mapzen Terrain Tiles on AWS Open Data, from SRTM (NASA).</li>
+        <li>Background map: &copy; OpenStreetMap contributors.</li>
+      </ul>
     
       <h2>How this works and what it can't do</h2>
       <p>Protected infrastructure is every way that the Network Planning Tool for Scotland (May 2025 release) classes as segregated cycle track, wide or narrow, or off-road cycleway, from OpenStreetMap. Shared pavements can be added with the checkbox. Painted lanes are left out because nothing stops cars parking in them.</p>
@@ -626,7 +641,8 @@ function route(res, k) {
 // map
 const map = L.map('map', { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
 map.attributionControl.setPrefix(false);
-map.attributionControl.addAttribution('Infrastructure and streets: OpenStreetMap contributors (ODbL), NPT Scotland. Plans: Glasgow City Council. Built since 2025: u/Correct-Audience-421. Collisions: DfT STATS19 via Glasgow City Council (OGL). Heights: Mapzen Terrain Tiles (SRTM).');
+map.attributionControl.addAttribution('<a href="#" data-about>Sources and credits</a>');
+map.getContainer().addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-about]'); if (a) { e.preventDefault(); e.stopPropagation(); showTab('about'); const s = document.getElementById('sources'); if (s) s.scrollIntoView({ block: 'start' }); } }, true);
 map.fitBounds([[55.79, -4.39], [55.92, -4.07]]);
 map.createPane('net'); map.getPane('net').style.zIndex = 350; map.getPane('net').style.pointerEvents = 'none';
 const cv = document.createElement('canvas'); cv.className = 'net-canvas'; map.getPane('net').appendChild(cv);
@@ -1204,7 +1220,7 @@ function renderRoute() {
 function renderDock() {
   const dock = $('dock'), wrap = document.querySelector('.mapwrap'), R = RT.result, on = !!(R && R.prof);
   dock.hidden = !on; wrap.classList.toggle('has-dock', on);
-  map.attributionControl.setPosition(on ? 'topleft' : 'bottomright');
+  if (on) wrap.style.setProperty('--dock-h', dock.offsetHeight + 'px'); else wrap.style.removeProperty('--dock-h');
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
   $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + Math.round(R.down) + ' m down, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's');
@@ -1213,7 +1229,8 @@ function renderDock() {
   if (!dock.classList.contains('min')) host.append(profileSvg(R, Math.max(300, Math.round(host.clientWidth || 600)), window.matchMedia('(max-width: 760px)').matches ? 92 : 116));
 }
 $('dock-min').addEventListener('click', () => { const d = $('dock'); d.classList.toggle('min'); $('dock-min').textContent = d.classList.contains('min') ? 'Show profile' : 'Hide profile'; renderDock(); });
-if (window.ResizeObserver) { let rto = 0; new ResizeObserver(() => { clearTimeout(rto); rto = setTimeout(() => { if (RT.result && RT.result.prof) renderDock(); }, 120); }).observe($('dock-chart')); }
+if (window.ResizeObserver) { let rto = 0; new ResizeObserver(() => { clearTimeout(rto); rto = setTimeout(() => { if (RT.result && RT.result.prof) renderDock(); }, 120); }).observe($('dock-chart'));
+  new ResizeObserver(() => { const d = $('dock'); if (!d.hidden) document.querySelector('.mapwrap').style.setProperty('--dock-h', d.offsetHeight + 'px'); }).observe($('dock')); }
 function profileSvg(R, W, H) {
   const NS = 'http://www.w3.org/2000/svg', L0 = 40, R0 = 10, T0 = 8, B0 = 22, pw = W - L0 - R0, ph = H - T0 - B0;
   const s = document.createElementNS(NS, 'svg'); s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('class', 'rt-chart'); s.setAttribute('role', 'img');
