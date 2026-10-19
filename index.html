@@ -129,13 +129,20 @@ details p{font-size:0.9rem;color:var(--muted);max-width:40em}
 .sources{padding-left:1.2em;font-size:0.9rem;color:var(--muted)}
 .lg-note{color:var(--muted);font-size:0.74rem;margin:2px 0 4px;max-width:230px}
 .hot-pin{width:0;height:0}
-.hp{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:baseline;gap:3px;white-space:nowrap;padding:3px 8px 3px 7px;border-radius:999px;border:2px solid #fff;color:#fff;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.45);cursor:pointer}
-.hp b{font-size:13px}
+.hp{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:baseline;gap:2px;white-space:nowrap;padding:1px 6px;border-radius:999px;border:1.5px solid rgba(255,255,255,.85);color:#fff;font-size:10.5px;opacity:.88;box-shadow:0 1px 2px rgba(0,0,0,.35);cursor:pointer}
+.hp:hover{opacity:1}
+.hp b{font-size:11px}
 .hp.high{background:#C62828}
 .hp.mid{background:#D9741A}
-.z-low .hp span{display:none}
-.z-low .hp{padding:3px 7px}
-.hot-tip{max-width:260px;white-space:normal}
+.hp span{display:none}
+.z-low .hp{width:10px;height:10px;padding:0;font-size:0}
+.z-low .hp b{display:none}
+.hot-tip{width:250px;white-space:normal}
+.route-tip{font-weight:700}
+.dock-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:0.8rem;color:var(--muted);margin-top:4px}
+.dk{display:inline-flex;align-items:center;gap:5px}
+.dk i{display:inline-block;width:16px;height:6px;border-radius:2px}
+.dk.note{font-style:italic}
 .place-popup .leaflet-popup-content{margin:10px 12px;font-size:0.88rem;line-height:1.4}
 .pop.place strong{display:block;font-size:1rem;margin-bottom:4px}
 .pop.place p{margin:3px 0}
@@ -198,6 +205,13 @@ dialog#help li{margin:8px 0}
 dialog::backdrop{background:rgba(0,0,0,.45)}
 .mapwrap.has-dock .legend{bottom:calc(var(--dock-h,150px) + 10px)}
 .dock-actions select,.maptools select{width:auto}
+.dock-conf{display:inline-flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700}
+.dock-conf input{width:120px;accent-color:var(--accent)}
+#dock-conf-name{min-width:9.5em}
+.conf{margin:14px 0 6px}
+.conf input[type=range]{width:100%;accent-color:var(--accent)}
+.conf-ends{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted)}
+.conf-now{font-size:0.9rem;margin:6px 0 0}
 .leaflet-control-attribution{max-width:min(520px,70vw);font-size:10.5px;line-height:1.35;padding:2px 6px!important}
 .leaflet-control-attribution a[data-about]{font-weight:700}
 .mapwrap.has-dock{--dock-h:150px}
@@ -359,13 +373,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <p>Protected infrastructure is every way that the Network Planning Tool for Scotland (May 2025 release) classes as segregated cycle track, wide or narrow, or off-road cycleway, from OpenStreetMap. Shared pavements can be added with the checkbox. Painted lanes are left out because nothing stops cars parking in them.</p>
       <p>Protected sections join where they share a junction. Short gaps, such as a junction where a track stops, count as joined if the unprotected riding across them is within the gap you choose. Only the streets on the shortest link between two protected sections count as a gap, and the map draws them as a dotted line so they are not mistaken for protected track. The main network is the largest joined-up set of protected track. Distances to it follow the street network from each street, not a straight line.</p>
       <p>"Today, with community updates" adds the built routes from Glasgow Cycle Map: Now and Future, a community map maintained by u/Correct-Audience-421 and used with permission. Its built lines cover off-road and segregated routes, traffic-free links, and some shared pavements the author judges important; those shared pavements count only when shared pavements are switched on. Each built line becomes a protected path, sampled every 25 m and joined to any street junction within 20 m, so it changes which parts of the network join up. Lines already in the May 2025 data are not counted twice in the track totals. Its under-construction lines are added in the 2032 programme and the full plan. The map is checked every Monday and the page rebuilds itself when it changes.</p>
-      <p>The route planner follows the network for the scenario you pick, so the same trip can be compared today and under the plans. "Most protected", the default, weights each street by how stressful it is: protected track counts at its true length, a quiet street at 1.8 times and a busy one at up to 6 times, so the route accepts a good deal of extra distance to stay on protected track. "Balanced" uses 1.2 and 4 times, and "Most direct" takes the shortest legal route. It respects one-way streets as mapped in OpenStreetMap, which may miss some contraflow cycling permissions. Heights come from Mapzen Terrain Tiles, which use 30 m satellite terrain data (SRTM) in Scotland.</p>
+      <p>The route planner follows the network for the scenario you pick, so the same trip can be compared today and under the plans. Routes follow a cyclist confidence slider with five levels. "Riding with children" treats a quiet street as three times its length and a busy road as up to 25 times, adds 400 m for every busy road it joins or crosses from a calm street (less at mapped signals), and may run up to 2.5 times the shortest legal route to stay protected. "Cautious", the default, is a little less strict, with a 2 times limit; "Steady" allows 1.5 times; "Confident" mostly rides with traffic; and "Very confident" takes the shortest legal route. If a leg would stretch beyond its level's limit, that leg steps up a level, and the profile says so. Riding speed rises from 11 km/h with children to 20 km/h for very confident riders. Stops stay where you put them, including side roads you want to call in on</p>
       <p>Distances follow one-way streets as mapped in OpenStreetMap, in both directions, and the longer of the ride to the network and the ride back counts. Only 53 streets in Glasgow are mapped with contraflow cycling, which leaves 95 km of quiet one-way streets that bikes can use in one direction only. The what-if option opens all of them to two-way cycling, the low-cost change the community map's author singles out as the main thing keeping people off quiet back streets.</p>
       <p>The possible missing links are residential dead ends that come within 25 m of another street or path, at a similar height, with no mapped way between them within 400 m of riding. A dropped kerb or a filtered gap could join many of them, but some are walls, fences, private land or simply unmapped paths, so each needs checking on the ground. They are shown on the map but not counted in the figures.</p>
       <p>Community-mapped lines join the street network within 20 m of their ends and 15 m along their length, and never to a road on a bridge or in a tunnel unless the two genuinely meet, so a riverside path is not joined to the bridge above it. Links reported as steps or barriers are listed in the project's blocked-links file and removed from the network and the route planner.</p>
       <p>Bike collisions are the 828 personal-injury collisions involving a cyclist or a pedal cycle in the Department for Transport's STATS19 road safety data for Glasgow, as published by Glasgow City Council: 569 slight, 250 serious and 9 fatal. The council's file runs from 2016 to 2023 but holds very few collisions for 2019. Only collisions reported to the police are recorded, and many cycling injuries never are, so the counts understate the risk. Each collision is matched to the street within 25 m, preferring the carriageway where a track runs alongside. Hotspots are places with at least 4 bike collisions within 50 m.</p>
       <p>Collision counts also follow how many people cycle somewhere, so they are set against the cycling each street carries. That comes from the Network Planning Tool's modelled daily cycle flows, scaled to Glasgow City Council's automatic cycle counters: across 84 counters, counted flows run at a median of 1.34 times the model, with a rank correlation of 0.69. A check against 26 Department for Transport counted sites on main roads in 2018 agrees less well (correlation 0.49), so treat flows on individual streets as approximate. Risk is the weighted number of collisions (slight 1, serious 3, fatal 6) against the number expected for the cycling there, smoothed so a single collision on a quiet street does not dominate, with 1 meaning the city average.</p>
-      <p>Protected track stays the main routing preference. With "Also steer away from unprotected streets with high collision risk" on, only unprotected streets are penalised: each unit of risk above the city average counts as 150 m of extra riding, up to 1.2 km, and half that on "Balanced". A route never leaves protected track to avoid collisions.</p>
+      <p>Protected track stays the main routing preference. With "Also steer away from unprotected streets with high collision risk" on, only unprotected streets are penalised: each unit of risk above the city average counts as extra riding, from 300 m when riding with children down to none for very confident riders. A route never leaves protected track to avoid collisions.</p>
       <p>Neighbourhood shading has two parts. The colour shows how much of a neighbourhood's street length is within 800 m of the main protected network. The strength shows how calm its streets are: the shading fades as more of the street length is rated Low or worse for traffic stress without protection, so a neighbourhood near the network but full of busy roads looks weaker than a calm one.</p>
       <p>A neighbourhood is one of Glasgow's 746 data zones, with its population from the Network Planning Tool. It counts as within 800 m when at least half of its street length is within 800 m riding of the main network. The 800 m figure comes from the council's Active Travel Strategy, which measures it to any segregated infrastructure. This page measures it to the main network, so a cut-off fragment does not count. The deprived fifth uses the Scottish Index of Multiple Deprivation 2020, deciles 1 and 2.</p>
       <p>In June 2026 the council approved Connecting Glasgow. It prioritises about 54 km of routes for delivery by 2032, after Transport Scotland moved active travel funding from multi-year to single-year grants, and keeps the 270 km City Network as a longer-term aim. The 2032 programme here matches the council's listed sections to its route data by street name: 57 km in total, 49 km not yet built. Treat it as approximate. Planned routes are assumed protected once built and join the junctions they pass within 35 m.</p>
@@ -385,10 +399,11 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="legend" id="legend-wrap"><button type="button" class="legend-head" id="legend-toggle" aria-expanded="true" aria-controls="legend">Key</button><div id="legend" aria-label="Map key"></div></div>
     <div class="dock" id="dock" hidden aria-label="Route height profile">
       <div class="dock-head"><strong id="dock-sum"></strong>
-        <span class="dock-actions"><label class="sr-only" for="dock-mode">Route preference</label><select id="dock-mode"><option value="protected">Most protected</option><option value="balanced">Balanced</option><option value="direct">Most direct</option></select>
+        <span class="dock-actions"><label class="dock-conf"><span class="sr-only">Cyclist confidence</span><input type="range" id="dock-conf" min="0" max="4" step="1" value="1" list="conf-ticks" aria-describedby="dock-conf-name"><span id="dock-conf-name">Cautious</span></label><datalist id="conf-ticks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
           <button type="button" class="chip primary" id="dock-gpx">GPX for Strava</button><a class="chip" id="dock-gmaps" href="#" target="_blank" rel="noopener">Google Maps</a><button type="button" class="chip" id="dock-share">Share</button><button type="button" class="chip" id="dock-clear">Clear</button><button type="button" class="linkbtn" id="dock-min">Hide profile</button></span>
         <span class="dock-tip" id="dock-tip"></span></div>
       <div id="dock-chart"></div>
+      <div class="dock-key" id="dock-key" aria-label="What the profile colours mean"></div>
     </div>
   </main>
 </div>
@@ -856,7 +871,7 @@ function renderLegend() {
   else INFNAME.forEach((n, i) => add(C.inf[i], n));
   if (state.plan) add(C.plan, 'City Network plan (dashes show stage)');
   if (state.owl) add(C.ow, 'Quiet one-way street, no contraflow', 'dash');
-  if (state.hot) { head('Bike collision hotspots'); lg.append(el('div', 'lg-note', 'The number is how many bike collisions were recorded within 50 m, 2016 to 2023. Hover or tap one for details.')); add(C.hot, 'At least 5 times the city risk for the cycling there', 'box'); add(C.hot2, 'Under 5 times the city risk', 'box'); }
+  if (state.hot) { head('Bike collision hotspots'); lg.append(el('div', 'lg-note', 'The figure is collision risk against the city average for the cycling there: 4× means four times. Hover or tap one for the counts.')); add(C.hot, 'At least 5 times the city risk for the cycling there', 'box'); add(C.hot2, 'Under 5 times the city risk', 'box'); }
   if (state.crash) { head('Bike collisions, 2016 to 2023'); add(C.crs[0], 'Slight', 'box'); add(C.crs[1], 'Serious', 'box'); add(C.crs[2], 'Fatal', 'box'); }
   if (state.mll) add(C.ml, 'Possible missing link, check on the ground', 'thick');
   if (state.comm) { head('Community map'); ['built', 'progress', 'planned', 'onhold', 'quiet'].forEach(s => add(CCOL[s], CSTATUS[s], s === 'planned' || s === 'onhold' ? 'dash' : null)); }
@@ -985,11 +1000,20 @@ const sdeg = new Uint8Array(NN), busyN = new Uint8Array(NN);
 for (let k = 0; k < P; k++) { const a = N.pu[k], b = N.pv[k]; if (sdeg[a] < 255) sdeg[a]++; if (sdeg[b] < 255) sdeg[b]++; if (N.rated[k] && N.los[k] >= 2) { busyN[a] = 1; busyN[b] = 1; } }
 const RCAT = ['Protected track', 'Community-mapped track', 'Planned protected route', 'Shared pavement', 'Painted cycle lane', 'Quiet street', 'Busy street', 'Short link'];
 // how much longer each kind of street "feels" than protected track, by route preference
-const WEIGHTS = { protected: { shared: 1.8, lane: [2.0, 2.5, 3.5, 5.5], mix: [1.8, 2.3, 3.8, 6.0], minor: 1.9, major: 3.8 },
-                  balanced: { shared: 1.25, lane: [1.3, 1.6, 2.2, 3.5], mix: [1.2, 1.6, 2.6, 4.0], minor: 1.4, major: 2.6 } };
-function mult(e, res) {
-  if (RT.mode === 'direct' || res.ded[e] || e >= P) return 1;
-  const W = WEIGHTS[RT.mode], i = N.inf[e], l = N.los[e];
+// rider confidence, from riding with children (0) to very confident (4). Each level sets how much longer an
+// unprotected street "feels" than protected track, a penalty for crossing or joining busy roads, how far a
+// route may stretch beyond the shortest legal route, the collision-risk penalty, and the riding speed
+const LEVELS = [
+  { name: 'Riding with children', note: 'Protected track wherever it exists, quiet streets otherwise, and busy roads only where there is no other way.', shared: 1.4, lane: [3.0, 5.0, 12, 25], mix: [3.0, 5.0, 12, 25], minor: 3.2, major: 12, jn: 400, cap: 2.5, pen: 300, kmh: 11 },
+  { name: 'Cautious', note: 'Strongly prefers protected track and quiet streets, and avoids busy junctions.', shared: 1.6, lane: [2.2, 3.2, 6, 10], mix: [2.2, 3.2, 6, 10], minor: 2.4, major: 6, jn: 200, cap: 2.0, pen: 220, kmh: 14 },
+  { name: 'Steady', note: 'Prefers protected track and will go some way out of the way for it.', shared: 1.8, lane: [2.0, 2.5, 3.5, 5.5], mix: [1.8, 2.3, 3.8, 6.0], minor: 1.9, major: 3.8, jn: 80, cap: 1.5, pen: 150, kmh: 16 },
+  { name: 'Confident', note: 'Takes protected track when it is close to the line, otherwise rides with traffic.', shared: 1.25, lane: [1.3, 1.6, 2.2, 3.5], mix: [1.2, 1.6, 2.6, 4.0], minor: 1.4, major: 2.6, jn: 0, cap: 1.3, pen: 80, kmh: 18 },
+  { name: 'Very confident', note: 'The shortest legal route, whatever the traffic.', direct: true, jn: 0, cap: Infinity, pen: 0, kmh: 20 }];
+const busyEdgeR = e => e < P && N.rated[e] && N.los[e] >= 2;
+function mult(e, res, lvl) {
+  const W = LEVELS[lvl];
+  if (W.direct || res.ded[e] || e >= P) return 1;
+  const i = N.inf[e], l = N.los[e];
   if (i === 5) return W.shared;
   if (i === 1) return W.lane[l];
   if (!N.rated[e]) return l <= 1 ? W.minor : W.major;
@@ -1004,7 +1028,7 @@ function catOf(e, res) {
   if (i === 1) return 4;
   return N.los[e] <= 1 ? 5 : 6;
 }
-const RT = { start: null, end: null, stops: [], mode: 'protected', avoid: true, result: null, markers: [] };
+const RT = { start: null, end: null, stops: [], conf: 1, avoid: true, result: null, markers: [] };
 // bike-involved collisions (DfT STATS19 via Glasgow City Council): per-street counts, points and hotspots
 const CRC = new Map(); const CRW = new Float32Array(P);
 if (N.crp) for (let i = 0; i < N.crp.length; i += 4) { const k = N.crp[i], c = [N.crp[i + 1], N.crp[i + 2], N.crp[i + 3]]; CRC.set(k, c); CRW[k] = c[0] + 3 * c[1] + 6 * c[2]; }
@@ -1019,7 +1043,7 @@ hazardsBuilt = true;
 HOT.forEach(h => {
   const box = el('div', 'pop'); box.append(el('strong', null, 'Collision hotspot: ' + (h.nm || 'here')), el('p', null, hotText(h)));
   const b = el('button', 'chip', 'Show each collision'); b.type = 'button'; b.addEventListener('click', () => { state.crash = true; $('chk-crash').checked = true; update(); map.setView([h.lat, h.lng], Math.max(map.getZoom(), 17)); }); box.append(b);
-  L.marker([h.lat, h.lng], { icon: L.divIcon({ className: 'hot-pin', html: '<div class="hp ' + (h.rr >= 5 ? 'high' : 'mid') + '"><b>' + h.n + '</b><span> collisions</span></div>', iconSize: [0, 0] }), keyboard: true, title: h.n + ' bike collisions near ' + (h.nm || 'here'), bubblingMouseEvents: false, riseOnHover: true })
+  L.marker([h.lat, h.lng], { icon: L.divIcon({ className: 'hot-pin', html: '<div class="hp ' + (h.rr >= 5 ? 'high' : 'mid') + '"><b>' + (h.rr >= 10 ? Math.round(h.rr) : (Math.round(h.rr * 10) / 10)) + '×</b><span> risk</span></div>', iconSize: [0, 0] }), keyboard: true, title: h.n + ' bike collisions near ' + (h.nm || 'here'), bubblingMouseEvents: false, riseOnHover: true })
     .bindTooltip(hotText(h), { direction: 'top', offset: [0, -16], className: 'hot-tip' }).bindPopup(box, { maxWidth: 300 }).addTo(hotLayer);
 });
 for (let i = 0; i < (N.crash || []).length; i += 4) {
@@ -1034,18 +1058,25 @@ map.getContainer().classList.toggle('z-low', map.getZoom() < 13);
 // collision risk relative to the cycling a street carries (smoothed, 1 = city average); only unprotected streets are
 // penalised, so routes never leave protected track to avoid collisions and protection stays the main preference
 const CRR = new Map(); if (N.rr) for (let i = 0; i < N.rr.length; i += 2) CRR.set(N.rr[i], N.rr[i + 1]);
-const PEN = { protected: 150, balanced: 80, direct: 0 }; // metres of extra riding per unit of risk above the city average
-const crashPen = (e, res) => { if (!RT.avoid || e >= P || res.ded[e]) return 0; const rr = CRR.get(e); return rr > 1 ? Math.min(1200, (rr - 1) * PEN[RT.mode]) : 0; };
+const crashPen = (e, res, lvl) => { if (!RT.avoid || e >= P || res.ded[e]) return 0; const rr = CRR.get(e); return rr > 1 ? Math.min(4 * LEVELS[lvl].pen + 600, (rr - 1) * LEVELS[lvl].pen) : 0; };
 const timesAvg = rr => rr >= 1.5 ? 'about ' + (rr >= 10 ? Math.round(rr) : Math.round(rr * 10) / 10) + ' times the city average for the cycling it carries' : 'close to the city average for the cycling it carries';
 const llCache = new Map();
 const pieceLL = k => { let a = llCache.get(k); if (!a) { a = dec(N.geom[k]); llCache.set(k, a); } return a; };
 function nodeFor(lat, lng) {
-  const k = nearest(mx(lng), my(lat), mtoU(300)); if (k < 0) return -1;
-  const a = eu[k], b = ev[k], c = 0.3145;
-  const da = (NODES[2 * a] - lng) ** 2 * c + (NODES[2 * a + 1] - lat) ** 2, db = (NODES[2 * b] - lng) ** 2 * c + (NODES[2 * b + 1] - lat) ** 2;
-  return da <= db ? a : b;
+  const px = mx(lng), py = my(lat), ix = Math.floor(px / CELL), iy = Math.floor(py / CELL), r2 = mtoU(120) ** 2;
+  let best = -1, bs = Infinity;
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const a = grid.get(gkey(ix + dx, iy + dy)); if (!a) continue;
+    for (const k of a) { if (pieceD2(k, px, py) > r2) continue;
+      for (const n of [eu[k], ev[k]]) {
+        const d = metresLL(lng, lat, NODES[2 * n], NODES[2 * n + 1]);
+        let two = false; for (let i = deg[n]; i < deg[n + 1]; i++) { const e = adj[i]; if (e < P && !owB(e, state.cfx)) { two = true; break; } }
+        const s = d + (sdeg[n] < 2 ? 25 : 0) + (two ? 0 : 40); // a light nudge away from dead ends and one-way-only junctions
+        if (s < bs) { bs = s; best = n; } } } }
+  if (best >= 0) return best;
+  const k = nearest(px, py, mtoU(300)); return k < 0 ? -1 : eu[k];
 }
-function routeLeg(s, t, res) {
+function routeLeg(s, t, res, lvl) {
+  if (lvl == null) lvl = RT.conf; const jn = LEVELS[lvl].jn;
   if (s === t) return [];
   const dist = new Float64Array(NN).fill(Infinity), pred = new Int32Array(NN).fill(-1), done = new Uint8Array(NN);
   const tx = NODES[2 * t], ty = NODES[2 * t + 1], kx = Math.cos(ty * D2R) * 111320, ky = 110540;
@@ -1057,7 +1088,9 @@ function routeLeg(s, t, res) {
     for (let i = deg[n]; i < deg[n + 1]; i++) {
       const e = adj[i]; if ((e >= P && !res.ded[e]) || blocked[e]) continue;
       if (!legal(e, n, state.cfx)) continue;
-      const m = eu[e] === n ? ev[e] : eu[e], nd = dn + elen[e] * mult(e, res) + crashPen(e, res);
+      const m = eu[e] === n ? ev[e] : eu[e];
+      let nd = dn + elen[e] * mult(e, res, lvl) + crashPen(e, res, lvl);
+      if (jn && busyN[m] && !busyEdgeR(e) && !res.ded[e]) nd += jn * (m < NN0 && N.signal[m] ? 0.3 : 1); // joining or crossing a busy road from a calm street
       if (nd < dist[m]) { dist[m] = nd; pred[m] = e; hp.push(nd + hh(m), m); }
     }
   }
@@ -1068,11 +1101,19 @@ function routeLeg(s, t, res) {
 }
 const pts = () => (RT.start && RT.end) ? [RT.start, ...RT.stops, RT.end] : [];
 function buildRoute() {
+  RT.capped = false;
   RT.result = null; const P2 = pts();
   if (P2.length < 2) { renderRoute(); schedule(); return; }
   const res = cur(); let steps = []; const legEnds = [];
   for (let i = 0; i + 1 < P2.length; i++) {
-    const leg = routeLeg(P2[i].node, P2[i + 1].node, res);
+    let leg = routeLeg(P2[i].node, P2[i + 1].node, res, RT.conf);
+    if (leg && isFinite(LEVELS[RT.conf].cap)) {
+      // if the route stretches too far beyond the shortest legal one, step up a confidence level for this leg
+      const len = l => l.reduce((a, s) => a + elen[s[0]], 0), dir = routeLeg(P2[i].node, P2[i + 1].node, res, 4), dl = dir ? len(dir) : 0;
+      let lv = RT.conf;
+      while (dir && lv < 4 && len(leg) > LEVELS[lv].cap * dl + 300) { lv++; const alt = routeLeg(P2[i].node, P2[i + 1].node, res, lv); if (alt) leg = alt; }
+      if (lv > RT.conf) RT.capped = Math.max(RT.capped || 0, lv);
+    }
     if (!leg) { RT.result = { error: 'No route could be found between ' + (i === 0 ? 'the start' : 'stop ' + i) + ' and ' + (i + 2 === P2.length ? 'the destination' : 'stop ' + (i + 1)) + ', perhaps because of one-way streets. Try moving a point.' }; renderRoute(); schedule(); return; }
     steps = steps.concat(leg); legEnds.push(steps.length);
   }
@@ -1110,7 +1151,7 @@ function buildRoute() {
   for (let i = 0; i < prof.length; i++) {
     const p = prof[i]; hi = Math.max(hi, p.e); lo = Math.min(lo, p.e);
     if (i) { const dz = p.e - prof[i - 1].e, dd = p.d - prof[i - 1].d || 1, g = dz / dd; if (dz > 0) up += dz; else down -= dz; p.g = g;
-      let v = prof[i - 1].cat === 3 ? 13 : 16; v *= g > 0 ? Math.max(0.35, 1 - 7.5 * g) : Math.min(1.5, 1 - 3 * g); secs += dd / (v / 3.6); } else p.g = 0;
+      let v = LEVELS[RT.conf].kmh * (prof[i - 1].cat === 3 ? 0.85 : 1); v *= g > 0 ? Math.max(0.35, 1 - 7.5 * g) : Math.min(1.5, 1 - 3 * g); secs += dd / (v / 3.6); } else p.g = 0;
     const j = prof.findIndex((q, qi) => qi > i && q.d - p.d >= 100); if (j > 0) steep = Math.max(steep, (prof[j].e - p.e) / (prof[j].d - p.d));
   }
   secs += busy.size * 8 + sig.size * 12;
@@ -1184,13 +1225,18 @@ function drawRoute(ctx, sc, ox, oy, bw) {
 // markers and the right-click menu
 function pinIcon(label, cls) { return L.divIcon({ className: 'rt-pin ' + cls, html: '<span>' + label + '</span>', iconSize: [26, 26], iconAnchor: [13, 13] }); }
 function makePt(lat, lng) { return { lat, lng, node: nodeFor(lat, lng) }; }
-function routeHit(latlng) {
+function routeNear(latlng) {
   const R = RT.result; if (!R || !R.m) return false;
   const px = mx(latlng.lng), py = my(latlng.lat), tol = 12 / Math.pow(2, map.getZoom()); let best = Infinity;
   for (let i = 0; i + 3 < R.m.length; i += 2) best = Math.min(best, segD2(px, py, R.m[i], R.m[i + 1], R.m[i + 2], R.m[i + 3]));
-  if (best > tol * tol) return false;
-  addStop(latlng.lat, latlng.lng); showTab('route'); return true;
+  return best <= tol * tol;
 }
+function routeHit(latlng) { if (!routeNear(latlng)) return false; hoverTip.remove(); addStop(latlng.lat, latlng.lng); showTab('route'); return true; }
+const hoverTip = L.tooltip({ permanent: true, direction: 'top', offset: [0, -10], className: 'route-tip' }).setContent('Click to add a stop here, then drag it');
+let hoverRaf = 0, hoverLL = null;
+map.on('mousemove', e => { hoverLL = e.latlng; if (hoverRaf) return; hoverRaf = requestAnimationFrame(() => { hoverRaf = 0; const on = hoverLL && routeNear(hoverLL);
+  map.getContainer().style.cursor = on ? 'copy' : ''; if (on) { hoverTip.setLatLng(hoverLL); if (!map.hasLayer(hoverTip)) hoverTip.addTo(map); } else if (map.hasLayer(hoverTip)) hoverTip.remove(); }); });
+map.on('mouseout', () => { if (map.hasLayer(hoverTip)) hoverTip.remove(); });
 function syncMarkers() {
   RT.markers.forEach(mk => mk.remove()); RT.markers = [];
   if (RT.start || RT.end) { selMarker.remove(); entryMarker.remove(); } else if (sel) { selMarker.addTo(map); }
@@ -1229,7 +1275,7 @@ map.on('contextmenu', ev => {
 });
 
 // route panel
-const fmtTime = s => { const mn = Math.max(1, Math.round(s / 60)); return mn < 60 ? mn + ' min' : Math.floor(mn / 60) + ' h ' + (mn % 60) + ' min'; };
+const fmtTime = s => { const mn = Math.max(1, Math.round(s / 60)); return mn < 60 ? mn + ' min' : Math.floor(mn / 60) + ' h' + (mn % 60 ? ' ' + (mn % 60) + ' min' : ''); };
 const placeName = pt => {
   const px = mx(pt.lng), py = my(pt.lat), ix = Math.floor(px / CELL), iy = Math.floor(py / CELL); let best = -1, bd = Math.pow(mtoU(300), 2);
   for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++) { const a = grid.get(gkey(ix + dx, iy + dy)); if (!a) continue; for (const k of a) { if (!N.names[N.nm[k]]) continue; const d = pieceD2(k, px, py); if (d < bd) { bd = d; best = k; } } }
@@ -1247,9 +1293,11 @@ function renderRoute() {
   if (R.error) { host.append(el('p', 'note', R.error)); return; }
   host.append(el('p', 'rt-title', fmtKm(R.total) + ' km, about ' + fmtTime(R.secs)));
   host.append(el('p', 'note', 'From ' + placeName(RT.start) + ' to ' + placeName(RT.end) + (RT.stops.length ? ', with ' + RT.stops.length + ' stop' + (RT.stops.length > 1 ? 's' : '') : '') + '. Network: ' + SCEN[state.scen] + '.'));
-  const md = el('div', 'seg small'); md.setAttribute('role', 'group'); md.setAttribute('aria-label', 'Route preference');
-  [['protected', 'Most protected'], ['balanced', 'Balanced'], ['direct', 'Most direct']].forEach(([v, t]) => { const b = el('button', null, t); b.type = 'button'; b.setAttribute('aria-pressed', RT.mode === v ? 'true' : 'false'); b.addEventListener('click', () => { RT.mode = v; buildRoute(); }); md.append(b); });
-  host.append(md);
+  const cf = el('div', 'conf'); const clab = el('label', 'field', 'Cyclist confidence'); clab.htmlFor = 'rt-conf';
+  const rg = el('input'); rg.type = 'range'; rg.min = 0; rg.max = 4; rg.step = 1; rg.value = RT.conf; rg.id = 'rt-conf'; rg.setAttribute('list', 'conf-ticks');
+  rg.setAttribute('aria-valuetext', LEVELS[RT.conf].name); rg.addEventListener('input', () => setConf(+rg.value));
+  const ends = el('div', 'conf-ends'); ends.append(el('span', null, 'Riding with children'), el('span', null, 'Very confident'));
+  cf.append(clab, rg, ends, el('p', 'conf-now', LEVELS[RT.conf].name + ': ' + LEVELS[RT.conf].note)); host.append(cf);
   const av = el('label', 'check'); const avb = el('input'); avb.type = 'checkbox'; avb.checked = RT.avoid; avb.addEventListener('change', () => { RT.avoid = avb.checked; buildRoute(); });
   av.append(avb, document.createTextNode(' Also steer away from unprotected streets with high collision risk for the cycling they carry')); host.append(av);
   const stats = el('dl', 'rt-stats');
@@ -1290,8 +1338,11 @@ function renderDock() {
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
   $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + Math.round(R.down) + ' m down, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's');
-  $('dock-tip').textContent = 'Move along the profile to follow the route.'; $('dock-mode').value = RT.mode; $('dock-gmaps').href = googleUrl(R);
+  $('dock-tip').textContent = 'Move along the profile to follow the route.'; $('dock-conf').value = RT.conf; $('dock-conf-name').textContent = LEVELS[RT.conf].name; $('dock-gmaps').href = googleUrl(R);
   const host = $('dock-chart'); host.textContent = '';
+  const key = $('dock-key'); key.textContent = '';
+  R.byCat.forEach((v, c) => { if (v < 0.005 * R.total) return; const s = el('span', 'dk'); const sw = el('i'); sw.style.background = C.rc[c]; s.append(sw, document.createTextNode(RCAT[c] + ' ' + pct(v, R.total) + '%')); key.append(s); });
+  if (RT.capped) key.append(el('span', 'dk note', 'Part of this route rides as "' + LEVELS[RT.capped].name + '", because the ' + LEVELS[RT.conf].name.toLowerCase() + ' route was more than ' + LEVELS[RT.conf].cap + ' times the length of the shortest one.'));
   if (!dock.classList.contains('min')) host.append(profileSvg(R, Math.max(300, Math.round(host.clientWidth || 600)), window.matchMedia('(max-width: 760px)').matches ? 92 : 116));
 }
 $('dock-min').addEventListener('click', () => { const d = $('dock'); d.classList.toggle('min'); $('dock-min').textContent = d.classList.contains('min') ? 'Show profile' : 'Hide profile'; renderDock(); });
@@ -1426,7 +1477,9 @@ const setKey = c => { lgw.classList.toggle('collapsed', c); $('legend-toggle').s
 { const pref = store.get('gcm-key'); setKey(pref ? pref === '0' : window.matchMedia('(max-width: 760px)').matches); }
 $('legend-toggle').addEventListener('click', () => { const c = !lgw.classList.contains('collapsed'); setKey(c); store.set('gcm-key', c ? '0' : '1'); });
 $('map-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.value); });
-$('dock-mode').addEventListener('change', e => { RT.mode = e.target.value; buildRoute(); });
+let confT = 0;
+function setConf(v) { RT.conf = Math.max(0, Math.min(4, v)); $('dock-conf').value = RT.conf; $('dock-conf-name').textContent = LEVELS[RT.conf].name; clearTimeout(confT); confT = setTimeout(buildRoute, 120); }
+$('dock-conf').addEventListener('input', e => setConf(+e.target.value));
 $('dock-gpx').addEventListener('click', downloadGpx);
 $('dock-clear').addEventListener('click', clearRoute);
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
@@ -1440,7 +1493,7 @@ function stateToHash() {
   ['shared', 'qa', 'cfx'].forEach(k => { if (state[k]) p.set(k, '1'); });
   p.set('l', Object.keys(LAYERS).filter(k => state[k]).join('.'));
   if (!RT.avoid) p.set('av', '0');
-  if (RT.start && RT.end) { p.set('r', [RT.start, ...RT.stops, RT.end].map(x => f5(x.lat) + ',' + f5(x.lng)).join('_')); if (RT.mode !== 'protected') p.set('rm', RT.mode); }
+  if (RT.start && RT.end) { p.set('r', [RT.start, ...RT.stops, RT.end].map(x => f5(x.lat) + ',' + f5(x.lng)).join('_')); if (RT.conf !== 1) p.set('rc', RT.conf); }
   if (sel) p.set('p', f5(sel.lat) + ',' + f5(sel.lng));
   return p.toString();
 }
@@ -1468,7 +1521,7 @@ function readHash() {
   const mv = ll(p.get('m')); if (mv) map.setView([mv[0], mv[1]], mv[2] || 14);
   if (p.has('r')) { const pts = p.get('r').split('_').map(ll).filter(Boolean);
     RT.avoid = p.get('av') !== '0';
-    if (pts.length >= 2) { RT.mode = ['protected', 'balanced', 'direct'].includes(p.get('rm')) ? p.get('rm') : 'protected'; RT.start = makePt(pts[0][0], pts[0][1]); RT.end = makePt(pts[pts.length - 1][0], pts[pts.length - 1][1]); RT.stops = pts.slice(1, -1).map(a => makePt(a[0], a[1])); syncMarkers(); buildRoute(); showTab('route'); } }
+    if (pts.length >= 2) { { const rc = Number(p.get('rc')), old = { protected: 2, balanced: 3, direct: 4 }[p.get('rm')]; RT.conf = p.has('rc') && [0, 1, 2, 3, 4].includes(rc) ? rc : old != null ? old : 1; } RT.start = makePt(pts[0][0], pts[0][1]); RT.end = makePt(pts[pts.length - 1][0], pts[pts.length - 1][1]); RT.stops = pts.slice(1, -1).map(a => makePt(a[0], a[1])); syncMarkers(); buildRoute(); showTab('route'); } }
   const pl = ll(p.get('p')); if (pl) { select.quiet = !!p.has('r'); select(L.latLng(pl[0], pl[1])); select.quiet = false; }
   return true;
 }
@@ -1485,7 +1538,7 @@ $('dock-share').addEventListener('click', share);
 // the example route shows the key idea on first load: the same trip, mostly on protected track
 const DEMO = [[55.8721, -4.2882], [55.8346, -4.2683]];
 function loadDemo(fit) {
-  RT.mode = 'protected'; RT.stops = []; RT.demo = true; RT.start = makePt(DEMO[0][0], DEMO[0][1]); RT.end = makePt(DEMO[1][0], DEMO[1][1]);
+  RT.conf = 1; RT.stops = []; RT.demo = true; RT.start = makePt(DEMO[0][0], DEMO[0][1]); RT.end = makePt(DEMO[1][0], DEMO[1][1]);
   syncMarkers(); buildRoute(); if (fit !== false) fitRoute();
 }
 $('btn-demo').addEventListener('click', () => { loadDemo(true); });
