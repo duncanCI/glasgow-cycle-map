@@ -69,7 +69,7 @@ Routes follow a cyclist confidence slider with five levels, from "Riding with ch
 
 ## Music for the virtual cycle
 
-"♪ Music" on the virtual cycle bar plays background music while you ride: lo-fi beats, reggae, country, classical, synthwave, 8-bit, a Celtic jig or rage metal, with a volume slider. It is generated live in the browser with Tone.js (loaded only when you pick a style): every style is composed in `index.html` as original patterns and synthesised instruments, and the classical style plays Bach's Prelude in C (BWV 846, public domain). Nothing is streamed or licensed. Levels are evened out across styles, and the music fades out when you stop the ride.
+"♪ Music" on the virtual cycle bar plays ad-free internet radio in the page while you ride: lo-fi and instrumental hip hop, chilled downtempo, reggae, country and Americana, classical, synthwave, Celtic, spy lounge or metal. The stations are listener-supported SomaFM (Fluid, Groove Salad, Heavyweight Reggae, Boot Liquor, ThistleRadio, Secret Agent, Metal Detector), the Swiss public broadcaster's Radio Swiss Classic, and Nightride FM. Each has a fallback address; the music fades in and out, has its own volume, and stops when the ride stops. If you enjoy SomaFM, consider supporting it at somafm.com/support.
 
 ## Road crossings
 
@@ -138,7 +138,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Crossings | OpenStreetMap crossing points via Overpass, Glasgow City Council city-centre signal sites (CCTP tactile facilities) | © OpenStreetMap contributors (ODbL); Glasgow City Council open data |
-| Music | Tone.js 14.7.77, loaded only when music is chosen | MIT |
+| Music | Streams from SomaFM, Radio Swiss Classic and Nightride FM, played only when chosen | Each station's own terms |
 | 3D rider | three.js 0.149, loaded only for the virtual cycle | MIT |
 | 3D virtual cycle | OpenFreeMap vector tiles (OpenMapTiles schema) drawn with MapLibre GL, terrain from Mapzen Terrain Tiles | © OpenMapTiles, data © OpenStreetMap contributors |
 | Background maps | OpenStreetMap standard tiles (light grey and streets), CyclOSM, Esri World Imagery (satellite) | © OpenStreetMap contributors under the tile usage policy; CyclOSM; imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community |

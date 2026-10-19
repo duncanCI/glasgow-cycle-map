@@ -255,7 +255,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu button[aria-checked="true"]{font-weight:700}
 .menu button[aria-checked="true"]::after{content:"♪";margin-left:auto;color:var(--accent)}
 .mus-vol input{flex:1;accent-color:var(--accent)}
-.mus-note{font-size:0.72rem;color:var(--muted);padding:4px 10px 6px;max-width:230px}
+.mus-note{font-size:0.72rem;color:var(--muted);padding:4px 10px 6px;max-width:250px}
+.mus-note a{color:var(--accent)}
+#menu-music>button{flex-direction:column;align-items:flex-start;gap:0}
+#menu-music>button .mus-st{font-size:0.72rem;color:var(--muted)}
+#menu-music>button[aria-checked="true"]::after{position:absolute;right:12px}
+#menu-music>button{position:relative;padding-right:28px}
+#menu-music{max-height:min(420px,70vh);overflow-y:auto}
 .menu select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px;margin-left:auto}
 .menu>button,.menu>a,.menu>label{font:inherit;font-size:0.9rem;text-align:left;padding:8px 10px;border:0;border-radius:5px;background:none;color:var(--ink);cursor:pointer;text-decoration:none;display:flex;gap:8px;align-items:center}
 .menu>button:hover,.menu>a:hover,.menu>label:hover,.menu>button:focus-visible,.menu>a:focus-visible{background:var(--chip)}
@@ -1921,195 +1927,50 @@ function photoTick() {
   if ((far || PB.pending) && performance.now() - PB.lastBuild > 2500) { PB.pending = false; buildPhoto(P.lon, P.lat); }
 }
 
-// ---------- background music for the virtual cycle: generated live in the browser with Tone.js ----------
-// Every style is composed here as patterns and synth voices, so there is nothing to license or download; the
-// classical style plays Bach's Prelude in C (public domain) on a synthesised piano.
-const MUSIC = [['lofi', 'Lo-fi beats'], ['reggae', 'Reggae'], ['country', 'Country'], ['classical', 'Classical (Bach)'], ['synthwave', 'Synthwave'], ['chip', '8-bit'], ['jig', 'Celtic jig'], ['metal', 'Rage metal']];
-function seededRnd(str) { let h = 2166136261; for (const c of str) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
-function buildMusic(T, g, out) {
-  const nodes = [], parts = [], rnd = seededRnd(g);
-  const bus = new T.Volume(0); bus.connect(out); nodes.push(bus); out = bus; // each style's level, evened out below
-  const keep = x => { nodes.push(x); return x; };
-  const fx = (...chain) => { chain.forEach(keep); for (let i = 0; i + 1 < chain.length; i++) chain[i].connect(chain[i + 1]); chain[chain.length - 1].connect(out); return chain[0]; };
-  const seq = (cb, evs, sub) => { const s = new T.Sequence(cb, evs, sub); s.start(0); parts.push(s); return s; };
-  const loop = (cb, iv) => { const l = new T.Loop(cb, iv); l.start(0); parts.push(l); return l; };
-  const pick = a => a[Math.floor(rnd() * a.length)];
-  let bar = 0; loop(() => { bar++; }, '1m');
-  // a small drum kit
-  const kit = (o = {}) => {
-    const kick = keep(new T.MembraneSynth({ pitchDecay: o.kd || 0.04, octaves: 6, envelope: { attack: 0.001, decay: o.kdec || 0.32, sustain: 0, release: 0.05 } })); kick.volume.value = o.kv ?? -6; kick.connect(out);
-    const snare = keep(new T.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: o.sdec || 0.15, sustain: 0 } })); snare.volume.value = o.sv ?? -14;
-    fx(new T.Filter(o.sf || 1900, 'bandpass', -12)); snare.connect(nodes[nodes.length - 1]);
-    const hat = keep(new T.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: o.hdec || 0.035, sustain: 0 } })); hat.volume.value = o.hv ?? -24;
-    fx(new T.Filter(7500, 'highpass')); hat.connect(nodes[nodes.length - 1]);
-    return { kick, snare, hat };
-  };
-  const drums = (k, pat, sub = '16n', swingHat = 0) => seq((t, s) => {
-    if (s.includes('k')) k.kick.triggerAttackRelease(s.includes('K') ? 'C1' : 'C1', '8n', t);
-    if (s.includes('s')) k.snare.triggerAttackRelease('16n', t, s.includes('S') ? 1 : 0.7);
-    if (s.includes('h')) k.hat.triggerAttackRelease('32n', t, 0.35 + rnd() * 0.4 + swingHat);
-  }, pat, sub);
-  const N = v => typeof v === 'string' ? v : (v && v.toNote ? v.toNote() : T.Frequency(v).toNote());
-  const chordAt = (prog, b) => prog[b % prog.length];
-  let cfg = { bpm: 90, swing: 0, sig: 4 };
-
-  if (g === 'lofi') {
-    cfg = { bpm: 76, swing: 0.55 };
-    const prog = [['D3', 'F3', 'A3', 'C4', 'E4'], ['G2', 'F3', 'B3', 'E4'], ['C3', 'E3', 'G3', 'B3', 'D4'], ['A2', 'G3', 'C4', 'E4']];
-    const keys = keep(new T.PolySynth(T.FMSynth, { harmonicity: 2, modulationIndex: 1.4, envelope: { attack: 0.02, decay: 0.8, sustain: 0.35, release: 1.6 }, modulationEnvelope: { attack: 0.05, decay: 0.4, sustain: 0.2, release: 1 } }));
-    keys.volume.value = -17; keys.connect(fx(new T.Filter(1500, 'lowpass'), new T.Chorus(2, 2.5, 0.4).start(), new T.Reverb({ decay: 3, wet: 0.25 })));
-    loop(t => { const c = chordAt(prog, bar); keys.triggerAttackRelease(c, '2n.', t, 0.6); keys.triggerAttackRelease(c.slice(1), '8n', t + 2.5 * 60 / cfg.bpm, 0.35); }, '1m');
-    const bass = keep(new T.MonoSynth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.3, sustain: 0.6, release: 0.4 }, filterEnvelope: { baseFrequency: 200, octaves: 1 } })); bass.volume.value = -9; bass.connect(out);
-    seq((t, s) => { if (s === null) return; const c = chordAt(prog, bar); bass.triggerAttackRelease(N(T.Frequency(c[0]).transpose(s)), '8n.', t); }, [0, null, null, null, null, null, 7, null], '8n');
-    drums(kit({ kv: -7, sv: -16, sdec: 0.2, hv: -27 }), ['kh', '', 'h', '', 'sh', '', 'h', 'k', 'h', 'k', 'h', '', 'sh', '', 'h', ''], '16n');
-    const mel = keep(new T.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.3, sustain: 0.2, release: 0.8 } })); mel.volume.value = -20; mel.connect(fx(new T.FeedbackDelay('8n.', 0.3), new T.Reverb({ decay: 4, wet: 0.35 })));
-    const pent = ['D4', 'F4', 'G4', 'A4', 'C5', 'D5', 'F5'];
-    seq(t => { if (rnd() < 0.28) mel.triggerAttackRelease(pick(pent), '8n', t, 0.3 + rnd() * 0.3); }, [0, 0, 0, 0, 0, 0, 0, 0], '8n');
-    const crackle = keep(new T.Noise('pink')); crackle.volume.value = -42; crackle.connect(fx(new T.Filter(3000, 'highpass'))); crackle.start();
-    const click = keep(new T.NoiseSynth({ envelope: { attack: 0.0005, decay: 0.004, sustain: 0 } })); click.volume.value = -32; click.connect(out);
-    seq(t => { if (rnd() < 0.18) click.triggerAttackRelease('64n', t + rnd() * 0.05); }, [0, 0, 0, 0], '8n');
-  }
-  else if (g === 'reggae') {
-    cfg = { bpm: 72, swing: 0.15 };
-    const prog = [['A3', 'C4', 'E4'], ['D4', 'F4', 'A4'], ['A3', 'C4', 'E4'], ['E3', 'G3', 'B3']];
-    const organ = keep(new T.PolySynth(T.Synth, { oscillator: { type: 'square' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.1, release: 0.05 } })); organ.volume.value = -24; organ.connect(fx(new T.Filter(1800, 'lowpass')));
-    seq((t, s) => { if (s) organ.triggerAttackRelease(chordAt(prog, bar), '16n', t, 0.5); }, [0, 1, 0, 1, 0, 1, 0, 1], '8n');
-    const chop = keep(new T.PolySynth(T.Synth, { oscillator: { type: 'sawtooth' }, envelope: { attack: 0.002, decay: 0.08, sustain: 0, release: 0.05 } })); chop.volume.value = -19;
-    chop.connect(fx(new T.Filter(1000, 'highpass'), new T.Filter(3500, 'lowpass'), new T.FeedbackDelay('8n.', 0.35)));
-    seq((t, s) => { if (s) chop.triggerAttackRelease(chordAt(prog, bar).map(n => N(T.Frequency(n).transpose(12))), '32n', t, 0.8); }, [0, 0, 1, 0, 0, 0, 1, 0], '8n');
-    const bass = keep(new T.MonoSynth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.8, release: 0.2 }, filterEnvelope: { baseFrequency: 150, octaves: 1.5 } })); bass.volume.value = -5; bass.connect(out);
-    seq((t, s) => { if (s === null) return; const r = T.Frequency(chordAt(prog, bar)[0]).transpose(-24); bass.triggerAttackRelease(N(r.transpose(s)), '8n', t); }, [0, null, null, 0, null, 12, 7, 5], '8n');
-    const k = kit({ kv: -6, sv: -13, sf: 3200, sdec: 0.08, hv: -25 });
-    const dub = fx(new T.FeedbackDelay('8n.', 0.4)); k.snare.connect(dub);
-    drums(k, ['h', '', 'h', '', 'h', '', 'h', '', 'ksh', '', 'h', '', 'h', '', 'h', 'h'], '16n');
-  }
-  else if (g === 'country') {
-    cfg = { bpm: 116, swing: 0.3 };
-    const prog = [['G2', 'B3', 'D4', 'G4'], ['C3', 'C4', 'E4', 'G4'], ['G2', 'B3', 'D4', 'G4'], ['D3', 'A3', 'D4', 'F#4']];
-    const strings = [0, 1, 2, 3].map(() => { const p = keep(new T.PluckSynth({ attackNoise: 1.2, dampening: 3800, resonance: 0.93 })); p.volume.value = -10; return p; });
-    const gtr = fx(new T.Reverb({ decay: 1.6, wet: 0.2 })); strings.forEach(p => p.connect(gtr));
-    seq((t, s) => { if (!s) return; chordAt(prog, bar).forEach((n, i) => strings[i].triggerAttack(n, t + i * 0.012)); }, [0, 1, 0, 1], '4n');
-    const bass = keep(new T.MonoSynth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.005, decay: 0.25, sustain: 0.3, release: 0.2 } })); bass.volume.value = -6; bass.connect(out);
-    seq((t, s) => { if (s === null) return; const r = T.Frequency(chordAt(prog, bar)[0]); bass.triggerAttackRelease(N(r.transpose(s)), '8n', t); }, [0, null, 7, null], '4n');
-    drums(kit({ kv: -9, sv: -18, sdec: 0.12, sf: 2500, hv: -27 }), ['kh', 'h', 'sh', 'h', 'kh', 'h', 'sh', 'h'], '8n');
-    const fid = keep(new T.MonoSynth({ oscillator: { type: 'sawtooth' }, envelope: { attack: 0.06, decay: 0.2, sustain: 0.7, release: 0.3 }, filterEnvelope: { baseFrequency: 900, octaves: 2 } })); fid.volume.value = -21;
-    fid.connect(fx(new T.Vibrato(5.5, 0.12), new T.Filter(3200, 'lowpass'), new T.Reverb({ decay: 2.2, wet: 0.3 })));
-    const scale = ['G4', 'A4', 'B4', 'D5', 'E5', 'G5'];
-    seq(t => { if (Math.floor(bar / 4) % 2 === 1 && rnd() < 0.7) fid.triggerAttackRelease(pick(scale), '8n', t, 0.7); }, [0, 0, 0, 0, 0, 0, 0, 0], '8n');
-  }
-  else if (g === 'classical') {
-    cfg = { bpm: 66, swing: 0 };
-    // J.S. Bach, Prelude in C major, BWV 846 (1722): the harmony of each bar, played in its rising figure
-    const bars = [['C4', 'E4', 'G4', 'C5', 'E5'], ['C4', 'D4', 'A4', 'D5', 'F5'], ['B3', 'D4', 'G4', 'D5', 'F5'], ['C4', 'E4', 'G4', 'C5', 'E5'], ['C4', 'E4', 'A4', 'E5', 'A5'], ['C4', 'D4', 'F#4', 'A4', 'D5'],
-      ['B3', 'D4', 'G4', 'D5', 'G5'], ['B3', 'C4', 'E4', 'G4', 'C5'], ['A3', 'C4', 'E4', 'G4', 'C5'], ['D3', 'A3', 'D4', 'F#4', 'C5'], ['G3', 'B3', 'D4', 'G4', 'B4'], ['G3', 'Bb3', 'E4', 'G4', 'C#5'],
-      ['F3', 'A3', 'D4', 'A4', 'D5'], ['F3', 'Ab3', 'D4', 'F4', 'B4'], ['E3', 'G3', 'C4', 'G4', 'C5'], ['E3', 'F3', 'A3', 'C4', 'F4'], ['D3', 'F3', 'A3', 'C4', 'F4'], ['G2', 'D3', 'G3', 'B3', 'F4'],
-      ['C3', 'E3', 'G3', 'C4', 'E4'], ['C3', 'G3', 'Bb3', 'C4', 'E4'], ['F2', 'F3', 'A3', 'C4', 'E4'], ['F#2', 'C3', 'A3', 'C4', 'Eb4'], ['Ab2', 'F3', 'B3', 'C4', 'D4'], ['G2', 'F3', 'G3', 'B3', 'D4'],
-      ['G2', 'E3', 'G3', 'C4', 'E4'], ['G2', 'D3', 'G3', 'C4', 'F4'], ['G2', 'D3', 'G3', 'B3', 'F4'], ['G2', 'Eb3', 'A3', 'C4', 'F#4'], ['G2', 'E3', 'G3', 'C4', 'G4'], ['G2', 'D3', 'G3', 'C4', 'F4'],
-      ['G2', 'D3', 'G3', 'B3', 'F4'], ['C2', 'C3', 'G3', 'Bb3', 'E4'], ['C2', 'C3', 'F3', 'A3', 'E4'], ['C2', 'B2', 'G3', 'B3', 'D4'], ['C2', 'C3', 'E3', 'G3', 'C4']];
-    const piano = keep(new T.PolySynth(T.Synth, { maxPolyphony: 16, oscillator: { type: 'fattriangle', count: 2, spread: 8 }, envelope: { attack: 0.004, decay: 1.4, sustain: 0.08, release: 1.6 } })); piano.volume.value = -6;
-    piano.connect(fx(new T.Filter(4200, 'lowpass'), new T.Reverb({ decay: 4.5, wet: 0.35 })));
-    const fig = [0, 1, 2, 3, 4, 2, 3, 4, 0, 1, 2, 3, 4, 2, 3, 4];
-    seq((t, i) => { const c = bars[bar % bars.length]; piano.triggerAttackRelease(c[i], i < 2 ? '2n' : '8n', t, i === 0 ? 0.75 : 0.5); }, fig, '16n');
-  }
-  else if (g === 'synthwave') {
-    cfg = { bpm: 100, swing: 0 };
-    const prog = [['A2', 'C3', 'E3', 'A3'], ['F2', 'A2', 'C3', 'F3'], ['C3', 'E3', 'G3', 'C4'], ['G2', 'B2', 'D3', 'G3']];
-    const arp = keep(new T.MonoSynth({ oscillator: { type: 'sawtooth' }, envelope: { attack: 0.005, decay: 0.15, sustain: 0.2, release: 0.1 }, filterEnvelope: { baseFrequency: 600, octaves: 3, attack: 0.002, decay: 0.12 } })); arp.volume.value = -19;
-    arp.connect(fx(new T.FeedbackDelay('8n.', 0.3), new T.Chorus(1.5, 3, 0.5).start(), new T.Reverb({ decay: 3, wet: 0.25 })));
-    const up = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 2, 3, 1];
-    seq((t, i) => { const c = chordAt(prog, bar); arp.triggerAttackRelease(N(T.Frequency(c[i]).transpose(12)), '16n', t, 0.6); }, up, '16n');
-    const pad = keep(new T.PolySynth(T.Synth, { oscillator: { type: 'fatsawtooth', count: 3, spread: 30 }, envelope: { attack: 0.8, decay: 0.5, sustain: 0.7, release: 1.5 } })); pad.volume.value = -27;
-    pad.connect(fx(new T.Filter(1400, 'lowpass'), new T.Reverb({ decay: 5, wet: 0.5 })));
-    loop(t => pad.triggerAttackRelease(chordAt(prog, bar).map(n => N(T.Frequency(n).transpose(12))), '1m', t, 0.5), '1m');
-    const bass = keep(new T.MonoSynth({ oscillator: { type: 'sawtooth' }, envelope: { attack: 0.005, decay: 0.2, sustain: 0.5, release: 0.1 }, filterEnvelope: { baseFrequency: 180, octaves: 2.5 } })); bass.volume.value = -11; bass.connect(out);
-    seq(t => { bass.triggerAttackRelease(N(T.Frequency(chordAt(prog, bar)[0]).transpose(-12)), '16n', t); }, [0, 0, 0, 0, 0, 0, 0, 0], '8n');
-    const k = kit({ kv: -6, sv: -11, sdec: 0.22, hv: -26 }); const big = fx(new T.Reverb({ decay: 2.5, wet: 0.5 })); k.snare.connect(big);
-    drums(k, ['kh', 'h', 'sh', 'h', 'kh', 'h', 'sh', 'h'], '8n');
-  }
-  else if (g === 'chip') {
-    cfg = { bpm: 140, swing: 0 };
-    const prog = [['C4', 'E4', 'G4'], ['A3', 'C4', 'E4'], ['F3', 'A3', 'C4'], ['G3', 'B3', 'D4']];
-    const lead = keep(new T.Synth({ oscillator: { type: 'pulse', width: 0.25 }, envelope: { attack: 0.002, decay: 0.08, sustain: 0.5, release: 0.05 } })); lead.volume.value = -20; lead.connect(out);
-    const scale = ['C5', 'D5', 'E5', 'G5', 'A5', 'C6'], motif = Array.from({ length: 16 }, () => rnd() < 0.7 ? pick(scale) : null);
-    seq((t, i) => { const n = (bar % 4 === 3 && i > 8) ? (rnd() < 0.6 ? pick(scale) : null) : motif[i]; if (n) lead.triggerAttackRelease(n, '16n', t, 0.7); }, [...Array(16).keys()], '16n');
-    const arp = keep(new T.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.001, decay: 0.03, sustain: 0.2, release: 0.01 } })); arp.volume.value = -28; arp.connect(out);
-    seq((t, i) => arp.triggerAttackRelease(chordAt(prog, bar)[i % 3], '32n', t), [...Array(16).keys()], '16n');
-    const bass = keep(new T.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.002, decay: 0.1, sustain: 0.6, release: 0.02 } })); bass.volume.value = -8; bass.connect(out);
-    seq((t, s) => bass.triggerAttackRelease(N(T.Frequency(chordAt(prog, bar)[0]).transpose(s - 12)), '16n', t), [0, 12, 0, 12, 0, 12, 0, 12], '8n');
-    drums(kit({ kv: -8, sv: -16, sdec: 0.06, hv: -28, hdec: 0.02 }), ['kh', 'h', 'sh', 'h', 'kh', 'kh', 'sh', 'h'], '8n');
-  }
-  else if (g === 'jig') {
-    cfg = { bpm: 112, swing: 0 }; // twelve triplet quavers to the bar: a 12/8 jig
-    const drone = keep(new T.Oscillator('A2', 'sawtooth')), drone2 = keep(new T.Oscillator('A3', 'sawtooth')); const dv = fx(new T.Filter(800, 'lowpass'), new T.Volume(-31)); drone.connect(dv); drone2.connect(dv); drone.start(); drone2.start();
-    const chanter = keep(new T.MonoSynth({ portamento: 0.01, oscillator: { type: 'sawtooth' }, envelope: { attack: 0.01, decay: 0.05, sustain: 0.9, release: 0.05 }, filterEnvelope: { baseFrequency: 1400, octaves: 1.5 } })); chanter.volume.value = -19;
-    chanter.connect(fx(new T.Filter(1100, 'bandpass', -12), new T.Filter(3800, 'lowpass'), new T.Reverb({ decay: 2.4, wet: 0.3 })));
-    // an original tune in A mixolydian, AABB: each part two bars, a phrase that leans on chord tones at each dotted beat
-    const sc = ['G4', 'A4', 'B4', 'C#5', 'D5', 'E5', 'F#5', 'G5', 'A5'], strong = [1, 3, 5, 8];
-    const phrase = () => { let p = 1 + Math.floor(rnd() * 4); return Array.from({ length: 24 }, (_, i) => { if (i % 3 === 0) p = pick(strong); else p = Math.max(0, Math.min(sc.length - 1, p + pick([-1, 1, 1, -2, 2]))); return sc[p]; }); };
-    const A = phrase(), B = phrase().map(n => N(T.Frequency(n).transpose(rnd() < 0.5 ? 0 : 2)));
-    seq((t, i) => { const part = Math.floor(bar / 4) % 2 ? B : A, n = part[(bar % 2) * 12 + i]; if (i % 3 === 0 && rnd() < 0.25) chanter.triggerAttackRelease(N(T.Frequency(n).transpose(2)), '64n', t - 0.02, 0.5); chanter.triggerAttackRelease(n, '8t', t, i % 3 === 0 ? 0.8 : 0.6); }, [...Array(12).keys()], '8t');
-    const bod = keep(new T.MembraneSynth({ pitchDecay: 0.06, octaves: 3, envelope: { attack: 0.001, decay: 0.25, sustain: 0 } })); bod.volume.value = -12; bod.connect(out);
-    seq((t, s) => { if (s) bod.triggerAttackRelease(s === 2 ? 'D2' : 'G2', '16n', t, s === 2 ? 0.9 : 0.5); }, [2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 1, 1], '8t');
-  }
-  else if (g === 'metal') {
-    cfg = { bpm: 168, swing: 0 };
-    const dist = fx(new T.Distortion(0.92), new T.Filter(95, 'highpass'), new T.Filter(3600, 'lowpass'), new T.Volume(-15));
-    const gL = keep(new T.PolySynth(T.Synth, { oscillator: { type: 'fatsawtooth', count: 3, spread: 22 }, envelope: { attack: 0.002, decay: 0.15, sustain: 0.6, release: 0.06 } })), gR = keep(new T.PolySynth(T.Synth, { oscillator: { type: 'fatsawtooth', count: 3, spread: 18 }, envelope: { attack: 0.002, decay: 0.15, sustain: 0.6, release: 0.06 } }));
-    const pL = keep(new T.Panner(-0.6)), pR = keep(new T.Panner(0.6)); gL.connect(pL); gR.connect(pR); pL.connect(dist); pR.connect(dist);
-    // E Phrygian riffs: c = chug on low E, a power chord name otherwise
-    const PC = { E: ['E2', 'B2', 'E3'], F: ['F2', 'C3', 'F3'], G: ['G2', 'D3', 'G3'], A: ['A2', 'E3', 'A3'], Bb: ['Bb2', 'F3', 'Bb3'], C: ['C3', 'G3', 'C4'] };
-    const riffs = [['c', 'c', 'c', 'G', 'c', 'c', 'F', 'c', 'c', 'c', 'c', 'Bb', 'c', 'A', 'c', 'G'], ['E', null, 'c', 'c', 'G', null, 'c', 'c', 'F', null, 'c', 'c', 'C', null, 'Bb', 'A']];
-    seq((t, i) => { const r = riffs[Math.floor(bar / 2) % 2][i]; if (!r) return; const ch = r === 'c' ? ['E2', 'B2'] : PC[r], dur = r === 'c' ? '32n' : '8n';
-      gL.triggerAttackRelease(ch, dur, t, r === 'c' ? 0.6 : 0.9); gR.triggerAttackRelease(ch, dur, t + 0.006, r === 'c' ? 0.6 : 0.9); }, [...Array(16).keys()], '16n');
-    const bass = keep(new T.MonoSynth({ oscillator: { type: 'sawtooth' }, envelope: { attack: 0.002, decay: 0.1, sustain: 0.7, release: 0.05 }, filterEnvelope: { baseFrequency: 200, octaves: 2 } })); bass.volume.value = -12;
-    bass.connect(fx(new T.Distortion(0.4), new T.Filter(900, 'lowpass')));
-    seq((t, i) => { const r = riffs[Math.floor(bar / 2) % 2][i]; if (r) bass.triggerAttackRelease(r === 'c' ? 'E1' : N(T.Frequency(PC[r][0]).transpose(-12)), '16n', t); }, [...Array(16).keys()], '16n');
-    const k = kit({ kv: -9, kd: 0.02, kdec: 0.18, sv: -9, sdec: 0.2, sf: 2200, hv: -26 });
-    drums(k, ['kh', 'k', 'kh', 'k', 'kSh', 'k', 'kh', 'k', 'kh', 'k', 'kh', 'k', 'kSh', 'k', 'kh', 'k'], '16n');
-    const crash = keep(new T.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 1.4, sustain: 0 } })); crash.volume.value = -22; crash.connect(fx(new T.Filter(5000, 'highpass')));
-    loop(t => { if (bar % 4 === 0) crash.triggerAttackRelease('2n', t); }, '1m');
-  }
-  bus.volume.value = ({ lofi: 11, reggae: 6, country: 12, classical: 20, synthwave: 13, chip: 11, jig: 18, metal: 7 })[g] || 0;
-  return { cfg, nodes, parts };
-}
-// ---------- playback ----------
-const MUS = { genre: 'off', loading: null, ctx: null, song: null, out: null, vol: -8, T: null };
-function loadToneJs() {
-  if (MUS.loading) return MUS.loading;
-  MUS.loading = new Promise((res, rej) => {
-    if (window.Tone) return res(window.Tone);
-    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js'; sc.integrity = 'sha384-OIQZlttB2MRaZyoi526rVHiNUGYEq4MAMxDbTkwghmmqxs556T5g5LY926GH7NYM'; sc.crossOrigin = 'anonymous';
-    sc.onload = () => res(window.Tone); sc.onerror = () => { MUS.loading = null; rej(new Error('Tone.js did not load')); }; document.head.append(sc);
-  });
-  return MUS.loading;
-}
+// ---------- music for the virtual cycle: ad-free internet radio, played in the page ----------
+// Listener-supported or public-service stations with no adverts; each has a fallback address in case one is busy.
+const RADIO = [
+  ['lofi', 'Lo-fi & instrumental hip hop', 'SomaFM Fluid', ['https://ice.somafm.com/fluid', 'https://ice2.somafm.com/fluid-128-mp3']],
+  ['chill', 'Chilled downtempo', 'SomaFM Groove Salad', ['https://ice.somafm.com/groovesalad', 'https://ice2.somafm.com/groovesalad-128-mp3']],
+  ['reggae', 'Reggae, ska and dub', 'SomaFM Heavyweight Reggae', ['https://ice.somafm.com/reggae', 'https://ice2.somafm.com/reggae-128-mp3']],
+  ['country', 'Country and Americana', 'SomaFM Boot Liquor', ['https://ice.somafm.com/bootliquor', 'https://ice2.somafm.com/bootliquor-128-mp3']],
+  ['classical', 'Classical', 'Radio Swiss Classic', ['https://stream.srg-ssr.ch/m/rsc_de/mp3_128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/aac/96']],
+  ['synthwave', 'Synthwave', 'Nightride FM', ['https://stream.nightride.fm/nightride.mp3', 'https://stream.nightride.fm/chillsynth.mp3']],
+  ['celtic', 'Celtic', 'SomaFM ThistleRadio', ['https://ice.somafm.com/thistle', 'https://ice2.somafm.com/thistle-128-mp3']],
+  ['spy', 'Spy lounge', 'SomaFM Secret Agent', ['https://ice.somafm.com/secretagent', 'https://ice2.somafm.com/secretagent-128-mp3']],
+  ['metal', 'Rage metal', 'SomaFM Metal Detector', ['https://ice.somafm.com/metal', 'https://ice2.somafm.com/metal-128-mp3']]];
+const MUS = { genre: 'off', audio: null, vol: 0.7, fadeT: 0, onChange: null };
 function stopMusic() {
-  const T = MUS.T; if (!T || !MUS.song) { MUS.genre = 'off'; return; }
-  const song = MUS.song; MUS.song = null; MUS.genre = 'off';
-  try { MUS.out.volume.rampTo(-60, 0.4); } catch (e) {}
-  setTimeout(() => { try { T.Transport.stop(); T.Transport.cancel(); song.parts.forEach(p => p.dispose()); song.nodes.forEach(n => { try { n.dispose(); } catch (e) {} }); } catch (e) {} }, 450);
+  const a = MUS.audio; MUS.genre = 'off'; if (MUS.onChange) MUS.onChange();
+  if (!a) return; clearInterval(MUS.fadeT);
+  MUS.fadeT = setInterval(() => { a.volume = Math.max(0, a.volume - 0.08); if (a.volume <= 0.01) { clearInterval(MUS.fadeT); a.pause(); a.removeAttribute('src'); a.load(); } }, 40);
 }
-async function playMusic(g) {
-  // open the audio context inside the click, before anything is awaited, so every browser lets it play
-  if (!MUS.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) MUS.ctx = new AC(); }
-  if (MUS.ctx && MUS.ctx.state === 'suspended') MUS.ctx.resume();
-  let T; try { T = await loadToneJs(); } catch (e) { toast('The music could not load.'); return; }
-  if (!MUS.T) { MUS.T = T; if (MUS.ctx) T.setContext(new T.Context(MUS.ctx)); MUS.out = new T.Volume(-60); MUS.out.connect(new T.Limiter(-2).toDestination()); }
-  if (MUS.song) { stopMusic(); await new Promise(r => setTimeout(r, 480)); }
-  const song = buildMusic(T, g, MUS.out); MUS.song = song; MUS.genre = g;
-  T.Transport.bpm.value = song.cfg.bpm; T.Transport.swing = song.cfg.swing || 0; T.Transport.swingSubdivision = '8n'; T.Transport.position = 0;
-  T.Transport.start('+0.05'); MUS.out.volume.rampTo(MUS.vol, 1.2);
+function playMusic(g) {
+  const st = RADIO.find(r => r[0] === g); if (!st) return stopMusic();
+  const a = MUS.audio || (MUS.audio = new Audio()); clearInterval(MUS.fadeT);
+  a.preload = 'none'; a.volume = 0; MUS.genre = g; if (MUS.onChange) MUS.onChange();
+  let i = 0;
+  const tryNext = () => {
+    if (MUS.genre !== g) return;
+    if (i >= st[3].length) { toast(st[2] + ' is not answering just now. Try another station.'); MUS.genre = 'off'; if (MUS.onChange) MUS.onChange(); return; }
+    a.src = st[3][i++];
+    a.play().then(() => { MUS.fadeT = setInterval(() => { a.volume = Math.min(MUS.vol, a.volume + 0.05); if (a.volume >= MUS.vol - 0.01) clearInterval(MUS.fadeT); }, 50); }).catch(() => tryNext());
+  };
+  a.onerror = () => { if (MUS.genre === g) tryNext(); };
+  tryNext(); // called straight from the click, so the browser lets it play
 }
-
 { // the music menu on the virtual cycle bar
   const m = document.getElementById('menu-music'), btn = document.getElementById('fly-musicbtn');
-  const mark = () => { m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false')); const cur = MUSIC.find(x => x[0] === MUS.genre); btn.textContent = '♪ ' + (cur ? cur[1] : 'Music'); };
-  [['off', 'Off']].concat(MUSIC).forEach(([g, label]) => { const b = el('button', null, label); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g;
-    b.addEventListener('click', () => { if (g === 'off') stopMusic(); else playMusic(g).then(mark); mark(); }); m.append(b); });
-  const vl = el('label', 'mus-vol'); const vr = el('input'); vr.type = 'range'; vr.min = -30; vr.max = 0; vr.step = 1; vr.value = MUS.vol; vr.setAttribute('aria-label', 'Music volume');
-  vr.addEventListener('input', () => { MUS.vol = +vr.value; if (MUS.out && MUS.song) MUS.out.volume.rampTo(MUS.vol, 0.15); });
-  vl.append(document.createTextNode('Volume'), vr); m.append(vl, el('div', 'mus-note', 'Generated live in your browser: original patterns, and Bach for the classical.'));
-  mark();
+  const mark = () => { m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false')); const cur = RADIO.find(x => x[0] === MUS.genre); btn.textContent = '♪ ' + (cur ? cur[1] : 'Music'); };
+  MUS.onChange = mark;
+  const off = el('button', null, 'Off'); off.type = 'button'; off.setAttribute('role', 'menuitemradio'); off.dataset.g = 'off'; off.addEventListener('click', stopMusic); m.append(off);
+  RADIO.forEach(([g, label, station]) => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g;
+    b.append(el('span', 'mus-lbl', label), el('span', 'mus-st', station)); b.addEventListener('click', () => playMusic(g)); m.append(b); });
+  const vl = el('label', 'mus-vol'); const vr = el('input'); vr.type = 'range'; vr.min = 0; vr.max = 1; vr.step = 0.05; vr.value = MUS.vol; vr.setAttribute('aria-label', 'Music volume');
+  vr.addEventListener('input', () => { MUS.vol = +vr.value; if (MUS.audio && MUS.genre !== 'off') { clearInterval(MUS.fadeT); MUS.audio.volume = MUS.vol; } });
+  vl.append(document.createTextNode('Volume'), vr);
+  const note = el('div', 'mus-note'); note.append(document.createTextNode('Ad-free internet radio from listener-supported '), Object.assign(el('a', null, 'SomaFM'), { href: 'https://somafm.com/support/', target: '_blank', rel: 'noopener' }), document.createTextNode(', Radio Swiss Classic and Nightride FM.'));
+  m.append(vl, note); mark();
 }
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
