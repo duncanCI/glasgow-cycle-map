@@ -358,6 +358,10 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
 /* anything marked hidden stays hidden, whatever display its class sets */
 [hidden]{display:none!important}
+/* the key never grows past the map tools: it scrolls inside, with its heading kept in view */
+.legend{max-height:calc(100% - var(--dock-h,18px) - 82px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.legend .legend-head{position:sticky;top:-8px;z-index:1;background:var(--panel);padding-top:8px;margin-top:-8px;width:100%;text-align:left}
+@media (max-width:760px){.legend{max-height:calc(100% - var(--dock-h,18px) - 70px)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 </head>
