@@ -2,7 +2,7 @@
 
 An interactive map of Glasgow's protected cycle network. It shows how far every street is from segregated or off-road cycle track, how much of that track joins up, and what the council's 2032 programme and full City Network plan would change.
 
-With the default settings, 14% of Glasgow's 621,020 residents live in neighbourhoods mostly within 800 m riding of the main protected network. 79% are within 800 m of some protected track, but the city's 148 km of track sits in 183 separate pieces, and 149 of them are under 1 km long.
+With the default settings, 43% of Glasgow's 621,020 residents live in neighbourhoods mostly within 800 m riding of the main protected network. That includes 50 km of protected track from a community-maintained map of routes built since the May 2025 data, which on its own gives 14%. 92% of residents are within 800 m of some protected track, but much of it sits in fragments that join nothing bigger.
 
 ## Publish on GitHub Pages
 
@@ -22,6 +22,30 @@ gh api -X POST "repos/{owner}/{repo}/pages" -f "source[branch]=main" -f "source[
 ```
 
 The site appears at `https://<your-username>.github.io/glasgow-cycle-map/` once the first Pages build finishes, usually in about 2 minutes.
+
+## One-way streets, contraflow and dead ends
+
+Distances to the network follow one-way streets as mapped in OpenStreetMap, in both directions, and the longer of the ride there and the ride back counts. Only 53 streets in Glasgow are mapped with contraflow cycling, which leaves 95 km of quiet one-way streets that bikes can use in one direction only.
+
+Two options test what that costs. "Reach the network without riding on busy roads" limits the ride to the network to protected track and streets rated High or Medium, as a family with young children would ride. "What if cycling were allowed both ways on quiet one-way streets" opens those 95 km to two-way cycling. With both switched on, about 10,000 more residents come within 800 m of the main protected network.
+
+"Possible missing links" marks 165 residential dead ends that come within 25 m of another street or path, at a similar height, with no mapped way between them within 400 m of riding. A dropped kerb or a filtered gap could join many of them, but some are walls, fences, private land or unmapped paths, so they are shown for checking on the ground and not counted in the figures. Both ideas come from the observations of the community map's author, u/Correct-Audience-421.
+
+## Route planner
+
+Right-click the map, or press and hold on a phone, and choose "Route from here" and "Route to here". The route follows the network for the selected scenario, so the same trip can be compared today and under the plans. Drag the A and B pins to move them, and right-click again to add stops, which can also be dragged or removed.
+
+Each route shows its length and riding time, the share on protected track, the climb and the steepest 100 m, the junctions passed and the busy-road crossings or turns, and a breakdown of what you ride on. A height profile follows the route on the map as you move along it. "Download GPX for Strava" saves a file that Strava's route builder imports (Create route, then the upload button), and "Open in Google Maps" passes the start, end, stops and a few points along the route to Google's cycling directions.
+
+"Prefer protected routes" weights each street by traffic stress: protected track at its true length, quiet streets at 1.2 times and busy streets at up to 4 times. Riding time assumes 16 km/h on the flat (13 km/h on shared pavements), adjusted for gradient, plus 8 seconds per busy-road crossing or turn and 12 seconds per mapped signal. The planner follows one-way streets as mapped in OpenStreetMap, which may miss some contraflow cycling permissions.
+
+## Community map and the weekly refresh
+
+Routes built since May 2025 come from [Glasgow Cycle Map: Now and Future](https://www.google.com/maps/d/viewer?mid=1DSSERLE1fpX9_ze779MfZS4d3KctbV0), a Google My Map maintained by [u/Correct-Audience-421](https://www.reddit.com/user/Correct-Audience-421/) and used with their permission. Thank you.
+
+`.github/workflows/community-refresh.yml` runs `scripts/community.py` every Monday at 06:00 UTC. It downloads the map, writes `data/community.geojson` and `data/community-meta.json`, embeds the lines in `index.html`, commits, and asks GitHub Pages to rebuild. It refuses a download that looks broken, for example one with less than half the previous built length, and the page keeps the last good copy. To run it by hand, open the Actions tab, choose the workflow and select "Run workflow".
+
+The script reads the map's line colours: dark green and dark teal are built, mint is under construction or being upgraded, amber is planned and dark grey is a quiet street. Built lines become protected paths in the network, sampled every 25 m and joined to street junctions within 20 m. Built lines described as shared pavements count only when shared pavements are switched on. Under-construction lines join the 2032 and full-plan scenarios.
 
 ## Reports
 
@@ -65,6 +89,8 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | City Network routes, stages and constraints | Glasgow City Council Active Travel Strategy routes service, October 2026 | Check with the council before reuse |
 | City boundary | Glasgow City Council | Check with the council before reuse |
 | Data zones, population, deprivation decile | Network Planning Tool data zones file, from National Records of Scotland and the Scottish Index of Multiple Deprivation 2020 | Open Government Licence v3.0 |
+| Routes built since May 2025 | Glasgow Cycle Map: Now and Future, by u/Correct-Audience-421, refreshed weekly | Used with the author's permission |
+| Heights | Mapzen Terrain Tiles on AWS Open Data, from SRTM in Scotland, resampled to about 37 m | Open data, attribution to Mapzen and SRTM (NASA) |
 | Background map | OpenStreetMap standard tiles, shown in greyscale | © OpenStreetMap contributors, used under the OpenStreetMap tile usage policy |
 
 The network data embedded in `index.html` is a derived database of OpenStreetMap and is published under the [Open Database Licence 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The code is MIT licensed (see `LICENSE`).

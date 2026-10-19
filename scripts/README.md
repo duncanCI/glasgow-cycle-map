@@ -10,4 +10,6 @@ Run from the repository root with Python 3.11 or later and `geopandas`, `pyogrio
 2. Clip the Cycling by Design layer to the city boundary and join live OpenStreetMap attributes: run `fetch_osm.py` to get `data/osm_attrs.json`, then clip `cbd_layer` to `boundary.geojson`, merge on `osm_id`, and save as `data/net_city.gpkg`.
 3. Run `build_network.py` to split ways at junctions and write `data/network.json`.
 4. Run `prep2.py` to add the 2032 programme flags and data zones, writing `data/network2.json`.
-5. Paste `data/network2.json` into the `net-data` script tag in `index.html`.
+5. Run `prep_route.py` to add one-way flags (writing `data/network3.json`) and build the height grid (`data/elev.json`) from Mapzen Terrain Tiles.
+6. Run `prep_flow.py` to add contraflow permissions, quiet one-way streets and possible missing links (writing `data/network4.json`).
+7. Paste `data/network4.json` into the `net-data` script tag and `data/elev.json` into the `elev-data` script tag in `index.html`. The weekly workflow fills the `comm-data` tag itself.
