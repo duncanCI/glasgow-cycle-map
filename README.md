@@ -37,7 +37,7 @@ Right-click the map, or press and hold on a phone, and choose "Route from here" 
 
 Each route shows its length and riding time, the share on protected track, the climb and the steepest 100 m, the junctions passed and the busy-road crossings or turns, and a breakdown of what you ride on. A height profile follows the route on the map as you move along it. "Download GPX for Strava" saves a file that Strava's route builder imports (Create route, then the upload button), and "Open in Google Maps" passes the start, end, stops and a few points along the route to Google's cycling directions.
 
-"Prefer protected routes" weights each street by traffic stress: protected track at its true length, quiet streets at 1.2 times and busy streets at up to 4 times. Riding time assumes 16 km/h on the flat (13 km/h on shared pavements), adjusted for gradient, plus 8 seconds per busy-road crossing or turn and 12 seconds per mapped signal. The planner follows one-way streets as mapped in OpenStreetMap, which may miss some contraflow cycling permissions.
+"Most protected", the default, weights each street by traffic stress: protected track at its true length, quiet streets at 1.8 times and busy streets at up to 6 times. "Balanced" uses 1.2 and 4 times, and "Most direct" takes the shortest legal route. The height profile is pinned to the bottom of the map whenever a route is shown. Click the route line to add a stop, then drag it. Riding time assumes 16 km/h on the flat (13 km/h on shared pavements), adjusted for gradient, plus 8 seconds per busy-road crossing or turn and 12 seconds per mapped signal. The planner follows one-way streets as mapped in OpenStreetMap, which may miss some contraflow cycling permissions.
 
 ## Community map and the weekly refresh
 
