@@ -47,7 +47,7 @@ Every street, path or community-map link within the radius (in metres, default 1
 
 The page opens on an example route, from the University of Glasgow to Queen's Park, which runs 84% on protected track. The side panel keeps search, sharing and help in a fixed header, with tabs for the overview, your route, the selected place, options and the method. The network switch sits on the map itself, and the route's exports sit on the height profile, so nothing important needs a scroll. The map key folds away and remembers your choice, and a short tip greets first-time visitors.
 
-"Share" copies a link to exactly what is on screen: the view, network, options, layers, route, stops and selected street are all stored in the address, so anyone opening the link sees the same thing.
+The background map can be light grey, streets, cycling (CyclOSM), satellite or none, from the switch on the map or the Options tab, and the colour theme can follow the device or be set to light or dark. "Share" copies a link to exactly what is on screen: the view, network, options, layers, route, stops and selected street are all stored in the address, so anyone opening the link sees the same thing.
 
 ## Bike collisions
 
@@ -66,6 +66,10 @@ Right-click the map, or press and hold on a phone, and choose "Route from here" 
 Each route shows its length and riding time, the share on protected track, the climb and the steepest 100 m, the junctions passed and the busy-road crossings or turns, and a breakdown of what you ride on. A height profile follows the route on the map as you move along it. "Download GPX for Strava" saves a file that Strava's route builder imports (Create route, then the upload button), and "Open in Google Maps" passes the start, end, stops and a few points along the route to Google's cycling directions.
 
 Routes follow a cyclist confidence slider with five levels, from "Riding with children" to "Very confident". The lowest level treats a quiet street as three times its length and a busy road as up to 25 times, adds 400 m for every busy road it joins or crosses from a calm street, and may run up to 2.5 times the shortest legal route to stay protected. "Cautious" is the default; "Very confident" takes the shortest legal route. A leg that would stretch beyond its level's limit steps up a level, and the profile says so. Riding speed rises from 11 km/h with children to 20 km/h. Stops stay where you put them, including side roads you want to call in on.
+
+## Flythrough and Street View
+
+"Fly the route" on the profile strip follows the route on the map with an arrow, at 1, 2, 4 or 8 times speed (1x is 25 m a second), with the profile cursor moving in step. Click the profile to jump, press Space to pause and Escape to stop. The flythrough plays in 3D by default, with buildings extruded from their OpenStreetMap heights and gently exaggerated terrain, using MapLibre GL and OpenFreeMap's free vector tiles. The camera follows behind the rider, turning smoothly with the route. Untick "3D with buildings" to fly over the 2D map instead; browsers without WebGL fall back to 2D automatically. "Open Street View here" opens Google Street View at the arrow's position, facing the direction of travel. That link needs no key.
 
 ## Community map and the weekly refresh
 
@@ -121,7 +125,8 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Heights | Mapzen Terrain Tiles on AWS Open Data, from SRTM in Scotland, resampled to about 37 m | Open data, attribution to Mapzen and SRTM (NASA) |
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
-| Background map | OpenStreetMap standard tiles, shown in greyscale | © OpenStreetMap contributors, used under the OpenStreetMap tile usage policy |
+| 3D flythrough | OpenFreeMap vector tiles (OpenMapTiles schema) drawn with MapLibre GL, terrain from Mapzen Terrain Tiles | © OpenMapTiles, data © OpenStreetMap contributors |
+| Background maps | OpenStreetMap standard tiles (light grey and streets), CyclOSM, Esri World Imagery (satellite) | © OpenStreetMap contributors under the tile usage policy; CyclOSM; imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community |
 
 The network data embedded in `index.html` is a derived database of OpenStreetMap and is published under the [Open Database Licence 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The code is MIT licensed (see `LICENSE`).
 

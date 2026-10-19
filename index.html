@@ -46,8 +46,13 @@ body{background:var(--panel);color:var(--ink);font-family:"Atkinson Hyperlegible
 .mapwrap{position:relative;min-height:0}
 #map{position:absolute;inset:0;background:var(--land)}
 .net-canvas{position:absolute;left:0;top:0;pointer-events:none}
-.base-tiles{filter:grayscale(1) contrast(.85) brightness(1.08)}
-@media (prefers-color-scheme: dark){.base-tiles{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}}
+.base-tiles.grey{filter:grayscale(1) contrast(.85) brightness(1.08)}
+:root[data-theme="dark"] .base-tiles.grey{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}
+:root[data-theme="dark"] .base-tiles.streets,:root[data-theme="dark"] .base-tiles.cycle{filter:brightness(.72) contrast(1.05)}
+:root[data-theme="dark"] .base-tiles.sat{filter:brightness(.8)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .base-tiles.grey{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}
+  :root:not([data-theme="light"]) .base-tiles.streets,:root:not([data-theme="light"]) .base-tiles.cycle{filter:brightness(.72) contrast(1.05)}
+  :root:not([data-theme="light"]) .base-tiles.sat{filter:brightness(.8)}}
 h1{font-size:1.65rem;line-height:1.15;margin:0 0 12px;letter-spacing:-0.01em}
 .lede{font-size:1.06rem;margin:0 0 10px;max-width:38em}
 .lede strong{font-weight:700}
@@ -206,7 +211,28 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .mapwrap.has-dock .legend{bottom:calc(var(--dock-h,150px) + 10px)}
 .dock-actions select,.maptools select{width:auto}
 .dock-conf{display:inline-flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700}
-.dock-conf input{width:120px;accent-color:var(--accent)}
+.fly-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:0.85rem}
+.fly-bar select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px}
+.fly-pin{width:0;height:0}
+.fly3d{position:absolute;left:0;right:0;top:0;bottom:var(--dock-h,150px);z-index:1080;background:var(--land)}
+.fly3d[hidden]{display:none}
+#fly3d-map{position:absolute;inset:0}
+.fly-arrow3d{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:30px solid #FFC400;filter:drop-shadow(0 0 2px #000)}
+#fly-3d{accent-color:var(--accent);width:16px;height:16px}
+.fly-arrow{position:absolute;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:26px solid #FFC400;filter:drop-shadow(0 0 2px #000);transform:translate(-50%,-50%)}
+.dock-conf input{width:150px;height:26px;accent-color:var(--accent);cursor:pointer}
+.conf input[type=range]{height:30px;cursor:pointer}
+.maptools{display:flex;gap:6px}
+.row2{display:grid;grid-template-columns:9em 1fr;align-items:center;gap:8px}
+.row2 .ctl-label{margin:0}
+#dock-sum{display:flex;flex-wrap:wrap;gap:2px 12px;font-weight:700}
+.sm{white-space:nowrap}
+.d{font-style:normal;font-weight:700;font-size:0.78rem;padding:1px 6px;border-radius:999px;margin-left:2px}
+.d.better{background:#1B7A4A;color:#fff}
+.d.worse{background:#B8551B;color:#fff}
+@keyframes dpop{from{transform:scale(1.25)}to{transform:scale(1)}}
+.d{display:inline-block;animation:dpop .35s ease-out}
+@media (prefers-reduced-motion: reduce){.d{animation:none}}
 #dock-conf-name{min-width:9.5em}
 .conf{margin:14px 0 6px}
 .conf input[type=range]{width:100%;accent-color:var(--accent)}
@@ -262,7 +288,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <aside class="panel" aria-label="Controls and results">
     <header class="topbar">
       <div class="brand-row"><span class="brand">Glasgow protected cycle map</span>
-        <div class="top-actions"><button type="button" class="iconbtn" id="btn-help" aria-haspopup="dialog">How to use</button><button type="button" class="iconbtn" id="btn-share">Share</button></div></div>
+        <div class="top-actions"><button type="button" class="iconbtn" id="btn-theme">Theme: Auto</button><button type="button" class="iconbtn" id="btn-help" aria-haspopup="dialog">How to use</button><button type="button" class="iconbtn" id="btn-share">Share</button></div></div>
       <div class="searchrow"><label class="sr-only" for="search">Check a street</label><input id="search" type="search" list="names" placeholder="Search a street, for example Victoria Road" autocomplete="off"><datalist id="names"></datalist></div>
       <nav class="tabs" role="tablist" aria-label="Sections">
         <button type="button" role="tab" id="tab-overview" data-pane="overview" aria-controls="pane-overview" aria-selected="true">Overview</button>
@@ -290,6 +316,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     </section>
     </section>
     <section class="pane" role="tabpanel" id="pane-route" aria-labelledby="tab-route" hidden>
+      <div id="route-conf" class="conf" hidden>
+        <label class="field" for="rt-conf">Cyclist confidence</label>
+        <input type="range" id="rt-conf" min="0" max="4" step="1" value="1" list="conf-ticks">
+        <div class="conf-ends"><span>Riding with children</span><span>Very confident</span></div>
+        <p class="conf-now" id="conf-now"></p>
+      </div>
       <div id="route-empty">
         <h2>Plan a route</h2>
         <p>Right-click the map, or press and hold on a phone, and choose "Route from here", then "Route to here". The route follows protected track wherever it reasonably can.</p>
@@ -347,7 +379,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
         <button type="button" data-v="2" aria-pressed="false">What is built</button>
       </div>
     </div>
-    <label class="check"><input type="checkbox" id="chk-base" checked> Show a background map</label>
+    <div class="ctl row2"><label class="ctl-label" for="opt-base">Background map</label><select id="opt-base"><option value="grey">Light grey</option><option value="streets">Streets</option><option value="cycle">Cycling (CyclOSM)</option><option value="sat">Satellite</option><option value="none">None</option></select></div>
+    <div class="ctl row2"><label class="ctl-label" for="opt-theme">Colour theme</label><select id="opt-theme"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
     <label class="check"><input type="checkbox" id="chk-dz" checked> Shade neighbourhoods by share of streets within 800 m of the main network</label>
     <label class="check"><input type="checkbox" id="chk-comm"> Show the community map's own lines: built, under construction, planned, on hold and quiet streets</label>
     <label class="check"><input type="checkbox" id="chk-hot" checked> Show bike collision hotspots, 20 places with at least 4 recorded collisions within 50 m, coloured by risk for the cycling they carry</label>
@@ -366,7 +399,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
         <li>City Network plans, city boundary, automatic cycle counters and road collisions (DfT STATS19): Glasgow City Council. Contains public sector information licensed under the Open Government Licence v3.0.</li>
         <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
         <li>Heights: Mapzen Terrain Tiles on AWS Open Data, from SRTM (NASA).</li>
-        <li>Background map: &copy; OpenStreetMap contributors.</li>
+        <li>3D flythrough: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
+        <li>Background maps: &copy; OpenStreetMap contributors (light grey and streets); CyclOSM; satellite imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community.</li>
       </ul>
     
       <h2>How this works and what it can't do</h2>
@@ -394,14 +428,23 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <main class="mapwrap">
     <div id="map" role="application" aria-label="Map of Glasgow's streets coloured by riding distance to protected cycle track"></div>
     <div class="maptools"><label class="sr-only" for="map-scen">Network</label>
+      <select id="map-base" title="Background map" aria-label="Background map"><option value="grey">Light grey</option><option value="streets">Streets</option><option value="cycle">Cycling</option><option value="sat">Satellite</option><option value="none">No background</option></select>
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
     <div class="tip" id="tip" hidden role="note"><strong>New here?</strong> Right-click the map, or press and hold on a phone, to plan a route. Click any street to see how far it is from protected track.<div class="actions"><button type="button" class="chip primary" id="tip-help">How to use</button><button type="button" class="chip" id="tip-close">Got it</button></div></div>
+    <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
     <div class="legend" id="legend-wrap"><button type="button" class="legend-head" id="legend-toggle" aria-expanded="true" aria-controls="legend">Key</button><div id="legend" aria-label="Map key"></div></div>
     <div class="dock" id="dock" hidden aria-label="Route height profile">
       <div class="dock-head"><strong id="dock-sum"></strong>
         <span class="dock-actions"><label class="dock-conf"><span class="sr-only">Cyclist confidence</span><input type="range" id="dock-conf" min="0" max="4" step="1" value="1" list="conf-ticks" aria-describedby="dock-conf-name"><span id="dock-conf-name">Cautious</span></label><datalist id="conf-ticks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
-          <button type="button" class="chip primary" id="dock-gpx">GPX for Strava</button><a class="chip" id="dock-gmaps" href="#" target="_blank" rel="noopener">Google Maps</a><button type="button" class="chip" id="dock-share">Share</button><button type="button" class="chip" id="dock-clear">Clear</button><button type="button" class="linkbtn" id="dock-min">Hide profile</button></span>
+          <button type="button" class="chip primary" id="dock-fly">Fly the route</button><button type="button" class="chip" id="dock-gpx">GPX for Strava</button><a class="chip" id="dock-gmaps" href="#" target="_blank" rel="noopener">Google Maps</a><button type="button" class="chip" id="dock-share">Share</button><button type="button" class="chip" id="dock-clear">Clear</button><button type="button" class="linkbtn" id="dock-min">Hide profile</button></span>
         <span class="dock-tip" id="dock-tip"></span></div>
+      <div class="fly-bar" id="fly-bar" hidden><strong>Flythrough</strong>
+        <button type="button" class="chip primary" id="fly-play">Pause</button>
+        <label class="dock-conf"><input type="checkbox" id="fly-3d" checked> 3D with buildings</label>
+        <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
+        <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
+        <button type="button" class="chip" id="fly-stop">Stop</button>
+        <span class="dock-tip">Click the profile to jump. Space pauses, Escape stops.</span></div>
       <div id="dock-chart"></div>
       <div class="dock-key" id="dock-key" aria-label="What the profile colours mean"></div>
     </div>
@@ -416,6 +459,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <li><strong>Read the profile.</strong> The strip at the bottom of the map shows height, time and how much is protected. Move along it to follow the route, and export to Strava or Google Maps from there.</li>
     <li><strong>Compare networks.</strong> Use the switch at the top right of the map: today on the May 2025 data, today with community updates, the 2032 programme or the full plan.</li>
     <li><strong>Test ideas.</strong> The Options tab has the family test, the contraflow what-if, the gap allowance and extra layers.</li>
+    <li><strong>Fly the route.</strong> "Fly the route" on the profile strip follows the route on the map with an arrow, at up to 8 times speed. "Open Street View here" shows the street at that point in Google Street View, facing the way you ride.</li>
     <li><strong>Share what you see.</strong> Share copies a link to the exact view, route and settings on screen.</li>
   </ol>
   <form method="dialog"><button class="btn">Close</button></form>
@@ -652,7 +696,7 @@ function popStats(res, T) {
   }
   return { _share: share, pop, popC, popA, dep, depC };
 }
-const state = { hot: true, crash: false, base: true, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
+const state = { basemap: 'grey', hot: true, crash: false, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
 const cur = () => compute(state.scen, state.gap, state.shared, state.cfx, state.qa);
 const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const fmtKm = m => (m / 1000).toLocaleString('en-GB', { maximumFractionDigits: m < 10000 ? 1 : 0 });
@@ -679,16 +723,30 @@ function route(res, k) {
 }
 
 // map
-const map = L.map('map', { zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
+const map = L.map('map', { zoomAnimation: true, fadeAnimation: true, markerZoomAnimation: true, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 110, wheelDebounceTime: 30, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
 map.attributionControl.setPrefix(false);
 map.attributionControl.addAttribution('<a href="#" data-about>Sources and credits</a>');
 map.getContainer().addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-about]'); if (a) { e.preventDefault(); e.stopPropagation(); showTab('about'); const s = document.getElementById('sources'); if (s) s.scrollIntoView({ block: 'start' }); } }, true);
 map.fitBounds([[55.79, -4.39], [55.92, -4.07]]);
 map.createPane('net'); map.getPane('net').style.zIndex = 350; map.getPane('net').style.pointerEvents = 'none';
-const cv = document.createElement('canvas'); cv.className = 'net-canvas'; map.getPane('net').appendChild(cv);
+const cv = document.createElement('canvas'); cv.className = 'net-canvas leaflet-zoom-animated'; map.getPane('net').appendChild(cv);
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
-const tileUrl = () => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-const base = L.tileLayer(tileUrl(), { maxZoom: 19, opacity: 0.5, className: 'base-tiles', attribution: 'Background: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
+const OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>';
+const BASEMAPS = {
+  grey: { name: 'Light grey', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: 'Background: ' + OSM, opacity: 0.5 },
+  streets: { name: 'Streets', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: 'Background: ' + OSM, opacity: 0.85 },
+  cycle: { name: 'Cycling (CyclOSM)', url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', sub: 'abc', attr: 'Background: CyclOSM, ' + OSM, opacity: 0.8 },
+  sat: { name: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community', opacity: 0.9 },
+  none: null };
+let base = null;
+function setBasemap(id) {
+  if (!(id in BASEMAPS)) id = 'grey';
+  state.basemap = id; if (base) { base.remove(); base = null; }
+  const b = BASEMAPS[id];
+  if (b) base = L.tileLayer(b.url, { maxZoom: 19, maxNativeZoom: 19, subdomains: b.sub || 'abc', opacity: b.opacity, className: 'base-tiles ' + id, attribution: b.attr }).addTo(map);
+  ['map-base', 'opt-base'].forEach(i => { const s = document.getElementById(i); if (s) s.value = id; });
+  schedule();
+}
 let C = {};
 function readColours() {
   const cs = getComputedStyle(document.documentElement); const g = n => cs.getPropertyValue(n).trim();
@@ -699,6 +757,14 @@ function readColours() {
 readColours();
 let raf = 0; function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
 map.on('move zoom resize viewreset', schedule);
+// during an animated zoom, scale the last drawing smoothly (as Leaflet's own renderers do), then redraw sharp at the end
+let drawZoom = null, drawCenter = null;
+map.on('zoomanim', ev => {
+  if (drawZoom == null || !L.DomUtil.setTransform || !map._getNewPixelOrigin) return;
+  const scale = map.getZoomScale(ev.zoom, drawZoom), half = map.getSize().multiplyBy(0.5);
+  const off = half.multiplyBy(-scale).add(map.project(drawCenter, ev.zoom)).subtract(map._getNewPixelOrigin(ev.center, ev.zoom));
+  L.DomUtil.setTransform(cv, off, scale);
+});
 const baseWidth = z => z <= 11 ? 0.5 : z <= 12 ? 0.8 : z <= 13 ? 1.2 : z <= 14 ? 1.8 : z <= 15 ? 2.6 : 3.6;
 const bandOf = d => d <= BANDS[0] ? 0 : d <= BANDS[1] ? 1 : d <= BANDS[2] ? 2 : d <= BANDS[3] ? 3 : 4;
 let sel = null; // {k, lat, lng, r: route}
@@ -706,7 +772,7 @@ function animProgress() { const a = state.anim; if (!a) return 1; const p = Math
 function draw() {
   const s = map.getSize(), dpr = window.devicePixelRatio || 1;
   if (cv.width !== Math.round(s.x * dpr) || cv.height !== Math.round(s.y * dpr)) { cv.width = Math.round(s.x * dpr); cv.height = Math.round(s.y * dpr); cv.style.width = s.x + 'px'; cv.style.height = s.y + 'px'; }
-  const c0 = map.containerPointToLayerPoint([0, 0]); L.DomUtil.setPosition(cv, c0);
+  const c0 = map.containerPointToLayerPoint([0, 0]); L.DomUtil.setPosition(cv, c0); drawZoom = map.getZoom(); drawCenter = map.getCenter();
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, s.x, s.y);
   const z = map.getZoom(), sc = Math.pow(2, z), org = map.getPixelOrigin();
   const ox = org.x + c0.x, oy = org.y + c0.y, vx0 = ox / sc, vy0 = oy / sc, vx1 = (ox + s.x) / sc, vy1 = (oy + s.y) / sc;
@@ -714,7 +780,7 @@ function draw() {
   const path = (m, close) => { ctx.moveTo(m[0] * sc - ox, m[1] * sc - oy); for (let i = 2; i < m.length; i += 2) ctx.lineTo(m[i] * sc - ox, m[i + 1] * sc - oy); if (close) ctx.closePath(); };
   const seg = e => { ctx.moveTo(NM[2 * eu[e]] * sc - ox, NM[2 * eu[e] + 1] * sc - oy); ctx.lineTo(NM[2 * ev[e]] * sc - ox, NM[2 * ev[e] + 1] * sc - oy); };
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  if (!state.base) { ctx.fillStyle = C.water; ctx.beginPath(); WATER.forEach(m => path(m, true)); ctx.fill(); }
+  if (state.basemap === 'none') { ctx.fillStyle = C.water; ctx.beginPath(); WATER.forEach(m => path(m, true)); ctx.fill(); }
   ctx.setLineDash([4, 4]); ctx.strokeStyle = C.line; ctx.lineWidth = 1.2; ctx.beginPath(); BND.forEach(m => path(m, true)); ctx.stroke(); ctx.setLineDash([]);
   const res = cur(), bw = baseWidth(z), fanT = state.fanT;
   if (state.dz) {
@@ -818,7 +884,17 @@ $('chk-ow').addEventListener('change', e => { state.owl = e.target.checked; upda
 $('chk-ml').addEventListener('change', e => { state.mll = e.target.checked; update(); });
 $('chk-crash').addEventListener('change', e => { state.crash = e.target.checked; update(); });
 $('chk-hot').addEventListener('change', e => { state.hot = e.target.checked; update(); });
-$('chk-base').addEventListener('change', e => { state.base = e.target.checked; if (state.base) base.addTo(map); else base.remove(); schedule(); });
+['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); writeHash(); }));
+// colour theme: follow the device, or force light or dark
+const THEMES = ['auto', 'light', 'dark'], THEME_NAME = { auto: 'Auto', light: 'Light', dark: 'Dark' };
+function setTheme(th) {
+  if (!THEMES.includes(th)) th = 'auto';
+  if (th === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', th);
+  $('btn-theme').textContent = 'Theme: ' + THEME_NAME[th]; const o = $('opt-theme'); if (o) o.value = th;
+  try { localStorage.setItem('gcm-theme', th); } catch (e) {}
+}
+$('btn-theme').addEventListener('click', () => { const cur0 = document.documentElement.getAttribute('data-theme') || 'auto'; setTheme(THEMES[(THEMES.indexOf(cur0) + 1) % 3]); });
+$('opt-theme').addEventListener('change', e => setTheme(e.target.value));
 $('chk-comm').addEventListener('change', e => { state.comm = e.target.checked; update(); });
 $('chk-dz').addEventListener('change', e => { state.dz = e.target.checked; update(); });
 $('chk-plan').addEventListener('change', e => { state.plan = e.target.checked; update(); });
@@ -1100,7 +1176,10 @@ function routeLeg(s, t, res, lvl) {
   return steps.reverse();
 }
 const pts = () => (RT.start && RT.end) ? [RT.start, ...RT.stops, RT.end] : [];
+const routeSig = () => pts().map(p => p.node).join(',');
+function routeSummary(R) { return R && R.prof ? { km: R.total, secs: R.secs, prot: pct(R.prot, R.total), crN: R.crN, up: R.up } : null; }
 function buildRoute() {
+  const sig0 = routeSig(), prev = sig0 && sig0 === RT.lastSig ? routeSummary(RT.result) : null; RT.lastSig = sig0;
   RT.capped = false;
   RT.result = null; const P2 = pts();
   if (P2.length < 2) { renderRoute(); schedule(); return; }
@@ -1159,7 +1238,7 @@ function buildRoute() {
   // runs of the same street, for labels and the street-by-street list
   const runs = []; for (let i = 0; i < nseg; i++) { const r = runs[runs.length - 1]; if (r && r.nm === sn[i]) { r.i1 = i; r.len += segL[i]; r.cl[sc[i]] = (r.cl[sc[i]] || 0) + segL[i]; } else runs.push({ nm: sn[i], i0: i, i1: i, len: segL[i], cl: { [sc[i]]: segL[i] } }); }
   runs.forEach(r => { r.cat = +Object.keys(r.cl).reduce((a, b) => r.cl[a] >= r.cl[b] ? a : b); });
-  RT.result = { crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen: state.scen };
+  RT.result = { prev, crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen: state.scen };
   renderRoute(); schedule();
 }
 function rebuildRouteIfAny() { if (RT.start && RT.end) buildRoute(); }
@@ -1262,7 +1341,7 @@ function fitRoute() {
   for (let i = 0; i < R.ll.length; i += 2) { a = Math.min(a, R.ll[i + 1]); c = Math.max(c, R.ll[i + 1]); b = Math.min(b, R.ll[i]); d = Math.max(d, R.ll[i]); }
   const dh = ($('dock').offsetHeight || 150) + 30; map.fitBounds([[a, b], [c, d]], { paddingTopLeft: [40, 40], paddingBottomRight: [40, dh], maxZoom: 16 });
 }
-function clearRoute() { RT.start = RT.end = null; RT.stops = []; RT.result = null; syncMarkers(); hoverMk.remove(); renderRoute(); schedule(); }
+function clearRoute() { stopFly(); RT.start = RT.end = null; RT.stops = []; RT.result = null; syncMarkers(); hoverMk.remove(); renderRoute(); schedule(); }
 const hoverMk = L.circleMarker([0, 0], { radius: 7, weight: 3, color: '#fff', fillColor: '#18211F', fillOpacity: 1, interactive: false });
 map.on('contextmenu', ev => {
   const { lat, lng } = ev.latlng, box = el('div', 'rt-menu');
@@ -1282,7 +1361,7 @@ const placeName = pt => {
   return best >= 0 ? N.names[N.nm[best]] : 'a point on the map'; };
 function renderRoute() {
   renderDock();
-  $('route-empty').hidden = !!(RT.start || RT.end); writeHash();
+  $('route-empty').hidden = !!(RT.start || RT.end); $('route-conf').hidden = !(RT.start && RT.end); writeHash();
   const host = $('route'); host.textContent = '';
   if (!RT.start && !RT.end) { host.hidden = true; return; }
   host.hidden = false;
@@ -1293,11 +1372,7 @@ function renderRoute() {
   if (R.error) { host.append(el('p', 'note', R.error)); return; }
   host.append(el('p', 'rt-title', fmtKm(R.total) + ' km, about ' + fmtTime(R.secs)));
   host.append(el('p', 'note', 'From ' + placeName(RT.start) + ' to ' + placeName(RT.end) + (RT.stops.length ? ', with ' + RT.stops.length + ' stop' + (RT.stops.length > 1 ? 's' : '') : '') + '. Network: ' + SCEN[state.scen] + '.'));
-  const cf = el('div', 'conf'); const clab = el('label', 'field', 'Cyclist confidence'); clab.htmlFor = 'rt-conf';
-  const rg = el('input'); rg.type = 'range'; rg.min = 0; rg.max = 4; rg.step = 1; rg.value = RT.conf; rg.id = 'rt-conf'; rg.setAttribute('list', 'conf-ticks');
-  rg.setAttribute('aria-valuetext', LEVELS[RT.conf].name); rg.addEventListener('input', () => setConf(+rg.value));
-  const ends = el('div', 'conf-ends'); ends.append(el('span', null, 'Riding with children'), el('span', null, 'Very confident'));
-  cf.append(clab, rg, ends, el('p', 'conf-now', LEVELS[RT.conf].name + ': ' + LEVELS[RT.conf].note)); host.append(cf);
+
   const av = el('label', 'check'); const avb = el('input'); avb.type = 'checkbox'; avb.checked = RT.avoid; avb.addEventListener('change', () => { RT.avoid = avb.checked; buildRoute(); });
   av.append(avb, document.createTextNode(' Also steer away from unprotected streets with high collision risk for the cycling they carry')); host.append(av);
   const stats = el('dl', 'rt-stats');
@@ -1337,8 +1412,15 @@ function renderDock() {
   if (on) wrap.style.setProperty('--dock-h', dock.offsetHeight + 'px'); else wrap.style.removeProperty('--dock-h');
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
-  $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + Math.round(R.down) + ' m down, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's');
-  $('dock-tip').textContent = 'Move along the profile to follow the route.'; $('dock-conf').value = RT.conf; $('dock-conf-name').textContent = LEVELS[RT.conf].name; $('dock-gmaps').href = googleUrl(R);
+  const sum = $('dock-sum'); sum.textContent = ''; const pv = R.prev;
+  const item = (txt, was, better) => { const s = el('span', 'sm', txt); if (was != null) { const d = el('em', 'd ' + (better ? 'better' : 'worse'), 'was ' + was); s.append(' ', d); } sum.append(s); };
+  const chg = (a, b, tol) => pv && Math.abs(a - b) > tol;
+  item(fmtKm(R.total) + ' km', chg(R.total, pv && pv.km, 50) ? fmtKm(pv.km) : null, pv && R.total < pv.km);
+  item('about ' + fmtTime(R.secs), chg(R.secs, pv && pv.secs, 45) ? fmtTime(pv.secs) : null, pv && R.secs < pv.secs);
+  item(prot + '% protected', chg(prot, pv && pv.prot, 0.5) ? pv.prot + '%' : null, pv && prot > pv.prot);
+  item(Math.round(R.up) + ' m up', chg(R.up, pv && pv.up, 3) ? Math.round(pv.up) + ' m' : null, pv && R.up < pv.up);
+  item(R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's'), chg(R.crN, pv && pv.crN, 0) ? String(pv.crN) : null, pv && R.crN < pv.crN);
+  $('dock-tip').textContent = 'Move along the profile to follow the route.'; if (ml3dReady) set3dRoute(); showConf(); $('dock-gmaps').href = googleUrl(R);
   const host = $('dock-chart'); host.textContent = '';
   const key = $('dock-key'); key.textContent = '';
   R.byCat.forEach((v, c) => { if (v < 0.005 * R.total) return; const s = el('span', 'dk'); const sw = el('i'); sw.style.background = C.rc[c]; s.append(sw, document.createTextNode(RCAT[c] + ' ' + pct(v, R.total) + '%')); key.append(s); });
@@ -1348,6 +1430,95 @@ function renderDock() {
 $('dock-min').addEventListener('click', () => { const d = $('dock'); d.classList.toggle('min'); $('dock-min').textContent = d.classList.contains('min') ? 'Show profile' : 'Hide profile'; renderDock(); });
 if (window.ResizeObserver) { let rto = 0; new ResizeObserver(() => { clearTimeout(rto); rto = setTimeout(() => { if (RT.result && RT.result.prof) renderDock(); }, 120); }).observe($('dock-chart'));
   new ResizeObserver(() => { const d = $('dock'); if (!d.hidden) document.querySelector('.mapwrap').style.setProperty('--dock-h', d.offsetHeight + 'px'); }).observe($('dock')); }
+// ---------- flythrough: the map follows the route; Street View opens or plays alongside ----------
+const FLY = { on: false, playing: false, d: 0, speed: 1, raf: 0, t: 0, three: true, hd3: null };
+// 3D view: MapLibre GL with OpenFreeMap vector tiles (buildings extruded from OpenStreetMap heights) and terrain
+let mlLoad = null, ml3d = null, ml3dReady = false, ml3dMk = null;
+function loadMapLibre() {
+  if (window.maplibregl) return Promise.resolve();
+  if (mlLoad) return mlLoad;
+  mlLoad = new Promise((res, rej) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css'; css.integrity = 'sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V'; css.crossOrigin = 'anonymous'; document.head.append(css);
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js'; sc.integrity = 'sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj'; sc.crossOrigin = 'anonymous';
+    sc.onload = () => res(); sc.onerror = () => { mlLoad = null; rej(new Error('MapLibre did not load')); }; document.head.append(sc);
+  });
+  return mlLoad;
+}
+function routeGeo() {
+  const R = RT.result, feats = []; if (!R || !R.sc) return { type: 'FeatureCollection', features: [] };
+  let i0 = 0; const n = R.sc.length;
+  for (let i = 1; i <= n; i++) { if (i < n && R.sc[i] === R.sc[i0]) continue; const co = []; for (let j = i0; j <= i; j++) co.push([R.ll[2 * j], R.ll[2 * j + 1]]); feats.push({ type: 'Feature', properties: { c: C.rc[R.sc[i0]] }, geometry: { type: 'LineString', coordinates: co } }); i0 = i; }
+  return { type: 'FeatureCollection', features: feats };
+}
+function set3dRoute() {
+  if (!ml3dReady || !RT.result) return;
+  const data = routeGeo();
+  if (ml3d.getSource('gcm-route')) { ml3d.getSource('gcm-route').setData(data); return; }
+  ml3d.addSource('gcm-route', { type: 'geojson', data });
+  ml3d.addLayer({ id: 'gcm-route-case', type: 'line', source: 'gcm-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 11 } });
+  ml3d.addLayer({ id: 'gcm-route', type: 'line', source: 'gcm-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': 6.5 } });
+}
+async function open3d(p) {
+  try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load, so the flythrough stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
+  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { toast('This browser cannot show the 3D view, so the flythrough stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
+  $('fly3d').hidden = false;
+  if (!ml3d) {
+    ml3d = new maplibregl.Map({ container: 'fly3d-map', style: 'https://tiles.openfreemap.org/styles/liberty', center: [p.lon, p.lat], zoom: 16.6, pitch: 62, bearing: p.hd, maxPitch: 75, attributionControl: { compact: true } });
+    ml3d.on('load', () => {
+      const has = (ml3d.getStyle().layers || []).some(l => l.type === 'fill-extrusion');
+      if (!has && ml3d.getSource('openmaptiles')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: 'openmaptiles', 'source-layer': 'building', minzoom: 13,
+        paint: { 'fill-extrusion-color': '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': 0.88 } });
+      try { ml3d.addSource('gcm-dem', { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], encoding: 'terrarium', tileSize: 256, maxzoom: 14 }); ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
+      ml3dReady = true; set3dRoute(); flyStep(0);
+    });
+    ml3d.on('error', e => { if (e && e.sourceId === 'gcm-dem') { try { ml3d.setTerrain(null); } catch (x) {} } });
+    ml3d.on('dragstart', () => { if (FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } });
+    const arrow = document.createElement('div'); arrow.className = 'fly-arrow3d';
+    ml3dMk = new maplibregl.Marker({ element: arrow, rotationAlignment: 'map', pitchAlignment: 'map' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
+  } else { ml3d.resize(); set3dRoute(); }
+}
+function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
+const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
+const flyMk = L.marker([0, 0], { icon: L.divIcon({ className: 'fly-pin', html: '<div class="fly-arrow"></div>', iconSize: [0, 0] }), interactive: false, keyboard: false });
+function bearing(a, b) { const y = Math.sin((b.lon - a.lon) * D2R) * Math.cos(b.lat * D2R), x = Math.cos(a.lat * D2R) * Math.sin(b.lat * D2R) - Math.sin(a.lat * D2R) * Math.cos(b.lat * D2R) * Math.cos((b.lon - a.lon) * D2R); return (Math.atan2(y, x) / D2R + 360) % 360; }
+function flyPoint(d) {
+  const pr = RT.result.prof, i = Math.max(0, Math.min(pr.length - 2, Math.floor(d / 20))), a = pr[i], b = pr[i + 1], t = Math.max(0, Math.min(1, (d - a.d) / ((b.d - a.d) || 1)));
+  const ahead = pr[Math.min(pr.length - 1, i + 3)], back = pr[Math.max(0, i - 1)];
+  return { d, lat: a.lat + (b.lat - a.lat) * t, lon: a.lon + (b.lon - a.lon) * t, e: a.e + (b.e - a.e) * t, g: a.g, cat: a.cat, nm: a.nm, hd: bearing(back, ahead) };
+}
+const svLink = p => 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6) + '&heading=' + Math.round(p.hd) + '&pitch=0&fov=90';
+function flyStep(dt) {
+  const R = RT.result; if (!R || !R.prof) { stopFly(); return; }
+  if (FLY.playing) FLY.d += dt * 25 * FLY.speed; // 25 m a second at 1x
+  if (FLY.d >= R.total) { FLY.d = R.total; FLY.playing = false; $('fly-play').textContent = 'Replay'; }
+  const p = flyPoint(FLY.d);
+  flyMk.setLatLng([p.lat, p.lon]); const ar = flyMk.getElement && flyMk.getElement(); if (ar && ar.firstChild) ar.firstChild.style.transform = 'translate(-50%,-50%) rotate(' + p.hd + 'deg)';
+  map.setView([p.lat, p.lon], Math.max(map.getZoom(), 16), { animate: false });
+  if (FLY.three && ml3dReady) { FLY.hd3 = FLY.hd3 == null ? p.hd : lerpAngle(FLY.hd3, p.hd, FLY.playing ? 0.06 : 1); ml3d.jumpTo({ center: [p.lon, p.lat], bearing: FLY.hd3, pitch: 62, zoom: 16.6 }); if (ml3dMk) { ml3dMk.setLngLat([p.lon, p.lat]); ml3dMk.setRotation(p.hd); } }
+  if (R._cursor) R._cursor(p);
+  $('fly-sv').href = svLink(p);
+}
+function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (now - FLY.t) / 1000) : 0; FLY.t = now; flyStep(dt); FLY.raf = requestAnimationFrame(flyLoop); }
+function startFly() {
+  if (!RT.result || !RT.result.prof) return;
+  FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup();
+  $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.addTo(map); hoverMk.remove();
+  map.setZoom(Math.max(map.getZoom(), 16), { animate: false });
+  FLY.hd3 = null; if (FLY.three) open3d(flyPoint(0));
+  cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
+}
+function stopFly() {
+  if (!FLY.on) return; FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
+  const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
+  flyMk.remove(); if (RT.result) fitRoute();
+}
+$('dock-fly').addEventListener('click', startFly);
+$('fly-play').addEventListener('click', () => { if (FLY.d >= (RT.result ? RT.result.total : 0)) FLY.d = 0; FLY.playing = !FLY.playing; FLY.t = 0; $('fly-play').textContent = FLY.playing ? 'Pause' : 'Play'; if (!FLY.playing) flyStep(0); });
+$('fly-speed').addEventListener('change', e => { FLY.speed = +e.target.value; });
+$('fly-stop').addEventListener('click', stopFly);
+$('fly-3d').addEventListener('change', e => { FLY.three = e.target.checked; if (!FLY.on) return; if (FLY.three) { FLY.hd3 = null; open3d(flyPoint(FLY.d)); } else close3d(); });
+document.addEventListener('keydown', e => { if (!FLY.on || e.target.matches('input, select, textarea')) return; if (e.key === ' ') { e.preventDefault(); $('fly-play').click(); } if (e.key === 'Escape') stopFly(); });
+map.on('dragstart', () => { if (FLY.on && FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } });
 function profileSvg(R, W, H) {
   const NS = 'http://www.w3.org/2000/svg', L0 = 40, R0 = 10, T0 = 8, B0 = 22, pw = W - L0 - R0, ph = H - T0 - B0;
   const s = document.createElementNS(NS, 'svg'); s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('class', 'rt-chart'); s.setAttribute('role', 'img');
@@ -1371,12 +1542,14 @@ function profileSvg(R, W, H) {
   const dot = mk('circle', { r: 4, class: 'rt-dot', visibility: 'hidden' });
   const hit = mk('rect', { x: L0, y: 0, width: pw, height: H, fill: 'transparent', style: 'cursor:crosshair;touch-action:none' });
   const at = evt => { const b = s.getBoundingClientRect(), x = (evt.clientX - b.left) / b.width * W; const d = Math.max(0, Math.min(R.total, (x - L0) / pw * R.total)); return pr[Math.min(pr.length - 1, Math.round(d / 20))]; };
-  const show = evt => { const p = at(evt); if (!p) return; cur.setAttribute('x1', X(p.d)); cur.setAttribute('x2', X(p.d)); cur.setAttribute('visibility', 'visible'); dot.setAttribute('cx', X(p.d)); dot.setAttribute('cy', Y(p.e)); dot.setAttribute('visibility', 'visible');
+  const showP = (p, nomarker) => { cur.setAttribute('x1', X(p.d)); cur.setAttribute('x2', X(p.d)); cur.setAttribute('visibility', 'visible'); dot.setAttribute('cx', X(p.d)); dot.setAttribute('cy', Y(p.e)); dot.setAttribute('visibility', 'visible');
     const g = Math.round((p.g || 0) * 1000) / 10; $('dock-tip').textContent = fmtKm(p.d) + ' km in: ' + Math.round(p.e) + ' m above sea level, ' + (Math.abs(g) < 0.5 ? 'flat' : Math.abs(g) + '% ' + (g > 0 ? 'uphill' : 'downhill')) + ', ' + (p.nm ? p.nm + ', ' : '') + RCAT[p.cat].toLowerCase() + '.';
-    hoverMk.setLatLng([p.lat, p.lon]).addTo(map); };
+    if (!nomarker) hoverMk.setLatLng([p.lat, p.lon]).addTo(map); };
+  const show = evt => { if (FLY.on) return; const p = at(evt); if (p) showP(p); };
+  R._cursor = p => showP(p, true);
   hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
-  hit.addEventListener('click', evt => { const p = at(evt); if (p) map.panTo([p.lat, p.lon]); });
-  hit.addEventListener('pointerleave', () => { cur.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); hoverMk.remove(); });
+  hit.addEventListener('click', evt => { const p = at(evt); if (!p) return; if (FLY.on) { FLY.d = p.d; flyStep(0); } else map.panTo([p.lat, p.lon]); });
+  hit.addEventListener('pointerleave', () => { if (FLY.on) return; cur.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); hoverMk.remove(); });
   return s;
 }
 function downloadGpx() {
@@ -1446,7 +1619,7 @@ $('btn-save').addEventListener('click', () => {
 
 // theme changes and start-up
 const mq = window.matchMedia('(prefers-color-scheme: dark)');
-const retheme = () => { readColours(); base.setUrl(tileUrl()); renderLegend(); if (RT.result) renderRoute(); schedule(); };
+const retheme = () => { readColours(); renderLegend(); if (RT.result) { renderRoute(); } schedule(); };
 if (mq.addEventListener) mq.addEventListener('change', retheme);
 new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 (function lede() {
@@ -1478,18 +1651,22 @@ const setKey = c => { lgw.classList.toggle('collapsed', c); $('legend-toggle').s
 $('legend-toggle').addEventListener('click', () => { const c = !lgw.classList.contains('collapsed'); setKey(c); store.set('gcm-key', c ? '0' : '1'); });
 $('map-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.value); });
 let confT = 0;
-function setConf(v) { RT.conf = Math.max(0, Math.min(4, v)); $('dock-conf').value = RT.conf; $('dock-conf-name').textContent = LEVELS[RT.conf].name; clearTimeout(confT); confT = setTimeout(buildRoute, 120); }
-$('dock-conf').addEventListener('input', e => setConf(+e.target.value));
+function showConf() {
+  ['dock-conf', 'rt-conf'].forEach(i => { const s = $(i); if (s && document.activeElement !== s) s.value = RT.conf; if (s) s.setAttribute('aria-valuetext', LEVELS[RT.conf].name); });
+  $('dock-conf-name').textContent = LEVELS[RT.conf].name; $('conf-now').textContent = LEVELS[RT.conf].name + ': ' + LEVELS[RT.conf].note;
+}
+function setConf(v, now) { const nv = Math.max(0, Math.min(4, v)); const changed = nv !== RT.conf; RT.conf = nv; showConf(); clearTimeout(confT); if (now) { if (changed || RT.confDirty) { RT.confDirty = false; buildRoute(); } } else if (changed) { RT.confDirty = true; confT = setTimeout(() => { RT.confDirty = false; buildRoute(); }, 350); } }
+['dock-conf', 'rt-conf'].forEach(i => { $(i).addEventListener('input', e => setConf(+e.target.value)); $(i).addEventListener('change', e => setConf(+e.target.value, true)); });
 $('dock-gpx').addEventListener('click', downloadGpx);
 $('dock-clear').addEventListener('click', clearRoute);
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
 // the view, route and settings live in the address, so a copied link reopens exactly what is on screen
-const LAYERS = { hot: 'chk-hot', crash: 'chk-crash', base: 'chk-base', dz: 'chk-dz', comm: 'chk-comm', owl: 'chk-ow', mll: 'chk-ml', plan: 'chk-plan', reports: 'chk-reports' };
+const LAYERS = { hot: 'chk-hot', crash: 'chk-crash', dz: 'chk-dz', comm: 'chk-comm', owl: 'chk-ow', mll: 'chk-ml', plan: 'chk-plan', reports: 'chk-reports' };
 const f5 = v => v.toFixed(5);
 function stateToHash() {
   const p = new URLSearchParams(), c = map.getCenter();
   p.set('m', f5(c.lat) + ',' + f5(c.lng) + ',' + map.getZoom());
-  p.set('s', state.scen); p.set('g', state.gap); p.set('c', state.colour);
+  p.set('s', state.scen); p.set('g', state.gap); p.set('c', state.colour); if (state.basemap !== 'grey') p.set('b', state.basemap);
   ['shared', 'qa', 'cfx'].forEach(k => { if (state[k]) p.set(k, '1'); });
   p.set('l', Object.keys(LAYERS).filter(k => state[k]).join('.'));
   if (!RT.avoid) p.set('av', '0');
@@ -1505,7 +1682,7 @@ function syncControls() {
   seg('seg-scen', state.scen); seg('seg-gap', [0, 100, 250].indexOf(state.gap)); seg('seg-colour', ['distance', 'comfort', 'infra'].indexOf(state.colour));
   $('chk-shared').checked = state.shared; $('chk-qa').checked = state.qa; $('chk-cfx').checked = state.cfx;
   Object.entries(LAYERS).forEach(([k, id]) => { $(id).checked = !!state[k]; });
-  if (state.base) base.addTo(map); else base.remove();
+  setBasemap(state.basemap);
   if (state.reports) repLayer.addTo(map); else repLayer.remove();
 }
 function readHash() {
@@ -1515,6 +1692,7 @@ function readHash() {
   state.scen = num('s', v => [0, 1, 2, 3].includes(v), state.scen); state.gap = num('g', v => [0, 100, 250].includes(v), state.gap);
   if (['distance', 'comfort', 'infra'].includes(p.get('c'))) state.colour = p.get('c');
   ['shared', 'qa', 'cfx'].forEach(k => { state[k] = p.get(k) === '1'; });
+  state.basemap = p.get('b') in BASEMAPS ? p.get('b') : (p.has('l') && !p.get('l').split('.').includes('base') && !p.has('b') && p.get('l').indexOf('dz') < 0 ? 'grey' : 'grey');
   if (p.has('l')) { const on = new Set(p.get('l').split('.')); Object.keys(LAYERS).forEach(k => { state[k] = on.has(k); }); }
   syncControls(); cache.clear(); update(true);
   const ll = s => { const a = (s || '').split(',').map(Number); return a.length >= 2 && a.every(isFinite) ? a : null; };
@@ -1542,6 +1720,7 @@ function loadDemo(fit) {
   syncMarkers(); buildRoute(); if (fit !== false) fitRoute();
 }
 $('btn-demo').addEventListener('click', () => { loadDemo(true); });
+setTheme(store.get('gcm-theme') || 'auto'); readColours(); setBasemap(state.basemap); showConf();
 update(); draw(); loadReports();
 if (!readHash()) loadDemo(true);
 hashReady = true; writeHash();
