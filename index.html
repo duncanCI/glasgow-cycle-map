@@ -279,6 +279,22 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .cmp .bar{height:7px;border-radius:3px;background:var(--line)}
 .cmp .bar i{display:block;height:100%;border-radius:3px;background:var(--c-main)}
 .cmp .best{font-weight:700}
+.xing{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.5);background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px) center/8px 8px no-repeat,var(--xc,#EF6767);flex:none;vertical-align:middle}
+.xing.nos{--xc:#EF6767}
+.xing.sig{--xc:#5DBB63}
+.xing.unv{--xc:#4A5357;background:radial-gradient(circle,#fff 0 1.6px,transparent 1.8px) 50% 72%/100% 100% no-repeat,linear-gradient(#fff,#fff) 50% 30%/2.2px 6px no-repeat,var(--xc)}
+.xing-line.unv{stroke:#8A949A}
+.xing-dot.unv{fill:#4A5357}
+.xing-line.nos{stroke:#EF6767}
+.xing.big{width:22px;height:22px;background-size:11px 11px}
+.xing-pin .xing{position:absolute;left:0;top:0}
+.xing-li{display:flex;gap:6px;align-items:center;font-weight:700}
+.pt-x{display:flex;gap:6px;align-items:center;margin-top:3px;font-weight:700}
+.pt-x .xing{width:12px;height:12px;border-width:1.5px}
+.xing-line{stroke:#EF6767;stroke-width:1.2;stroke-dasharray:3 3;opacity:.8}
+.xing-line.sig{stroke:#5DBB63}
+.xing-dot{fill:#EF6767;stroke:#fff;stroke-width:1.5}
+.xing-dot.sig{fill:#5DBB63}
 .lg-hide{font:inherit;font-size:0.72rem;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;margin-left:6px}
 .fly-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:0.85rem}
 .fly-bar select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px}
@@ -552,7 +568,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
-          <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label></div></span>
+          <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label><label><input type="checkbox" id="fly-photo" checked> Photo-textured buildings</label></div></span>
         <button type="button" class="chip" id="fly-recentre" title="Put the camera back behind the rider">Recentre</button>
         <button type="button" class="chip" id="fly-stop">Stop</button>
         <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="While it plays: drag to look around, scroll or pinch to zoom, right-drag or two fingers to tilt and turn. The camera keeps your view and carries on following the rider; Recentre puts it back. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
@@ -648,6 +664,21 @@ function nearestNode(px, py, maxU, ok) {
 }
 const metresLL = (x1, y1, x2, y2) => { const la = (y1 + y2) / 2 * D2R; return Math.hypot((x2 - x1) * Math.cos(la) * 111320, (y2 - y1) * 110540); };
 const cLL = [], cE = [];
+const segX = (ax, ay, bx, by, cx, cy, dx, dy) => { const d1 = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax), d2 = (bx - ax) * (dy - ay) - (by - ay) * (dx - ax), d3 = (dx - cx) * (ay - cy) - (dy - cy) * (ax - cx), d4 = (dx - cx) * (by - cy) - (dy - cy) * (bx - cx); return d1 * d2 < 0 && d3 * d4 < 0; };
+function roadCut(ax, ay, bx, by) { // the busiest carriageway piece a segment cuts across, or -1
+  const x0 = Math.floor(Math.min(ax, bx) / CELL), x1 = Math.floor(Math.max(ax, bx) / CELL), y0 = Math.floor(Math.min(ay, by) / CELL), y1 = Math.floor(Math.max(ay, by) / CELL); let best = -1, bs = -1;
+  for (let ix = x0; ix <= x1; ix++) for (let iy = y0; iy <= y1; iy++) { const arr = grid.get(gkey(ix, iy)); if (!arr) continue;
+    for (const k of arr) { if (N.inf[k] > 1 || (N.gs && N.gs[k])) continue; const m = G[k]; let hit = false; for (let i = 0; i + 3 < m.length && !hit; i += 2) hit = segX(ax, ay, bx, by, m[i], m[i + 1], m[i + 2], m[i + 3]);
+      if (hit) { const sc = (N.spd[k] || 0) + (N.rated[k] ? 10 * N.los[k] : 0); if (sc > bs) { bs = sc; best = k; } } } }
+  return best;
+}
+const cCut = []; // per community edge: the carriageway piece it cuts across
+function crossesRoad(ax, ay, bx, by, nn) { // does a straight link from a to b cut across a carriageway?
+  const x0 = Math.floor(Math.min(ax, bx) / CELL), x1 = Math.floor(Math.max(ax, bx) / CELL), y0 = Math.floor(Math.min(ay, by) / CELL), y1 = Math.floor(Math.max(ay, by) / CELL);
+  for (let ix = x0; ix <= x1; ix++) for (let iy = y0; iy <= y1; iy++) { const arr = grid.get(gkey(ix, iy)); if (!arr) continue;
+    for (const k of arr) { if (N.inf[k] > 1 || N.pu[k] === nn || N.pv[k] === nn) continue; const m = G[k]; for (let i = 0; i + 3 < m.length; i += 2) if (segX(ax, ay, bx, by, m[i], m[i + 1], m[i + 2], m[i + 3])) return true; } }
+  return false;
+}
 CF.forEach((f, li) => {
   f.first = -1; if (f.s !== 'built' && f.s !== 'progress') return;
   const ll = dec(f.g); const pts = [[ll[0], ll[1]]];
@@ -658,11 +689,11 @@ CF.forEach((f, li) => {
   let prev = -1, px = 0, py = 0;
   pts.forEach(([x, y], pi) => {
     const id = NN0 + cLL.length / 2; cLL.push(x, y); if (f.first < 0) f.first = id;
-    if (prev >= 0) cE.push([prev, id, metresLL(px, py, x, y), li, 2]);
+    if (prev >= 0) { cE.push([prev, id, metresLL(px, py, x, y), li, 2]); cCut[cE.length - 1] = roadCut(mx(px), my(py), mx(x), my(y)); }
     // join the line to the street network: up to 20 m at its ends, 15 m along its length, and never to a road
     // on a bridge or in a tunnel unless the two genuinely meet (within 6 m), so a path under a bridge is not joined to the road above
     const end = pi === 0 || pi === pts.length - 1, six = mtoU(6) ** 2;
-    const nn = nearestNode(mx(x), my(y), mtoU(end ? 20 : 15), (n, d2) => !(N.gst && N.gst[n]) || d2 <= six);
+    const qx = mx(x), qy = my(y), nn = nearestNode(qx, qy, mtoU(end ? 20 : 15), (n, d2) => (!(N.gst && N.gst[n]) || d2 <= six) && !crossesRoad(qx, qy, mx(SNODES[2 * n]), my(SNODES[2 * n + 1]), n));
     if (nn >= 0) cE.push([id, nn, metresLL(x, y, SNODES[2 * nn], SNODES[2 * nn + 1]), li, 3]);
     prev = id; px = x; py = y;
   });
@@ -879,7 +910,7 @@ let raf = 0; function schedule() { if (!raf) raf = requestAnimationFrame(() => {
 // the last drawing is scaled smoothly (as Leaflet's own renderers do) and redrawn sharp at the end
 const PADF = 0.15;
 let drawZoom = null, drawCenter = null, drawPad = [0, 0], drawOrigin = null;
-const WZ = { on: false, target: 0, pt: null, raf: 0, last: 0 };
+const WZ = { on: false, v: 0, tf: 0, pt: null, raf: 0, last: 0 };
 const pastMargin = () => { if (!drawOrigin) return true; const c = map.containerPointToLayerPoint([0, 0]); return Math.abs(c.x - drawOrigin.x) > drawPad[0] * 0.85 || Math.abs(c.y - drawOrigin.y) > drawPad[1] * 0.85; };
 const zooming = () => drawZoom != null && Math.abs(map.getZoom() - drawZoom) > 1e-4;
 function scaleLast(center, zoom) {
@@ -892,21 +923,28 @@ map.on('zoom', () => { if (!map._animatingZoom && zooming()) scaleLast(map.getCe
 map.on('move', () => { if (!map._animatingZoom && !zooming() && !WZ.on && pastMargin()) schedule(); });
 map.on('moveend', () => { if (!WZ.on && (zooming() || pastMargin())) schedule(); });
 map.on('zoomend resize viewreset', () => { if (!WZ.on) schedule(); });
-// smooth wheel and trackpad zoom: glide towards the target zoom about the pointer, the way pinch-zoom does, and redraw once at the end
-function wzFrame() {
-  WZ.raf = 0; const z = map.getZoom(), dz = WZ.target - z, idle = performance.now() - WZ.last > 140;
-  if (Math.abs(dz) < 0.004 && idle) { WZ.on = false; const c = map.getCenter(); if (map.options.zoomAnimation && map._animateZoom) map._animateZoom(c, map._limitZoom(WZ.target), true, false); else map._resetView(c, map._limitZoom(WZ.target)); setTimeout(schedule, 30); return; }
-  const nz = Math.abs(dz) < 0.004 ? WZ.target : z + dz * 0.32, scale = map.getZoomScale(nz, z), half = map.getSize().divideBy(2);
-  const nc = map.containerPointToLatLng(half.add(WZ.pt.subtract(half).multiplyBy(1 - 1 / scale)));
-  map._move(nc, nz, { pinch: true, round: false }); WZ.raf = requestAnimationFrame(wzFrame);
+// smooth wheel and trackpad zoom with momentum: each scroll adds speed, friction slows it to a gentle stop about
+// the pointer, and the map settles where it stops (no snapping or bounce). The network is scaled while moving
+// and redrawn once at the end.
+const WZ_TAU = 0.14; // seconds for the speed to fall to about a third
+function wzFrame(now) {
+  WZ.raf = 0; const dt = Math.min(0.05, Math.max(0.001, (now - (WZ.tf || now)) / 1000)) || 0.016; WZ.tf = now;
+  const z = map.getZoom(), minZ = map.getMinZoom(), maxZ = map.getMaxZoom();
+  let nz = z + WZ.v * dt; WZ.v *= Math.exp(-dt / WZ_TAU);
+  if (nz <= minZ) { nz = minZ; WZ.v = 0; } if (nz >= maxZ) { nz = maxZ; WZ.v = 0; }
+  if (nz !== z) { const scale = map.getZoomScale(nz, z), half = map.getSize().divideBy(2);
+    map._move(map.containerPointToLatLng(half.add(WZ.pt.subtract(half).multiplyBy(1 - 1 / scale))), nz, { pinch: true, round: false }); }
+  if (Math.abs(WZ.v) < 0.04 && now - WZ.last > 120) { // settle exactly where it stopped, as Leaflet does at the end of a zoom
+    WZ.on = false; WZ.v = 0; WZ.tf = 0; map._move(map.getCenter(), map.getZoom()); map._moveEnd(true); schedule(); return; }
+  WZ.raf = requestAnimationFrame(wzFrame);
 }
 map.getContainer().addEventListener('wheel', e => {
   if (e.target.closest && e.target.closest('.legend, .menu, .dock, .tip, .leaflet-popup, .fly-bar, .panel, .fly3d')) return;
   e.preventDefault(); if (map._animatingZoom) return;
-  let d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 600 : e.deltaY;
-  const rate = e.ctrlKey ? 0.012 : Math.abs(d) >= 40 ? 0.0045 : 0.0065;
-  if (!WZ.on) { WZ.on = true; WZ.target = map.getZoom(); map._stop(); map._moveStart(true, false); }
-  WZ.target = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), WZ.target - d * rate)); WZ.pt = map.mouseEventToContainerPoint(e); WZ.last = performance.now();
+  const d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 600 : e.deltaY;
+  const rate = e.ctrlKey ? 0.012 : Math.abs(d) >= 40 ? 0.0045 : 0.0065; // zoom levels per pixel: pinch, mouse wheel, trackpad
+  if (!WZ.on) { WZ.on = true; WZ.v = 0; WZ.tf = 0; map._stop(); map._moveStart(true, false); }
+  WZ.v += (-d * rate) / WZ_TAU; WZ.v = Math.max(-14, Math.min(14, WZ.v)); WZ.pt = map.mouseEventToContainerPoint(e); WZ.last = performance.now();
   if (!WZ.raf) WZ.raf = requestAnimationFrame(wzFrame);
 }, { passive: false });
 const baseWidth = z => z <= 11 ? 0.5 : z <= 12 ? 0.8 : z <= 13 ? 1.2 : z <= 14 ? 1.8 : z <= 15 ? 2.6 : 3.6;
@@ -1295,8 +1333,22 @@ function elevAt(lon, lat) {
   const a = z[j * w + i], b = z[j * w + i + 1], c = z[(j + 1) * w + i], d = z[(j + 1) * w + i + 1];
   return ((a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty) / 10;
 }
+// crossing evidence at each junction: 1 signals, 2 zebra or marked, 3 uncontrolled crossing point, 4 mapped as no crossing
+const XEV = new Uint8Array(NN); for (let n = 0; n < NN0; n++) if (N.signal[n]) XEV[n] = 1;
 const sdeg = new Uint8Array(NN), busyN = new Uint8Array(NN);
 for (let k = 0; k < P; k++) { const a = N.pu[k], b = N.pv[k]; if (sdeg[a] < 255) sdeg[a]++; if (sdeg[b] < 255) sdeg[b]++; if (N.rated[k] && N.los[k] >= 2) { busyN[a] = 1; busyN[b] = 1; } }
+// a path meeting a 40 mph road or a very busy one-way carriageway: nobody should assume they can cross there without evidence
+const hardX = new Uint8Array(NN), offE = e => e >= P || N.inf[e] >= 2;
+for (let n = 0; n < NN; n++) { let off = 0, fast = false; for (let j = deg[n]; j < deg[n + 1]; j++) { const x = adj[j]; if (offE(x)) off++; else if ((N.spd[x] || 0) >= 40 || (N.ow[x] && N.rated[x] && N.los[x] >= 3)) fast = true; } if (off >= 2 && fast) hardX[n] = 1; }
+const xOK = n => XEV[n] >= 1 && XEV[n] <= 3;
+const C0 = P + NCE, ePen = new Float32Array(NE), eX = new Int8Array(NE); // eX: 0 none, 1 confirmed, 2 busy without a mapped crossing, 3 not confirmed
+function priceCuts() {
+  ePen.fill(0); eX.fill(0); const R25 = mtoU(25);
+  cCut.forEach((k, i) => { if (k == null || k < 0) return; const e = C0 + i, a = eu[e], b = ev[e], px = (NM[2 * a] + NM[2 * b]) / 2, py = (NM[2 * a + 1] + NM[2 * b + 1]) / 2;
+    const n = nearestNode(px, py, R25, m => m < NN0 && xOK(m)), fast = (N.spd[k] || 0) >= 40 || (N.ow[k] && N.rated[k] && N.los[k] >= 2 && N.vol[k] >= 3), busy = N.rated[k] && N.los[k] >= 2; // fast, or one carriageway of a busy dual road
+    if (n >= 0) { eX[e] = 1; return; } if (fast) { eX[e] = 3; ePen[e] = 800; } else if (busy) eX[e] = 2; });
+}
+priceCuts();
 const RCAT = ['Protected track', 'Community-mapped track', 'Planned protected route', 'Shared pavement', 'Painted cycle lane', 'Quiet street', 'Busy street', 'Short link'];
 // how much longer each kind of street "feels" than protected track, by route preference
 // rider confidence, from riding with children (0) to very confident (4). Each level sets how much longer an
@@ -1389,7 +1441,9 @@ function routeLeg(s, t, res, lvl) {
       if (!legal(e, n, state.cfx)) continue;
       const m = eu[e] === n ? ev[e] : eu[e];
       let nd = dn + elen[e] * mult(e, res, lvl) + crashPen(e, res, lvl);
-      if (jn && busyN[m] && !busyEdgeR(e) && !res.ded[e]) nd += jn * (m < NN0 && N.signal[m] ? 0.3 : 1); // joining or crossing a busy road from a calm street
+      if (jn && busyN[m] && !busyEdgeR(e) && !res.ded[e]) nd += jn * (XEV[m] === 1 ? 0.3 : 1); // joining or crossing a busy road from a calm street
+      if (hardX[m] && offE(e) && !xOK(m)) nd += XEV[m] === 4 ? 2500 : 800; // a crossing of a fast or dual road with nothing mapped to say it exists
+      nd += ePen[e]; // a community line drawn straight over such a road
       if (nd < dist[m]) { dist[m] = nd; pred[m] = e; hp.push(nd + hh(m), m); }
     }
   }
@@ -1413,8 +1467,8 @@ function planRoute(P2, res, conf, scen) {
     if (!leg) return { error: 'No route could be found between ' + (i === 0 ? 'the start' : 'stop ' + i) + ' and ' + (i + 2 === P2.length ? 'the destination' : 'stop ' + (i + 1)) + ', perhaps because of one-way streets. Try moving a point.' };
     steps = steps.concat(leg); legEnds.push(steps.length);
   }
-  const ll = [], sc = [], se = []; // vertices, then category and edge for each segment
-  steps.forEach(([e, a, b]) => {
+  const ll = [], sc = [], se = [], stepV = []; // vertices, then category and edge for each segment
+  steps.forEach(([e, a, b]) => { stepV.push(Math.max(0, ll.length / 2 - 1));
     let c;
     if (e < P) { const g = pieceLL(e); c = []; if (a === eu[e]) for (let i = 0; i < g.length; i += 2) c.push(g[i], g[i + 1]); else for (let i = g.length - 2; i >= 0; i -= 2) c.push(g[i], g[i + 1]); }
     else c = [NODES[2 * a], NODES[2 * a + 1], NODES[2 * b], NODES[2 * b + 1]];
@@ -1450,18 +1504,37 @@ function planRoute(P2, res, conf, scen) {
       let v = LEVELS[conf].kmh * (prof[i - 1].cat === 3 ? 0.85 : 1); v *= g > 0 ? Math.max(0.35, 1 - 7.5 * g) : Math.min(1.5, 1 - 3 * g); secs += dd / (v / 3.6); } else p.g = 0;
     const j = prof.findIndex((q, qi) => qi > i && q.d - p.d >= 100); if (j > 0) steep = Math.max(steep, (prof[j].e - p.e) / (prof[j].d - p.d));
   }
+  // road crossings: off the carriageway, across a road at a junction, and off the carriageway again
+  const cum = new Float64Array(nseg + 1); for (let i = 0; i < nseg; i++) cum[i + 1] = cum[i] + segL[i];
+  const offRoad = e => { if (e >= P) return false; const c = catOf(e, res); return c === 0 || c === 1 || c === 3; };
+  const cross = [];
+  for (let i = 1; i < steps.length; i++) {
+    const e0 = steps[i - 1][0], e1 = steps[i][0], n = steps[i][1];
+    if (e0 === e1 || !offRoad(e0) || !offRoad(e1)) continue;
+    let road = -1, busyR = false;
+    for (let j = deg[n]; j < deg[n + 1]; j++) { const x = adj[j]; if (x < P && x !== e0 && x !== e1 && (N.inf[x] === 0 || N.inf[x] === 1)) { if (road < 0) road = x; if (N.rated[x] && N.los[x] >= 2) { road = x; busyR = true; break; } } }
+    if (road < 0) continue;
+    const d = cum[Math.min(nseg, stepV[i])], sigR = XEV[n] === 1 || XEV[n] === 2, zeb = XEV[n] === 2, unv = !!hardX[n] && !xOK(n), last = cross[cross.length - 1];
+    if (last && d - last.d < 35) { last.busy = last.busy || busyR || unv; last.sig = last.sig || sigR; last.zebra = last.zebra || zeb; last.unv = (last.unv || unv) && !last.sig; if (busyR) last.nm = segName(road) || last.nm; continue; } // both halves of a dual carriageway
+    cross.push({ d, lon: NODES[2 * n], lat: NODES[2 * n + 1], busy: busyR || unv, sig: sigR, zebra: zeb, unv: unv && !sigR, nm: segName(road) || '' });
+  }
+  for (let i = 0; i < steps.length; i++) { const e = steps[i][0]; if (e < C0 || !eX[e]) continue; const k = cCut[e - C0], a = eu[e], b = ev[e];
+    const d = cum[Math.min(nseg, stepV[i])] + elen[e] / 2; if (cross.some(c => Math.abs(c.d - d) < 35)) continue;
+    cross.push({ d, lon: (NODES[2 * a] + NODES[2 * b]) / 2, lat: (NODES[2 * a + 1] + NODES[2 * b + 1]) / 2, busy: eX[e] >= 2 || !!(N.rated[k] && N.los[k] >= 2), sig: eX[e] === 1, zebra: false, unv: eX[e] === 3, nm: segName(k) || '' }); }
+  cross.sort((p, q) => p.d - q.d);
+  cross.forEach(c => { secs += c.sig ? 15 : c.busy ? 20 : 4; }); // waiting to cross
   secs += busy.size * 8 + sig.size * 12;
   const m = toM(Float64Array.from(ll));
   // runs of the same street, for labels and the street-by-street list
   const runs = []; for (let i = 0; i < nseg; i++) { const r = runs[runs.length - 1]; if (r && r.nm === sn[i]) { r.i1 = i; r.len += segL[i]; r.cl[sc[i]] = (r.cl[sc[i]] || 0) + segL[i]; } else runs.push({ nm: sn[i], i0: i, i1: i, len: segL[i], cl: { [sc[i]]: segL[i] } }); }
   runs.forEach(r => { r.cat = +Object.keys(r.cl).reduce((a, b) => r.cl[a] >= r.cl[b] ? a : b); });
-  return { capped, crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen };
+  return { cross, capped, crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen };
 }
 function buildRoute() {
   RT.result = null; RT.capped = 0; const P2 = pts();
-  if (P2.length < 2) { renderRoute(); schedule(); return; }
+  if (P2.length < 2) { xingLayer.clearLayers(); renderRoute(); schedule(); return; }
   const r = planRoute(P2, cur(), RT.conf, state.scen); RT.capped = r.capped || 0; RT.result = r;
-  renderRoute(); schedule();
+  renderRoute(); drawCrossings(); schedule();
 }
 function rebuildRouteIfAny() { if (RT.start && RT.end) buildRoute(); }
 
@@ -1565,7 +1638,15 @@ function fitRoute() {
   for (let i = 0; i < R.ll.length; i += 2) { a = Math.min(a, R.ll[i + 1]); c = Math.max(c, R.ll[i + 1]); b = Math.min(b, R.ll[i]); d = Math.max(d, R.ll[i]); }
   const dh = ($('dock').offsetHeight || 150) + 30; map.fitBounds([[a, b], [c, d]], { paddingTopLeft: [40, 40], paddingBottomRight: [40, dh], maxZoom: 16 });
 }
-function clearRoute() { stopFly(); RT.start = RT.end = null; RT.stops = []; RT.result = null; syncMarkers(); hoverMk.remove(); renderRoute(); schedule(); }
+const xingLayer = L.layerGroup().addTo(map);
+const xingCls = c => c.unv ? 'unv' : c.sig ? 'sig' : 'nos';
+const xingText = c => c.unv ? 'No crossing is mapped over ' + (c.nm || 'this fast or dual road') + '. It may not be possible to cross here: check before relying on it.' : c.sig ? (c.zebra ? 'Zebra crossing of ' : 'Signal crossing of ') + (c.nm || 'a busy road') + (c.zebra ? '. Wait for traffic to stop.' : '. Wait for the green.') : 'Crossing of ' + (c.nm || 'a busy road') + '. Busy road with no mapped crossing: be ready to stop, and walk across if traffic is heavy.';
+function drawCrossings() {
+  xingLayer.clearLayers(); const R = RT.result; if (!R || !R.cross) return;
+  R.cross.filter(c => c.busy).forEach(c => L.marker([c.lat, c.lon], { icon: L.divIcon({ className: 'xing-pin', html: '<span class="xing ' + xingCls(c) + '"></span>', iconSize: [20, 20], iconAnchor: [10, 10] }), keyboard: false })
+    .bindTooltip(xingText(c), { direction: 'top', offset: [0, -10], className: 'hot-tip' }).addTo(xingLayer));
+}
+function clearRoute() { stopFly(); xingLayer.clearLayers(); RT.start = RT.end = null; RT.stops = []; RT.result = null; syncMarkers(); hoverMk.remove(); renderRoute(); schedule(); }
 const hoverMk = L.circleMarker([0, 0], { radius: 7, weight: 3, color: '#fff', fillColor: '#18211F', fillOpacity: 1, interactive: false });
 map.on('contextmenu', ev => {
   const { lat, lng } = ev.latlng, box = el('div', 'rt-menu');
@@ -1605,6 +1686,8 @@ function renderRoute() {
   st('Climb', Math.round(R.up) + ' m up, ' + Math.round(R.down) + ' m down');
   st('Steepest 100 m', Math.max(0, Math.round(R.steep * 1000) / 10) + '%');
   st('Junctions passed', String(R.jn));
+  { const bx = R.cross.filter(c => c.busy), bs = bx.filter(c => c.sig).length, qx = R.cross.length - bx.length;
+    st('Crossing roads from paths', bx.length ? bx.length + ' busy road' + (bx.length === 1 ? '' : 's') + (bs ? ', ' + bs + ' at mapped crossings' : ', none at mapped crossings') + (bx.some(c => c.unv) ? ', ' + bx.filter(c => c.unv).length + ' not confirmed' : '') + (qx ? '; ' + qx + ' side road' + (qx === 1 ? '' : 's') : '') : qx ? qx + ' side road' + (qx === 1 ? '' : 's') + ', no busy roads' : 'None'); }
   st('Busy-road crossings or turns', R.busy + (R.sig ? ', ' + R.sig + ' at mapped signals' : ''));
   st('Recorded bike collisions', R.crN + (R.crN ? ', ' + R.crK + ' serious or fatal' : ''));
   host.append(stats);
@@ -1615,8 +1698,10 @@ function renderRoute() {
   // street by street, folding very short stretches into their neighbours
   const steps = []; R.runs.forEach(r => { const last = steps[steps.length - 1]; if (last && (r.len < 40 || r.nm === last.nm)) { last.len += r.len; return; } steps.push({ nm: r.nm, len: r.len, cat: r.cat }); });
   const det = el('details', 'rt-dir'); det.append(el('summary', null, 'Street by street (' + steps.length + ' stretches)'));
-  const ol = el('ol'); steps.forEach(s => { const li = el('li'); const sw = el('span', 'dot'); sw.style.background = C.rc[s.cat]; li.append(sw, document.createTextNode((s.nm || 'Unnamed ' + RCAT[s.cat].toLowerCase()) + ', ' + fmtM(s.len) + (s.nm ? ', ' + RCAT[s.cat].toLowerCase() : ''))); ol.append(li); });
-  det.append(ol); host.append(det);
+  const xs = R.cross.filter(c => c.busy).slice(); let run = 0;
+  const xItem = c => { const li = el('li', 'xing-li'); const ic = el('span', 'xing ' + xingCls(c)); li.append(ic, document.createTextNode(c.unv ? 'Cross ' + (c.nm || 'a fast road') + ': no crossing mapped here, check it exists' : 'Cross ' + (c.nm || 'a busy road') + (c.sig ? (c.zebra ? ' at the zebra' : ' at signals') : ', busy, no mapped crossing: be ready to stop, or walk across'))); return li; };
+  const ol = el('ol'); steps.forEach(s => { while (xs.length && xs[0].d <= run + 1) ol.append(xItem(xs.shift())); run += s.len; const li = el('li'); const sw = el('span', 'dot'); sw.style.background = C.rc[s.cat]; li.append(sw, document.createTextNode((s.nm || 'Unnamed ' + RCAT[s.cat].toLowerCase()) + ', ' + fmtM(s.len) + (s.nm ? ', ' + RCAT[s.cat].toLowerCase() : ''))); ol.append(li); });
+  xs.forEach(c => ol.append(xItem(c))); det.append(ol); host.append(det);
   if (RT.stops.length) {
     const ul = el('ol', 'rt-stops');
     RT.stops.forEach((s, i) => { const li = el('li'); li.append(document.createTextNode(placeName(s) + ' ')); const x = el('button', 'linkbtn', 'Remove'); x.type = 'button'; x.addEventListener('click', () => { RT.stops.splice(i, 1); syncMarkers(); buildRoute(); }); li.append(x); ul.append(li); });
@@ -1634,7 +1719,7 @@ function renderDock() {
   if (on) wrap.style.setProperty('--dock-h', dock.offsetHeight + 'px'); else wrap.style.removeProperty('--dock-h');
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
-  $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's');
+  { const nb = R.cross.filter(c => c.busy && !c.sig && !c.unv).length, nu = R.cross.filter(c => c.unv).length; $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's') + (nb ? ', ' + nb + ' busy road' + (nb === 1 ? '' : 's') + ' to cross without a mapped crossing' : '') + (nu ? ', ' + nu + ' crossing' + (nu === 1 ? '' : 's') + ' not confirmed' : ''); }
   $('dock-tip').textContent = 'Move along the profile to follow the route.'; if (ml3dReady) set3dRoute(); showConf(); $('dock-gmaps').href = googleUrl(R);
   const host = $('dock-chart'); host.textContent = ''; host.append(PTIP); PTIP.hidden = true;
   const key = $('dock-key'); key.textContent = '';
@@ -1665,8 +1750,10 @@ function routeGeo() {
   for (let i = 1; i <= n; i++) { if (i < n && R.sc[i] === R.sc[i0]) continue; const co = []; for (let j = i0; j <= i; j++) co.push([R.ll[2 * j], R.ll[2 * j + 1]]); feats.push({ type: 'Feature', properties: { c: C.rc[R.sc[i0]] }, geometry: { type: 'LineString', coordinates: co } }); i0 = i; }
   return { type: 'FeatureCollection', features: feats };
 }
+let x3d = [];
 function set3dRoute() {
   if (!ml3dReady || !RT.result) return;
+  x3d.forEach(m => m.remove()); x3d = (RT.result.cross || []).filter(c => c.busy).map(c => { const d = document.createElement('div'); d.innerHTML = '<span class="xing big ' + xingCls(c) + '" title="' + xingText(c).replace(/"/g, '') + '"></span>'; return new maplibregl.Marker({ element: d, opacityWhenCovered: '1' }).setLngLat([c.lon, c.lat]).addTo(ml3d); });
   const data = routeGeo();
   if (ml3d.getSource('gcm-route')) { ml3d.getSource('gcm-route').setData(data); return; }
   ml3d.addSource('gcm-route', { type: 'geojson', data });
@@ -1685,6 +1772,7 @@ function on3dStyle() {
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
   try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], encoding: 'terrarium', tileSize: 256, maxzoom: 14 }); ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
   ml3dReady = true; set3dRoute(); flyStep(0, true);
+  load3dRider().then(() => { if (photoWanted()) addPhoto(); });
 }
 async function open3d(p) {
   try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load, so the virtual cycle stays in 2D.'); FLY.three = false; $('fly-3d').checked = false; return; }
@@ -1693,6 +1781,7 @@ async function open3d(p) {
   if (!ml3d) {
     ml3d = new maplibregl.Map({ container: 'fly3d-map', style: style3d(), center: [p.lon, p.lat], zoom: 16.6, pitch: 62, bearing: p.hd, maxPitch: 75, attributionControl: { compact: true }, fadeDuration: 0 });
     ml3d.on('style.load', on3dStyle);
+    ml3d.on('sourcedata', ev => { if (ev && (ev.sourceId === 'omt' || ev.sourceId === 'openmaptiles') && ev.isSourceLoaded) PB.pending = true; });
     if (window.ResizeObserver) new ResizeObserver(() => { if (ml3d) ml3d.resize(); }).observe($('fly3d'));
     ml3d.on('error', e => {
       if (e && e.sourceId === 'gcm-dem') { try { ml3d.setTerrain(null); } catch (x) {} }
@@ -1718,6 +1807,103 @@ async function open3d(p) {
     ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport', opacity: '1', opacityWhenCovered: '1' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
 }
+// ---------- photo-textured buildings: roofs wear the satellite image, walls take its colour ----------
+// A three.js layer inside the 3D map. Buildings come from the same OpenFreeMap tiles as the plain extrusions; around
+// the rider their roofs are textured with a 5 x 5 mosaic of satellite tiles, and every wall is tinted with the
+// imagery's colour at that building, lit by a low sun. Terrain is switched off while it runs, so roofs line up.
+const PB = { on: true, layer: null, busy: false, centre: null, lastBuild: 0, failed: false, pending: false };
+const SAT_URL = (z, x, y) => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/' + z + '/' + y + '/' + x;
+function photoWanted() { return PB.on && !PB.failed && FLY.style === 'sat' && !!R3.THREE && !!window.maplibregl; }
+function makePhotoLayer(THREE) {
+  return {
+    id: 'gcm-photo', type: 'custom', renderingMode: '3d',
+    onAdd(map, gl) {
+      this.map = map; this.camera = new THREE.Camera(); this.scene = new THREE.Scene(); this.model = new THREE.Matrix4();
+      this.scene.add(new THREE.HemisphereLight(0xffffff, 0x5a5a50, 0.8));
+      const sun = new THREE.DirectionalLight(0xfff4e0, 0.6); sun.position.set(-0.6, -1, 1.4).normalize(); this.scene.add(sun);
+      this.renderer = new THREE.WebGLRenderer({ canvas: map.getCanvas(), context: gl, antialias: true }); this.renderer.autoClear = false;
+    },
+    render(gl, matrix) {
+      if (!this.group) return;
+      this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix).multiply(this.model);
+      this.renderer.resetState(); this.renderer.render(this.scene, this.camera);
+    },
+    setGroup(group, model) {
+      if (this.group) { this.scene.remove(this.group); this.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); } }); }
+      this.group = group; this.model = model; if (group) this.scene.add(group); this.map.triggerRepaint();
+    }
+  };
+}
+function loadImg(src) { return new Promise(res => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = src; }); }
+async function buildPhoto(lon, lat) {
+  if (PB.busy || !ml3d || !PB.layer || !photoWanted()) return; PB.busy = true; PB.lastBuild = performance.now();
+  try {
+    const T = R3.THREE, MC = maplibregl.MercatorCoordinate, Z = 16, n = 2 ** Z, RAD = 2, NT = 2 * RAD + 1;
+    const o = MC.fromLngLat([lon, lat], 0), s = o.meterInMercatorCoordinateUnits(), tx = Math.floor(o.x * n), ty = Math.floor(o.y * n);
+    const cv = document.createElement('canvas'); cv.width = cv.height = NT * 256; const cx = cv.getContext('2d'); cx.fillStyle = '#6b6f62'; cx.fillRect(0, 0, cv.width, cv.height);
+    const jobs = []; for (let dy = -RAD; dy <= RAD; dy++) for (let dx = -RAD; dx <= RAD; dx++) jobs.push(loadImg(SAT_URL(Z, tx + dx, ty + dy)).then(im => { if (im) cx.drawImage(im, (dx + RAD) * 256, (dy + RAD) * 256); }));
+    await Promise.all(jobs);
+    let px; try { px = cx.getImageData(0, 0, cv.width, cv.height).data; } catch (e) { PB.failed = true; throw e; } // imagery not shareable: fall back to plain buildings
+    const X0 = (tx - RAD) / n, Y0 = (ty - RAD) / n, SPAN = NT / n;
+    const src = ml3d.getSource('omt') ? 'omt' : ml3d.getSource('openmaptiles') ? 'openmaptiles' : null; if (!src) return;
+    const feats = ml3d.querySourceFeatures(src, { sourceLayer: 'building' });
+    const tp = [], tuv = [], pp = [], pc = [], wp = [], wc = [], seen = new Set();
+    const L = c => { const m = MC.fromLngLat(c, 0); return [(m.x - o.x) / s, -(m.y - o.y) / s, m.x, m.y]; };
+    for (const f of feats) {
+      const g = f.geometry; if (!g) continue;
+      const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+      const h = Math.max(3, +f.properties.render_height || 8), hb = Math.max(0, +f.properties.render_min_height || 0); if (h <= hb) continue;
+      for (const poly of polys) {
+        const rings = poly.map(r => r.map(L)); const out = rings[0]; if (!out || out.length < 4) continue;
+        let mx = 0, my = 0; out.forEach(p => { mx += p[2]; my += p[3]; }); mx /= out.length; my /= out.length;
+        if (Math.abs(mx - o.x) / s > 2500 || Math.abs(my - o.y) / s > 2500) continue; // keep it to the rider's surroundings
+        const key = Math.round((mx - o.x) / s / 1.5) + ':' + Math.round((my - o.y) / s / 1.5) + ':' + Math.round(h); if (seen.has(key)) continue; seen.add(key); // the same building from two tile zooms
+        const u = (mx - X0) / SPAN, v = (my - Y0) / SPAN, inside = u > 0.002 && u < 0.998 && v > 0.002 && v < 0.998;
+        let r = 0.86, gg = 0.83, b = 0.78;
+        if (inside) { const k = 4 * (Math.floor(v * cv.height) * cv.width + Math.floor(u * cv.width)); r = 0.45 * px[k] / 255 + 0.55 * 0.74; gg = 0.45 * px[k + 1] / 255 + 0.55 * 0.66; b = 0.45 * px[k + 2] / 255 + 0.55 * 0.57; } // imagery tint, warmed towards sandstone
+        const contour = out.slice(0, -1).map(p => new T.Vector2(p[0], p[1])), holes = rings.slice(1).map(rg => rg.slice(0, -1).map(p => new T.Vector2(p[0], p[1])));
+        let tris; try { tris = T.ShapeUtils.triangulateShape(contour, holes); } catch (e) { continue; }
+        const all = contour.concat(...holes), mer = out.slice(0, -1).concat(...rings.slice(1).map(rg => rg.slice(0, -1)));
+        tris.forEach(tr => tr.forEach(i => { const p = all[i];
+          if (inside) { tp.push(p.x, p.y, h); tuv.push((mer[i][2] - X0) / SPAN, 1 - (mer[i][3] - Y0) / SPAN); }
+          else { pp.push(p.x, p.y, h); pc.push(r, gg, b); } }));
+        rings.forEach(rg => { for (let i = 0; i + 1 < rg.length; i++) { const a = rg[i], c = rg[i + 1];
+          wp.push(a[0], a[1], hb, c[0], c[1], hb, c[0], c[1], h, a[0], a[1], hb, c[0], c[1], h, a[0], a[1], h);
+          for (let q = 0; q < 6; q++) wc.push(r * (q === 2 || q === 4 || q === 5 ? 1 : 0.82), gg * (q === 2 || q === 4 || q === 5 ? 1 : 0.82), b * (q === 2 || q === 4 || q === 5 ? 1 : 0.82)); } }); // a touch darker at street level
+      }
+    }
+    const grp = new T.Group();
+    const mesh = (pos, extra, mat) => { if (!pos.length) return; const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); extra(geo); geo.computeVertexNormals(); grp.add(new T.Mesh(geo, mat)); };
+    const tex = new T.CanvasTexture(cv); tex.anisotropy = 4; tex.needsUpdate = true;
+    mesh(tp, geo => geo.setAttribute('uv', new T.Float32BufferAttribute(tuv, 2)), new T.MeshBasicMaterial({ map: tex, side: T.DoubleSide }));
+    mesh(pp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(pc, 3)), new T.MeshBasicMaterial({ vertexColors: true, side: T.DoubleSide }));
+    mesh(wp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(wc, 3)), new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide }));
+    PB.layer.setGroup(grp, new T.Matrix4().makeTranslation(o.x, o.y, o.z).scale(new T.Vector3(s, -s, s)));
+    PB.centre = [lon, lat];
+    if (ml3d.getLayer('gcm-buildings')) ml3d.setLayoutProperty('gcm-buildings', 'visibility', 'none');
+  } catch (e) {
+    PB.failed = true; removePhoto();
+  } finally { PB.busy = false; }
+}
+function addPhoto() {
+  if (!ml3d || !photoWanted()) return;
+  if (!ml3d.getLayer('gcm-photo')) { PB.layer = makePhotoLayer(R3.THREE); ml3d.addLayer(PB.layer); }
+  try { ml3d.setTerrain(null); } catch (e) {}
+  PB.centre = null; const P = FLY.lastP || flyPoint(FLY.d); buildPhoto(P.lon, P.lat);
+}
+function removePhoto() {
+  if (!ml3d) return;
+  if (ml3d.getLayer('gcm-photo')) ml3d.removeLayer('gcm-photo'); PB.layer = null; PB.centre = null;
+  if (ml3d.getLayer('gcm-buildings')) ml3d.setLayoutProperty('gcm-buildings', 'visibility', 'visible');
+  try { if (ml3d.getSource('gcm-dem')) ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
+}
+// rebuild when the rider has moved on, or new building tiles have arrived; never more than every 2.5 seconds
+function photoTick() {
+  if (!PB.layer || PB.busy || !photoWanted() || !FLY.lastP) return;
+  const P = FLY.lastP, far = !PB.centre || Math.hypot((P.lon - PB.centre[0]) * Math.cos(P.lat * D2R), P.lat - PB.centre[1]) * 111320 > 420;
+  if ((far || PB.pending) && performance.now() - PB.lastBuild > 2500) { PB.pending = false; buildPhoto(P.lon, P.lat); }
+}
+
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 const RIDERS = [ // lean is the torso's angle forward from upright
@@ -1931,7 +2117,8 @@ const svLink = p => 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoi
 function flyStep(dt, force) {
   const R = RT.result; if (!R || !R.prof) { stopFly(); return; }
   const follow = FLY.playing || force;
-  if (FLY.playing) FLY.d += dt * 25 * FLY.speed * Math.max(0.45, 1 - FLY.turn / 110); // 25 m a second at 1x, easing off through sharp turns
+  const xAhead = (R.cross || []).find(c => (c.busy || c.unv) && !c.sig && c.d - FLY.d > -8 && c.d - FLY.d < 45);
+  if (FLY.playing) FLY.d += dt * 25 * FLY.speed * Math.max(0.45, 1 - FLY.turn / 110) * (xAhead ? 0.3 : 1); // 25 m a second at 1x, easing off through sharp turns
   if (FLY.d >= R.total) { FLY.d = R.total; FLY.playing = false; $('fly-play').textContent = 'Replay'; }
   const p = flyPoint(FLY.d), localHd = p.hd;
   const tgt = bearing(flyPoint(Math.max(0, FLY.d - 30)), flyPoint(Math.min(R.total, FLY.d + 90)));
@@ -1957,6 +2144,7 @@ function flyStep(dt, force) {
       if (FLY.off3) { const h = FLY.hd3 * D2R, a = FLY.off3[0], c = FLY.off3[1]; cx += (a * Math.sin(h) + c * Math.cos(h)) / (111320 * Math.cos(cy * D2R)); cy += (a * Math.cos(h) - c * Math.sin(h)) / 110540; }
       ml3d.jumpTo({ center: [cx, cy], bearing: FLY.hd3 + FLY.bOff }); }
     if (ml3dMk) ml3dMk.setLngLat([p.lon, p.lat]);
+    photoTick();
   }
   if (R._cursor) R._cursor(p);
   p.hd = FLY.hd3; $('fly-sv').href = svLink(p);
@@ -1991,7 +2179,8 @@ $('fly-play').addEventListener('click', () => {
 $('fly-speed').addEventListener('change', e => { FLY.speed = +e.target.value; });
 $('fly-stop').addEventListener('click', stopFly);
 $('fly-3d').addEventListener('change', e => { FLY.three = e.target.checked; if (!FLY.on) return; if (FLY.three) open3d(flyPoint(FLY.d)); else { close3d(); flyStep(0, true); } });
-$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; if (ml3d) { ml3dReady = false; ml3d.setStyle(style3d()); } });
+$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; $('fly-photo').disabled = FLY.style !== 'sat'; if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } });
+$('fly-photo').addEventListener('change', e => { PB.on = e.target.checked; PB.failed = false; if (PB.on) load3dRider().then(addPhoto); else removePhoto(); });
 document.addEventListener('keydown', e => { if (!FLY.on || e.target.matches('input, select, textarea')) return; if (e.key === ' ') { e.preventDefault(); $('fly-play').click(); } if (e.key === 'Escape') stopFly(); });
 map.on('dragstart', () => { if (FLY.on) FLY.b2.drag = true; });
 map.on('dragend', () => { if (!FLY.b2.drag) return; FLY.b2.drag = false; const c = map.getCenter(), P = FLY.lastP; if (P) { FLY.off2 = [c.lat - P.lat, c.lng - P.lon]; FLY.cx = P.lon; FLY.cy = P.lat; } });
@@ -2018,6 +2207,7 @@ function profileSvg(R, W, H) {
     mk('rect', { x: X(pr[i0].d), y: T0 + ph + 2, width: Math.max(0.5, X(pr[Math.min(i, pr.length - 1)].d) - X(pr[i0].d)), height: 5, fill: C.rc[pr[i0].cat] });
     i0 = i;
   }
+  (R.cross || []).filter(c => c.busy).forEach(c => { mk('line', { x1: X(c.d), x2: X(c.d), y1: T0, y2: T0 + ph, class: 'xing-line ' + xingCls(c) }); mk('circle', { cx: X(c.d), cy: T0 + 5, r: 4.5, class: 'xing-dot ' + xingCls(c) }); });
   const cur = mk('line', { x1: 0, x2: 0, y1: T0, y2: T0 + ph, class: 'rt-cursor', visibility: 'hidden' });
   const dot = mk('circle', { r: 4, class: 'rt-dot', visibility: 'hidden' });
   const hit = mk('rect', { x: L0, y: 0, width: pw, height: H, fill: 'transparent', style: 'cursor:crosshair;touch-action:none' });
@@ -2026,7 +2216,8 @@ function profileSvg(R, W, H) {
     const g = Math.round((p.g || 0) * 1000) / 10, grade = Math.abs(g) < 0.5 ? 'flat' : Math.abs(g) + '% ' + (g > 0 ? 'uphill' : 'downhill');
     $('dock-tip').textContent = fmtKm(p.d) + ' km in, ' + RCAT[p.cat] + (p.nm ? ' on ' + p.nm : '') + ', ' + Math.round(p.e) + ' m, ' + grade;
     PTIP.textContent = ''; const ty = el('div', 'pt-type'); const sw = el('i'); sw.style.background = C.rc[p.cat]; ty.append(sw, document.createTextNode(RCAT[p.cat])); ty.style.color = C.rc[p.cat];
-    PTIP.append(ty); if (p.nm) PTIP.append(el('div', null, p.nm)); PTIP.append(el('div', 'pt-row', fmtKm(p.d) + ' km in, ' + Math.round(p.e) + ' m above sea level, ' + grade));
+    PTIP.append(ty); if (p.nm) PTIP.append(el('div', null, p.nm));
+    { const xc = (R.cross || []).find(c => c.busy && Math.abs(c.d - p.d) < 40); if (xc) { const xr = el('div', 'pt-x'); xr.append(el('span', 'xing ' + xingCls(xc)), document.createTextNode(xc.unv ? 'No crossing mapped: check it exists' : xc.sig ? (xc.zebra ? 'Zebra crossing' : 'Signal crossing') : 'Busy road, no mapped crossing: be ready to stop')); PTIP.append(xr); } } PTIP.append(el('div', 'pt-row', fmtKm(p.d) + ' km in, ' + Math.round(p.e) + ' m above sea level, ' + grade));
     const box = s.getBoundingClientRect(), hb = s.parentNode.getBoundingClientRect(); PTIP.hidden = false;
     const px = (X(p.d) / W) * box.width + (box.left - hb.left), py = (Y(p.e) / H) * box.height + (box.top - hb.top) - 10;
     // keep the whole tooltip on screen: measure it, then clamp it inside the strip; flip below the point if there's no room above
@@ -2216,6 +2407,12 @@ update(); draw(); loadReports();
 if (!readHash()) loadDemo(true);
 try { if (location.hash) history.replaceState(null, '', location.pathname + location.search); } catch (e) {} // a shared view opens once; reloading starts afresh
 if (!store.get('gcm-tip')) $('tip').hidden = false;
+fetch('data/crossings.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
+  if (!j) return; const R15 = mtoU(15), CODE = { s: 1, z: 2, u: 3, n: 4 }; let changed = 0;
+  [].concat(j.council || [], j.osm || []).forEach(p => { const n = nearestNode(mx(p[0]), my(p[1]), R15, m => m < NN0); if (n < 0) return; const c = CODE[p[2]] || 3;
+    const keep = XEV[n]; const nv = !keep ? c : (c === 1 || keep === 1) ? 1 : Math.min(keep, c); if (nv !== keep) { XEV[n] = nv; changed++; } });
+  if (changed) { priceCuts(); cache.clear(); rebuildRouteIfAny(); }
+}).catch(() => {});
 fetch('data/blocked.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
   if (!j || !Array.isArray(j.points) || !j.points.length) return;
   if (applyBlocks(j.points)) { cache.clear(); update(true); rebuildRouteIfAny(); }

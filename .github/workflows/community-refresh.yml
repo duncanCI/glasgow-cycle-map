@@ -18,16 +18,19 @@ jobs:
       - name: Download the community map and embed it in the page
         run: python3 scripts/community.py
 
+      - name: Refresh crossing evidence (OpenStreetMap crossings and the council's signal sites)
+        run: python3 scripts/fetch_crossings.py || echo "Crossing refresh failed; keeping the previous file"
+
       - name: Commit the refresh
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data/community.geojson data/community-meta.json
+          git add index.html data/community.geojson data/community-meta.json data/crossings.json
           if git diff --cached --quiet; then
             echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "Weekly refresh of the community cycle map"
+            git commit -m "Weekly refresh of the community cycle map and crossing data"
             git push
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
