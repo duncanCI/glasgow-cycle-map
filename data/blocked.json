@@ -1,0 +1,4 @@
+{
+  "about": "Links that are not rideable by bike, such as steps or barriers. Each point removes any street, path or community-map link within its radius (metres, default 15) from the network and the route planner.",
+  "points": []
+}

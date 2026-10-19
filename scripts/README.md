@@ -12,4 +12,5 @@ Run from the repository root with Python 3.11 or later and `geopandas`, `pyogrio
 4. Run `prep2.py` to add the 2032 programme flags and data zones, writing `data/network2.json`.
 5. Run `prep_route.py` to add one-way flags (writing `data/network3.json`) and build the height grid (`data/elev.json`) from Mapzen Terrain Tiles.
 6. Run `prep_flow.py` to add contraflow permissions, quiet one-way streets and possible missing links (writing `data/network4.json`).
-7. Paste `data/network4.json` into the `net-data` script tag and `data/elev.json` into the `elev-data` script tag in `index.html`. The weekly workflow fills the `comm-data` tag itself.
+7. Run `prep_grade.py` to mark junctions on bridges and in tunnels and re-snap the planned City Network (writing `data/network5.json`).
+8. Paste `data/network5.json` into the `net-data` script tag and `data/elev.json` into the `elev-data` script tag in `index.html`. The weekly workflow fills the `comm-data` tag itself.

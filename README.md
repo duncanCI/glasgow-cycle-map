@@ -31,6 +31,18 @@ Two options test what that costs. "Reach the network without riding on busy road
 
 "Possible missing links" marks 165 residential dead ends that come within 25 m of another street or path, at a similar height, with no mapped way between them within 400 m of riding. A dropped kerb or a filtered gap could join many of them, but some are walls, fences, private land or unmapped paths, so they are shown for checking on the ground and not counted in the figures. Both ideas come from the observations of the community map's author, u/Correct-Audience-421.
 
+## Bridges, steps and blocked links
+
+Community-mapped lines join the street network within 20 m of their ends and 15 m along their length, and never to a road on a bridge or in a tunnel unless the two genuinely meet within 6 m, so a riverside path such as the Kelvin Walkway is not joined to the bridge above it. Planned routes are joined only to junctions at street level. Steps are not part of the network.
+
+Some links still won't be rideable: steps the data misses, kissing gates, or barriers that block cargo bikes and trailers. Reports of the kind "Steps or a barrier, not rideable" open as GitHub issues. To act on one, add the spot to `data/blocked.json`:
+
+```json
+{ "points": [ { "lat": 55.8752, "lng": -4.2795, "radius": 15, "note": "Steps down to the Kelvin Walkway at Kelvinbridge" } ] }
+```
+
+Every street, path or community-map link within the radius (in metres, default 15) is removed from the network and the route planner the next time the page loads.
+
 ## Route planner
 
 Right-click the map, or press and hold on a phone, and choose "Route from here" and "Route to here". The route follows the network for the selected scenario, so the same trip can be compared today and under the plans. Drag the A and B pins to move them, and right-click again to add stops, which can also be dragged or removed.
