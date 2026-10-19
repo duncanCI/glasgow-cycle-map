@@ -67,6 +67,10 @@ Each route shows its length and riding time on the profile strip, with the netwo
 
 Routes follow a cyclist confidence slider with five levels, from "Riding with children" to "Very confident". The lowest level treats a quiet street as three times its length and a busy road as up to 25 times, adds 400 m for every busy road it joins or crosses from a calm street, and may run up to 2.5 times the shortest legal route to stay protected. "Cautious" is the default; "Very confident" takes the shortest legal route. A leg that would stretch beyond its level's limit steps up a level, and the profile says so. Riding speed rises from 11 km/h with children to 20 km/h. Stops stay where you put them, including side roads you want to call in on.
 
+## Music for the virtual cycle
+
+"♪ Music" on the virtual cycle bar plays background music while you ride: lo-fi beats, reggae, country, classical, synthwave, 8-bit, a Celtic jig or rage metal, with a volume slider. It is generated live in the browser with Tone.js (loaded only when you pick a style): every style is composed in `index.html` as original patterns and synthesised instruments, and the classical style plays Bach's Prelude in C (BWV 846, public domain). Nothing is streamed or licensed. Levels are evened out across styles, and the music fades out when you stop the ride.
+
 ## Road crossings
 
 Wherever the route leaves a path or shared pavement and crosses a road, the app records a road crossing: at a junction where a path meets the road on both sides, or where a community-mapped line is drawn straight across a carriageway between junctions. Each crossing is checked against `data/crossings.json`, which holds OpenStreetMap's crossing points (signals, toucans, zebras, marked and uncontrolled crossings, and places mapped as no crossing) and the council's city-centre signal sites. The weekly Action refreshes it with `scripts/fetch_crossings.py`.
@@ -134,6 +138,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Crossings | OpenStreetMap crossing points via Overpass, Glasgow City Council city-centre signal sites (CCTP tactile facilities) | © OpenStreetMap contributors (ODbL); Glasgow City Council open data |
+| Music | Tone.js 14.7.77, loaded only when music is chosen | MIT |
 | 3D rider | three.js 0.149, loaded only for the virtual cycle | MIT |
 | 3D virtual cycle | OpenFreeMap vector tiles (OpenMapTiles schema) drawn with MapLibre GL, terrain from Mapzen Terrain Tiles | © OpenMapTiles, data © OpenStreetMap contributors |
 | Background maps | OpenStreetMap standard tiles (light grey and streets), CyclOSM, Esri World Imagery (satellite) | © OpenStreetMap contributors under the tile usage policy; CyclOSM; imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community |
