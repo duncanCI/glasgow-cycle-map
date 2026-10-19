@@ -255,6 +255,18 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu button[aria-checked="true"]{font-weight:700}
 .menu button[aria-checked="true"]::after{content:"♪";margin-left:auto;color:var(--accent)}
 .mus-vol input{flex:1;accent-color:var(--accent)}
+.music-dock{position:absolute;top:12px;left:56px;z-index:1110;display:flex;gap:6px;align-items:center}
+.music-btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:0.9rem;font-weight:700;padding:8px 14px 8px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer;max-width:280px}
+.music-btn #music-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-stop{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer;font-size:0.8rem}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px}
+.eq i{display:block;width:4px;height:5px;border-radius:1px;background:var(--accent)}
+.music-dock.playing .eq i{animation:eq 0.9s ease-in-out infinite}
+.music-dock.playing .eq i:nth-child(2){animation-delay:-0.3s}
+.music-dock.playing .eq i:nth-child(3){animation-delay:-0.6s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+@media (prefers-reduced-motion: reduce){.music-dock.playing .eq i{animation:none;height:10px}}
+@media (max-width:760px){.music-dock{top:10px;left:50px}.music-btn{max-width:190px}}
 .mus-note{font-size:0.72rem;color:var(--muted);padding:4px 10px 6px;max-width:250px}
 .mus-note a{color:var(--accent)}
 #menu-music>button{flex-direction:column;align-items:flex-start;gap:0}
@@ -557,6 +569,10 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
     <div class="tip" id="tip" hidden role="note"><strong>New here?</strong> Right-click the map, or press and hold on a phone, to plan a route. Click any street to see how far it is from protected track.<div class="actions"><button type="button" class="chip primary" id="tip-help">How to use</button><button type="button" class="chip" id="tip-close">Got it</button></div></div>
     <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
+    <div class="music-dock" id="music-dock" hidden aria-label="Music for the ride">
+      <span class="menu-wrap"><button type="button" class="music-btn" id="fly-musicbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-music"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="music-label">Music</span></button><div class="menu" id="menu-music" role="menu" hidden></div></span>
+      <button type="button" class="music-stop" id="music-stop" hidden aria-label="Stop the music" title="Stop the music">■</button>
+    </div>
     <div class="legend" id="legend-wrap"><button type="button" class="legend-head" id="legend-toggle" aria-expanded="true" aria-controls="legend">Key</button><div id="legend" aria-label="Map key"></div></div>
     <div class="dock" id="dock" hidden aria-label="Route height profile">
       <div class="dock-head"><strong id="dock-sum"></strong>
@@ -579,7 +595,6 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
           <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label><label><input type="checkbox" id="fly-photo" checked> Photo-textured buildings</label></div></span>
-        <span class="menu-wrap"><button type="button" class="chip" id="fly-musicbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-music">♪ Music</button><div class="menu up" id="menu-music" role="menu" hidden></div></span>
         <button type="button" class="chip" id="fly-recentre" title="Put the camera back behind the rider">Recentre</button>
         <button type="button" class="chip" id="fly-stop">Stop</button>
         <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="While it plays: drag to look around, scroll or pinch to zoom, right-drag or two fingers to tilt and turn. The camera keeps your view and carries on following the rider; Recentre puts it back. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
@@ -1929,39 +1944,52 @@ function photoTick() {
 
 // ---------- music for the virtual cycle: ad-free internet radio, played in the page ----------
 // Listener-supported or public-service stations with no adverts; each has a fallback address in case one is busy.
+const SOMA = ch => [1, 2, 4, 6].map(n => 'https://ice' + n + '.somafm.com/' + ch + '-128-mp3').concat('https://ice.somafm.com/' + ch);
 const RADIO = [
-  ['lofi', 'Lo-fi & instrumental hip hop', 'SomaFM Fluid', ['https://ice.somafm.com/fluid', 'https://ice2.somafm.com/fluid-128-mp3']],
-  ['chill', 'Chilled downtempo', 'SomaFM Groove Salad', ['https://ice.somafm.com/groovesalad', 'https://ice2.somafm.com/groovesalad-128-mp3']],
-  ['reggae', 'Reggae, ska and dub', 'SomaFM Heavyweight Reggae', ['https://ice.somafm.com/reggae', 'https://ice2.somafm.com/reggae-128-mp3']],
-  ['country', 'Country and Americana', 'SomaFM Boot Liquor', ['https://ice.somafm.com/bootliquor', 'https://ice2.somafm.com/bootliquor-128-mp3']],
-  ['classical', 'Classical', 'Radio Swiss Classic', ['https://stream.srg-ssr.ch/m/rsc_de/mp3_128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/aac/96']],
+  ['lofi', 'Lo-fi & instrumental hip hop', 'SomaFM Fluid', SOMA('fluid')],
+  ['chill', 'Chilled downtempo', 'SomaFM Groove Salad', SOMA('groovesalad')],
+  ['reggae', 'Reggae, ska and dub', 'SomaFM Heavyweight Reggae', SOMA('reggae')],
+  ['country', 'Country and Americana', 'SomaFM Boot Liquor', SOMA('bootliquor')],
+  ['classical', 'Classical', 'Radio Swiss Classic', ['https://stream.srg-ssr.ch/m/rsc_de/mp3_128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/mp3/128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/aac/96']],
   ['synthwave', 'Synthwave', 'Nightride FM', ['https://stream.nightride.fm/nightride.mp3', 'https://stream.nightride.fm/chillsynth.mp3']],
-  ['celtic', 'Celtic', 'SomaFM ThistleRadio', ['https://ice.somafm.com/thistle', 'https://ice2.somafm.com/thistle-128-mp3']],
-  ['spy', 'Spy lounge', 'SomaFM Secret Agent', ['https://ice.somafm.com/secretagent', 'https://ice2.somafm.com/secretagent-128-mp3']],
-  ['metal', 'Rage metal', 'SomaFM Metal Detector', ['https://ice.somafm.com/metal', 'https://ice2.somafm.com/metal-128-mp3']]];
-const MUS = { genre: 'off', audio: null, vol: 0.7, fadeT: 0, onChange: null };
+  ['celtic', 'Celtic', 'SomaFM ThistleRadio', SOMA('thistle')],
+  ['spy', 'Spy lounge', 'SomaFM Secret Agent', SOMA('secretagent')],
+  ['metal', 'Rage metal', 'SomaFM Metal Detector', SOMA('metal')]];
+// each choice gets a fresh audio element, so a stopped or switched stream can never report a late error against the new one
+const MUS = { genre: 'off', audio: null, vol: 0.7, fadeT: 0, onChange: null, token: 0 };
+const fadeTo = (a, target, done) => { clearInterval(MUS.fadeT); MUS.fadeT = setInterval(() => { const v = a.volume + (target > a.volume ? 0.05 : -0.08); a.volume = Math.max(0, Math.min(1, target > a.volume ? Math.min(target, v) : Math.max(target, v))); if (Math.abs(a.volume - target) < 0.01) { clearInterval(MUS.fadeT); if (done) done(); } }, 45); };
+function retire(a) { if (!a) return; a.onerror = a.onplaying = a.onstalled = null; try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
 function stopMusic() {
-  const a = MUS.audio; MUS.genre = 'off'; if (MUS.onChange) MUS.onChange();
-  if (!a) return; clearInterval(MUS.fadeT);
-  MUS.fadeT = setInterval(() => { a.volume = Math.max(0, a.volume - 0.08); if (a.volume <= 0.01) { clearInterval(MUS.fadeT); a.pause(); a.removeAttribute('src'); a.load(); } }, 40);
+  MUS.token++; MUS.genre = 'off'; if (MUS.onChange) MUS.onChange();
+  const a = MUS.audio; MUS.audio = null; if (a) fadeTo(a, 0, () => retire(a));
 }
 function playMusic(g) {
   const st = RADIO.find(r => r[0] === g); if (!st) return stopMusic();
-  const a = MUS.audio || (MUS.audio = new Audio()); clearInterval(MUS.fadeT);
-  a.preload = 'none'; a.volume = 0; MUS.genre = g; if (MUS.onChange) MUS.onChange();
-  let i = 0;
-  const tryNext = () => {
-    if (MUS.genre !== g) return;
-    if (i >= st[3].length) { toast(st[2] + ' is not answering just now. Try another station.'); MUS.genre = 'off'; if (MUS.onChange) MUS.onChange(); return; }
-    a.src = st[3][i++];
-    a.play().then(() => { MUS.fadeT = setInterval(() => { a.volume = Math.min(MUS.vol, a.volume + 0.05); if (a.volume >= MUS.vol - 0.01) clearInterval(MUS.fadeT); }, 50); }).catch(() => tryNext());
+  const old = MUS.audio; if (old) { clearInterval(MUS.fadeT); retire(old); }
+  const my = ++MUS.token, a = new Audio(); MUS.audio = a; MUS.genre = g; if (MUS.onChange) MUS.onChange();
+  a.volume = 0; a.preload = 'auto';
+  let i = 0, started = false, why = 'no answer';
+  const live = () => my === MUS.token;
+  const next = () => {
+    if (!live() || started) return;
+    if (i >= st[3].length) { console.warn('Music: every address for', st[2], 'failed:', why); toast(st[2] + ' did not start (' + why + '). Try another station.'); MUS.genre = 'off'; MUS.audio = null; retire(a); if (MUS.onChange) MUS.onChange(); return; }
+    const url = st[3][i++]; a.src = url;
+    const p = a.play(); if (p && p.catch) p.catch(err => {
+      if (!live() || started) return;
+      if (err && err.name === 'NotAllowedError') { why = 'the browser blocked sound until you tap again'; i = st[3].length; next(); return; }
+      if (err && err.name === 'AbortError') return; // a newer request replaced this one
+      why = (err && err.name) || 'error'; next(); });
+    clearTimeout(a._t); a._t = setTimeout(() => { if (live() && !started) { why = 'no answer within 8 seconds'; next(); } }, 8000);
   };
-  a.onerror = () => { if (MUS.genre === g) tryNext(); };
-  tryNext(); // called straight from the click, so the browser lets it play
+  a.onplaying = () => { if (!live()) return; started = true; clearTimeout(a._t); fadeTo(a, MUS.vol); };
+  a.onerror = () => { if (!live() || started) return; const c = a.error && a.error.code; why = c === 2 ? 'network error' : c === 4 ? 'stream not supported here' : 'stream error'; clearTimeout(a._t); next(); };
+  next(); // the first attempt runs inside the click, so the browser allows sound
 }
 { // the music menu on the virtual cycle bar
   const m = document.getElementById('menu-music'), btn = document.getElementById('fly-musicbtn');
-  const mark = () => { m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false')); const cur = RADIO.find(x => x[0] === MUS.genre); btn.textContent = '♪ ' + (cur ? cur[1] : 'Music'); };
+  const mark = () => { m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false')); const cur = RADIO.find(x => x[0] === MUS.genre);
+    document.getElementById('music-label').textContent = cur ? cur[1] : 'Music for the ride'; document.getElementById('music-dock').classList.toggle('playing', !!cur); document.getElementById('music-stop').hidden = !cur; };
+  document.getElementById('music-stop').addEventListener('click', stopMusic);
   MUS.onChange = mark;
   const off = el('button', null, 'Off'); off.type = 'button'; off.setAttribute('role', 'menuitemradio'); off.dataset.g = 'off'; off.addEventListener('click', stopMusic); m.append(off);
   RADIO.forEach(([g, label, station]) => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g;
@@ -2221,7 +2249,7 @@ function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (n
 function startFly() {
   if (!RT.result || !RT.result.prof) return;
   FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup();
-  $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
+  $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; $('music-dock').hidden = false; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
   map.setZoom(Math.max(map.getZoom(), 16), { animate: false }); if (map.options) map.options.touchZoom = 'center';
@@ -2230,7 +2258,7 @@ function startFly() {
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
 }
 function stopFly() {
-  if (!FLY.on) return; stopMusic(); { const b = document.getElementById('fly-musicbtn'); if (b) b.textContent = '♪ Music'; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
+  if (!FLY.on) return; stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
   const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
   if (map.options) map.options.touchZoom = true;
   flyMk.remove(); if (RT.result) fitRoute();

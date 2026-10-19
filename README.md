@@ -69,7 +69,7 @@ Routes follow a cyclist confidence slider with five levels, from "Riding with ch
 
 ## Music for the virtual cycle
 
-"♪ Music" on the virtual cycle bar plays ad-free internet radio in the page while you ride: lo-fi and instrumental hip hop, chilled downtempo, reggae, country and Americana, classical, synthwave, Celtic, spy lounge or metal. The stations are listener-supported SomaFM (Fluid, Groove Salad, Heavyweight Reggae, Boot Liquor, ThistleRadio, Secret Agent, Metal Detector), the Swiss public broadcaster's Radio Swiss Classic, and Nightride FM. Each has a fallback address; the music fades in and out, has its own volume, and stops when the ride stops. If you enjoy SomaFM, consider supporting it at somafm.com/support.
+"Music for the ride", a button of its own at the top left of the map during a virtual cycle, plays ad-free internet radio in the page: lo-fi and instrumental hip hop, chilled downtempo, reggae, country and Americana, classical, synthwave, Celtic, spy lounge or metal. The stations are listener-supported SomaFM (Fluid, Groove Salad, Heavyweight Reggae, Boot Liquor, ThistleRadio, Secret Agent, Metal Detector), the Swiss public broadcaster's Radio Swiss Classic, and Nightride FM. Each has a fallback address; the music fades in and out, has its own volume, and stops when the ride stops. If you enjoy SomaFM, consider supporting it at somafm.com/support.
 
 ## Road crossings
 
