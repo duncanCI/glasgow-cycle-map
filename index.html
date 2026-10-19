@@ -1674,13 +1674,20 @@ async function open3d(p) {
     });
     // dragging or rotating by hand pauses; zooming and tilting carry on and are kept
     ml3d.scrollZoom.enable({ around: 'center' }); ml3d.touchZoomRotate.enable({ around: 'center' });
-    ['drag', 'rotate', 'pitch', 'zoom'].forEach(k => {
-      ml3d.on(k + 'start', ev => { if (ev && ev.originalEvent) FLY.b3[k] = true; });
-      ml3d.on(k + 'end', () => { if (!FLY.b3[k]) return; FLY.b3[k] = false; const P = FLY.lastP; if (!P) return;
-        if (k === 'drag') { const c = ml3d.getCenter(), h = (FLY.hd3 || 0) * D2R, dx = (c.lng - P.lon) * 111320 * Math.cos(P.lat * D2R), dy = (c.lat - P.lat) * 110540;
-          FLY.off3 = [dx * Math.sin(h) + dy * Math.cos(h), dx * Math.cos(h) - dy * Math.sin(h)]; FLY.cx = P.lon; FLY.cy = P.lat; }
-        if (k === 'rotate') FLY.bOff = ((ml3d.getBearing() - (FLY.hd3 || 0) + 540) % 360) - 180; });
-    });
+    // MapLibre cancels any gesture in progress whenever the camera is moved in code, so the camera stops following
+    // from the moment a finger or button goes down, and picks up again once the view settles, keeping whatever
+    // offset, turn and tilt you left it with
+    const cc = ml3d.getCanvasContainer();
+    const grab = () => { FLY.b3.ptr = true; clearTimeout(FLY.settleT); };
+    const settle = () => { const P = FLY.lastP; if (!P || !ml3d) { FLY.b3.ptr = false; return; }
+      const c = ml3d.getCenter(), h = (FLY.hd3 || 0) * D2R, dx = (c.lng - P.lon) * 111320 * Math.cos(P.lat * D2R), dy = (c.lat - P.lat) * 110540;
+      const lim = v => Math.max(-400, Math.min(400, v)); // stay in the rider's vicinity
+      FLY.off3 = [lim(dx * Math.sin(h) + dy * Math.cos(h)), lim(dx * Math.cos(h) - dy * Math.sin(h))];
+      FLY.bOff = ((ml3d.getBearing() - (FLY.hd3 || 0) + 540) % 360) - 180; FLY.cx = P.lon; FLY.cy = P.lat; FLY.b3.ptr = false; };
+    const release = () => { if (!FLY.b3.ptr) return; clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 450); ml3d.once('moveend', () => { clearTimeout(FLY.settleT); FLY.settleT = setTimeout(settle, 60); }); };
+    cc.addEventListener('pointerdown', grab, true); cc.addEventListener('touchstart', grab, { capture: true, passive: true });
+    window.addEventListener('pointerup', release); window.addEventListener('pointercancel', release); window.addEventListener('touchend', release);
+    cc.addEventListener('wheel', () => { FLY.b3.wheel = true; clearTimeout(FLY.wheelT); FLY.wheelT = setTimeout(() => { FLY.b3.wheel = false; }, 220); }, { passive: true });
     const rider = document.createElement('div'); rider.className = 'cyc-wrap'; rider.innerHTML = riderHTML(RT.conf, 'cyc3d');
     ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport', opacity: '1', opacityWhenCovered: '1' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
@@ -1964,7 +1971,7 @@ map.on('dragstart', () => { if (FLY.on) FLY.b2.drag = true; });
 map.on('dragend', () => { if (!FLY.b2.drag) return; FLY.b2.drag = false; const c = map.getCenter(), P = FLY.lastP; if (P) { FLY.off2 = [c.lat - P.lat, c.lng - P.lon]; FLY.cx = P.lon; FLY.cy = P.lat; } });
 map.on('zoomstart', () => { if (FLY.on && !FLY.three) FLY.b2.zoom = true; });
 map.on('zoomend', () => { FLY.b2.zoom = false; });
-function recentre() { FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {}; if (ml3d && ml3dReady && FLY.three) ml3d.jumpTo({ zoom: 16.6, pitch: 62 }); else map.setZoom(16, { animate: false }); flyStep(0, true); }
+function recentre() { FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {}; clearTimeout(FLY.settleT); if (ml3d && ml3dReady && FLY.three) ml3d.jumpTo({ zoom: 16.6, pitch: 62 }); else map.setZoom(16, { animate: false }); flyStep(0, true); }
 $('fly-recentre').addEventListener('click', recentre);
 function profileSvg(R, W, H) {
   const NS = 'http://www.w3.org/2000/svg', L0 = 40, R0 = 10, T0 = 8, B0 = 22, pw = W - L0 - R0, ph = H - T0 - B0;
