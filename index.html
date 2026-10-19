@@ -553,8 +553,9 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
           <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label></div></span>
+        <button type="button" class="chip" id="fly-recentre" title="Put the camera back behind the rider">Recentre</button>
         <button type="button" class="chip" id="fly-stop">Stop</button>
-        <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="Zoom and tilt any time. Drag or rotate to pause and look around; Play glides back to the route. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
+        <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="While it plays: drag to look around, scroll or pinch to zoom, right-drag or two fingers to tilt and turn. The camera keeps your view and carries on following the rider; Recentre puts it back. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
       <div id="dock-chart"><div class="ptip" id="ptip" hidden></div></div>
       <div class="dock-key" id="dock-key" aria-label="What the profile colours mean"></div>
     </div>
@@ -1620,7 +1621,7 @@ $('dock-min').addEventListener('click', () => { const d = $('dock'); d.classList
 if (window.ResizeObserver) { let rto = 0; new ResizeObserver(() => { clearTimeout(rto); rto = setTimeout(() => { if (RT.result && RT.result.prof) renderDock(); }, 120); }).observe($('dock-chart'));
   new ResizeObserver(() => { const d = $('dock'); if (!d.hidden) document.querySelector('.mapwrap').style.setProperty('--dock-h', d.offsetHeight + 'px'); }).observe($('dock')); }
 // ---------- flythrough: the map follows the route; Street View opens or plays alongside ----------
-const FLY = { on: false, playing: false, d: 0, speed: 2, raf: 0, t: 0, three: true, style: 'sat', hd3: null, cx: null, cy: null, turn: 0 };
+const FLY = { b3: {}, b2: {}, off3: null, off2: null, bOff: 0, lastP: null, on: false, playing: false, d: 0, speed: 2, raf: 0, t: 0, three: true, style: 'sat', hd3: null, cx: null, cy: null, turn: 0 };
 // 3D view: MapLibre GL with OpenFreeMap vector tiles (buildings extruded from OpenStreetMap heights) and terrain
 let mlLoad = null, ml3d = null, ml3dReady = false, ml3dMk = null;
 function loadMapLibre() {
@@ -1672,8 +1673,14 @@ async function open3d(p) {
       if (e && e.sourceId === 'sat' && FLY.style === 'sat' && !FLY.satFailed) { FLY.satFailed = true; FLY.style = 'map'; $('fly-style').value = 'map'; ml3dReady = false; ml3d.setStyle(style3d()); toast('Satellite imagery did not load, so the 3D view uses the map instead.'); }
     });
     // dragging or rotating by hand pauses; zooming and tilting carry on and are kept
-    const pauseByHand = ev => { if (ev && ev.originalEvent && FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } };
-    ml3d.on('dragstart', pauseByHand); ml3d.on('rotatestart', pauseByHand);
+    ml3d.scrollZoom.enable({ around: 'center' }); ml3d.touchZoomRotate.enable({ around: 'center' });
+    ['drag', 'rotate', 'pitch', 'zoom'].forEach(k => {
+      ml3d.on(k + 'start', ev => { if (ev && ev.originalEvent) FLY.b3[k] = true; });
+      ml3d.on(k + 'end', () => { if (!FLY.b3[k]) return; FLY.b3[k] = false; const P = FLY.lastP; if (!P) return;
+        if (k === 'drag') { const c = ml3d.getCenter(), h = (FLY.hd3 || 0) * D2R, dx = (c.lng - P.lon) * 111320 * Math.cos(P.lat * D2R), dy = (c.lat - P.lat) * 110540;
+          FLY.off3 = [dx * Math.sin(h) + dy * Math.cos(h), dx * Math.cos(h) - dy * Math.sin(h)]; FLY.cx = P.lon; FLY.cy = P.lat; }
+        if (k === 'rotate') FLY.bOff = ((ml3d.getBearing() - (FLY.hd3 || 0) + 540) % 360) - 180; });
+    });
     const rider = document.createElement('div'); rider.className = 'cyc-wrap'; rider.innerHTML = riderHTML(RT.conf, 'cyc3d');
     ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport', opacity: '1', opacityWhenCovered: '1' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
@@ -1909,8 +1916,15 @@ function flyStep(dt, force) {
     if (c2) drawRider3D(c2.querySelector('canvas.r3'), localHd, 52, -FLY.crank, spinR, FLY.playing ? tt : 0);
     if (ml3dMk && FLY.three && ml3dReady) drawRider3D(ml3dMk.getElement().querySelector('canvas.r3'), localHd - ml3d.getBearing(), Math.max(12, 90 - ml3d.getPitch()), -FLY.crank, spinR, FLY.playing ? tt : 0);
   }
-  if (follow && !(FLY.three && ml3dReady)) map.setView([FLY.cy, FLY.cx], map.getZoom(), { animate: false });
-  if (FLY.three && ml3dReady) { if (follow) ml3d.jumpTo({ center: [FLY.cx, FLY.cy], bearing: FLY.hd3 }); if (ml3dMk) ml3dMk.setLngLat([p.lon, p.lat]); }
+  FLY.lastP = p;
+  const busy = o => Object.keys(o).some(k => o[k]);
+  if (follow && !(FLY.three && ml3dReady) && !busy(FLY.b2)) map.setView([FLY.cy + (FLY.off2 ? FLY.off2[0] : 0), FLY.cx + (FLY.off2 ? FLY.off2[1] : 0)], map.getZoom(), { animate: false });
+  if (FLY.three && ml3dReady) {
+    if (follow && !busy(FLY.b3)) { let cx = FLY.cx, cy = FLY.cy;
+      if (FLY.off3) { const h = FLY.hd3 * D2R, a = FLY.off3[0], c = FLY.off3[1]; cx += (a * Math.sin(h) + c * Math.cos(h)) / (111320 * Math.cos(cy * D2R)); cy += (a * Math.cos(h) - c * Math.sin(h)) / 110540; }
+      ml3d.jumpTo({ center: [cx, cy], bearing: FLY.hd3 + FLY.bOff }); }
+    if (ml3dMk) ml3dMk.setLngLat([p.lon, p.lat]);
+  }
   if (R._cursor) R._cursor(p);
   p.hd = FLY.hd3; $('fly-sv').href = svLink(p);
 }
@@ -1921,13 +1935,15 @@ function startFly() {
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
-  map.setZoom(Math.max(map.getZoom(), 16), { animate: false });
+  map.setZoom(Math.max(map.getZoom(), 16), { animate: false }); if (map.options) { map.options.scrollWheelZoom = 'center'; map.options.touchZoom = 'center'; }
+  FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {};
   FLY.hd3 = null; FLY.cx = FLY.cy = null; FLY.turn = 0; if (FLY.three) open3d(flyPoint(0));
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
 }
 function stopFly() {
   if (!FLY.on) return; FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
   const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
+  if (map.options) { map.options.scrollWheelZoom = true; map.options.touchZoom = true; }
   flyMk.remove(); if (RT.result) fitRoute();
 }
 $('dock-fly').addEventListener('click', startFly);
@@ -1944,7 +1960,12 @@ $('fly-stop').addEventListener('click', stopFly);
 $('fly-3d').addEventListener('change', e => { FLY.three = e.target.checked; if (!FLY.on) return; if (FLY.three) open3d(flyPoint(FLY.d)); else { close3d(); flyStep(0, true); } });
 $('fly-style').addEventListener('change', e => { FLY.style = e.target.value; if (ml3d) { ml3dReady = false; ml3d.setStyle(style3d()); } });
 document.addEventListener('keydown', e => { if (!FLY.on || e.target.matches('input, select, textarea')) return; if (e.key === ' ') { e.preventDefault(); $('fly-play').click(); } if (e.key === 'Escape') stopFly(); });
-map.on('dragstart', () => { if (FLY.on && FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } });
+map.on('dragstart', () => { if (FLY.on) FLY.b2.drag = true; });
+map.on('dragend', () => { if (!FLY.b2.drag) return; FLY.b2.drag = false; const c = map.getCenter(), P = FLY.lastP; if (P) { FLY.off2 = [c.lat - P.lat, c.lng - P.lon]; FLY.cx = P.lon; FLY.cy = P.lat; } });
+map.on('zoomstart', () => { if (FLY.on && !FLY.three) FLY.b2.zoom = true; });
+map.on('zoomend', () => { FLY.b2.zoom = false; });
+function recentre() { FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {}; if (ml3d && ml3dReady && FLY.three) ml3d.jumpTo({ zoom: 16.6, pitch: 62 }); else map.setZoom(16, { animate: false }); flyStep(0, true); }
+$('fly-recentre').addEventListener('click', recentre);
 function profileSvg(R, W, H) {
   const NS = 'http://www.w3.org/2000/svg', L0 = 40, R0 = 10, T0 = 8, B0 = 22, pw = W - L0 - R0, ph = H - T0 - B0;
   const s = document.createElementNS(NS, 'svg'); s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('class', 'rt-chart'); s.setAttribute('role', 'img');
