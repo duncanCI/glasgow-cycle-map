@@ -41,7 +41,8 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0}
 body{background:var(--panel);color:var(--ink);font-family:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif;font-size:16px;line-height:1.5}
-.app{display:grid;grid-template-columns:minmax(320px,410px) 1fr;height:100%}
+.app{display:grid;grid-template-columns:var(--panel-w,410px) 1fr;height:100%}
+.panel{min-width:0}
 .panel{overflow-y:auto;padding:24px 22px 40px;border-right:1px solid var(--line)}
 .mapwrap{position:relative;min-height:0}
 #map{position:absolute;inset:0;background:var(--land)}
@@ -212,8 +213,31 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .dock-actions select,.maptools select{width:auto}
 .dock-conf{display:inline-flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700}
 .app.collapsed{grid-template-columns:0 1fr}
-.app.collapsed .panel{display:none}
-.expand{position:absolute;top:84px;left:10px;z-index:1050;font:inherit;font-size:0.85rem;font-weight:700;padding:6px 10px;border:1.5px solid var(--ink);border-radius:6px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer}
+.app.collapsed .panel{visibility:hidden;overflow:hidden;padding:0;border:0}
+.app.resizing,.app.resizing *{cursor:col-resize!important;user-select:none}
+.resizer{position:absolute;left:0;top:0;bottom:0;width:8px;z-index:1150;cursor:col-resize;touch-action:none}
+.resizer::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s}
+.resizer:hover::before,.resizer.drag::before,.resizer:focus-visible::before{background:var(--accent)}
+.resizer:focus-visible{outline:none}
+.rz-btn{position:absolute;top:50%;left:0;transform:translateY(-50%);width:20px;height:46px;border:1.5px solid var(--ink);border-left:0;border-radius:0 8px 8px 0;background:var(--panel);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:2px 0 0 var(--ink)}
+.app.collapsed .rz-btn svg{transform:rotate(180deg)}
+.mobile-only{display:none}
+.cyc{position:absolute;transform:translate(-50%,-90%);filter:drop-shadow(0 0 1.2px rgba(255,255,255,.9)) drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+.cyc svg{transform:perspective(260px) rotateY(-18deg) rotateX(6deg);transform-origin:50% 85%;overflow:visible}
+.cyc.west svg{transform:scaleX(-1) perspective(260px) rotateY(-18deg) rotateX(6deg)}
+.cyc-wrap{width:72px;height:66px}
+.cyc .flag{transform-box:fill-box;transform-origin:0 50%;animation:cyc-flag .45s ease-in-out infinite}
+.cyc .wave{transform-box:fill-box;transform-origin:0 100%;animation:cyc-wave .8s ease-in-out infinite}
+.cyc .scarf{transform-box:fill-box;transform-origin:100% 0;animation:cyc-scarf .55s ease-in-out infinite}
+.cyc .spd line{stroke-dasharray:4 6;animation:cyc-speed .35s linear infinite}
+.cyc.paused *{animation-play-state:paused}
+@keyframes cyc-flag{0%,100%{transform:scaleX(1) skewY(0)}50%{transform:scaleX(.72) skewY(8deg)}}
+@keyframes cyc-wave{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(30deg)}}
+@keyframes cyc-scarf{0%,100%{transform:rotate(0) scaleX(1)}50%{transform:rotate(-14deg) scaleX(.9)}}
+@keyframes cyc-speed{to{stroke-dashoffset:20}}
+@media (prefers-reduced-motion: reduce){.cyc *{animation:none!important}}
+.cyc.cyc3d{position:static;transform:none}
+.expand{position:absolute;z-index:1050;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer;display:none;align-items:center;justify-content:center}
 .maptool{font:inherit;font-size:0.9rem;font-weight:700;padding:7px 10px;border:1.5px solid var(--ink);border-radius:6px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer}
 .menu-wrap{position:relative;display:inline-block}
 .menu{position:absolute;top:calc(100% + 4px);left:0;z-index:1200;min-width:220px;background:var(--panel);color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:flex;flex-direction:column}
@@ -254,7 +278,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 #fly3d-map{position:absolute;inset:0}
 .fly-arrow3d{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:30px solid #FFC400;filter:drop-shadow(0 0 2px #000)}
 #fly-3d{accent-color:var(--accent);width:16px;height:16px}
-.fly-arrow{position:absolute;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:26px solid #FFC400;filter:drop-shadow(0 0 2px #000);transform:translate(-50%,-50%)}
+.fly-arrow-unused{position:absolute;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:26px solid #FFC400;filter:drop-shadow(0 0 2px #000);transform:translate(-50%,-50%)}
 .dock-conf input{width:150px;height:26px;accent-color:var(--accent);cursor:pointer}
 .conf input[type=range]{height:30px;cursor:pointer}
 .maptools{display:flex;gap:6px}
@@ -282,7 +306,8 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .lg-sw{flex:none;width:22px;height:4px;border-radius:2px;background:var(--sw)}
 .lg-sw.dash{background:repeating-linear-gradient(90deg,var(--sw) 0 3px,transparent 3px 7px)}
 .leaflet-container{font-family:inherit;background:var(--land)}
-.leaflet-tooltip.dest-label{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:0.78rem;padding:1px 5px}
+.leaflet-tooltip.dest-label{background:transparent;color:var(--ink);border:0;box-shadow:none;font-size:0.72rem;font-weight:700;padding:0 2px;opacity:.85;text-shadow:0 0 3px var(--panel),0 0 3px var(--panel),0 0 6px var(--panel)}
+.z-low .leaflet-tooltip.dest-label{display:none}
 .leaflet-tooltip.dest-label:before{display:none}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--ink)}
 .pop p{margin:4px 0}
@@ -290,8 +315,12 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .leaflet-control-attribution a{color:var(--muted)}
 .leaflet-bar a{background:var(--panel);color:var(--ink);border-bottom-color:var(--line)}
 @media (max-width:760px){
-  .app.collapsed{grid-template-rows:100% 0}
+  .app.collapsed{grid-template-rows:100%}
   .expand{top:auto;bottom:12px;left:10px}
+  .expand:not([hidden]){display:flex}
+  .resizer{display:none}
+  .mobile-only{display:inline-flex;align-items:center}
+  .app.collapsed .panel{visibility:hidden}
   .cmp{grid-template-columns:7em repeat(4,1fr);font-size:0.8rem}
   .topbar{margin:-18px -16px 0;padding:10px 16px 0}
   .tip{top:auto;bottom:12px;left:10px;right:10px;max-width:none}
@@ -329,7 +358,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <div class="top-actions"><button type="button" class="iconbtn" id="btn-share">Share</button>
           <span class="menu-wrap"><button type="button" class="iconbtn" id="btn-menu" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-top" aria-label="More">More</button>
             <div class="menu" id="menu-top" role="menu" hidden><button type="button" role="menuitem" id="btn-help">How to use this map</button><button type="button" role="menuitem" id="btn-theme">Theme: Auto</button></div></span>
-          <button type="button" class="iconbtn" id="btn-collapse" aria-label="Hide the side panel" title="Hide the side panel">Hide panel</button></div></div>
+          <button type="button" class="iconbtn mobile-only" id="btn-collapse-m" aria-label="Hide the panel and show the full map" title="Show the full map"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
       <div class="searchrow"><label class="sr-only" for="search">Check a street</label><input id="search" type="search" list="names" placeholder="Search a street, for example Victoria Road" autocomplete="off"><datalist id="names"></datalist></div>
       <nav class="tabs" role="tablist" aria-label="Sections">
         <button type="button" role="tab" id="tab-overview" data-pane="overview" aria-controls="pane-overview" aria-selected="true">Overview</button>
@@ -432,6 +461,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <label class="check"><input type="checkbox" id="chk-dz" checked> Shade neighbourhoods by share of streets within 800 m of the main network</label>
     </details>
     <details class="group" open><summary>Layers</summary>
+    <label class="check"><input type="checkbox" id="chk-dest" checked> Show landmark names used for the "places you can reach" checks</label>
     <label class="check"><input type="checkbox" id="chk-hot" checked> Show bike collision hotspots, 20 places with at least 4 recorded collisions within 50 m, coloured by risk for the cycling they carry</label>
     <label class="check"><input type="checkbox" id="chk-crash"> Show every recorded bike collision, 2016 to 2023, by severity</label>
     <label class="check"><input type="checkbox" id="chk-comm"> Show the community map's own lines: built, under construction, planned, on hold and quiet streets</label>
@@ -478,7 +508,8 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
   </aside>
   <main class="mapwrap">
     <div id="map" role="application" aria-label="Map of Glasgow's streets coloured by riding distance to protected cycle track"></div>
-    <button type="button" class="expand" id="btn-expand" hidden aria-label="Show the side panel">Show panel</button>
+    <div class="resizer" id="resizer" role="separator" aria-orientation="vertical" aria-label="Drag to resize the side panel, or press Enter to hide or show it" aria-valuemin="0" aria-valuemax="680" aria-valuenow="410" tabindex="0"><button type="button" class="rz-btn" id="btn-collapse" aria-label="Hide the side panel" title="Hide the side panel"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M8 2 L4 6 L8 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <button type="button" class="expand" id="btn-expand" hidden aria-label="Show the panel"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 8 L6 4 L10 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="maptools"><span class="menu-wrap"><button type="button" class="maptool" id="map-layersbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-layers">Layers</button><div class="menu right" id="menu-layers" role="menu" hidden></div></span><label class="sr-only" for="map-scen">Network</label>
       <select id="map-base" title="Background map" aria-label="Background map"><option value="grey">Light grey</option><option value="streets">Streets</option><option value="cycle">Cycling</option><option value="sat">Satellite</option><option value="none">No background</option></select>
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
@@ -522,7 +553,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <li><strong>Read the profile.</strong> The strip at the bottom of the map shows height, time and how much is protected. Move along it to follow the route, and export to Strava or Google Maps from there.</li>
     <li><strong>Compare networks.</strong> Use the switch at the top right of the map: today on the May 2025 data, today with community updates, the 2032 programme or the full plan.</li>
     <li><strong>Test ideas.</strong> The Options tab has the family test, the contraflow what-if, the gap allowance and extra layers.</li>
-    <li><strong>Fly the route.</strong> "Fly the route" on the profile strip follows the route on the map with an arrow, at up to 8 times speed. "Open Street View here" shows the street at that point in Google Street View, facing the way you ride.</li>
+    <li><strong>Fly the route.</strong> "Fly the route" on the profile strip follows the route with a pedalling cyclist who matches your confidence setting, at up to 8 times speed. "Open Street View here" shows the street at that point in Google Street View, facing the way you ride.</li>
     <li><strong>Share what you see.</strong> Share copies a link to the exact view, route and settings on screen.</li>
   </ol>
   <form method="dialog"><button class="btn">Close</button></form>
@@ -765,7 +796,7 @@ function popStats(res, T) {
   }
   return { _share: share, pop, popC, popA, dep, depC };
 }
-const state = { basemap: 'grey', hot: true, crash: false, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
+const state = { dest: true, basemap: 'grey', hot: true, crash: false, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
 const cur = () => compute(state.scen, state.gap, state.shared, state.cfx, state.qa);
 const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const fmtKm = m => (m / 1000).toLocaleString('en-GB', { maximumFractionDigits: m < 10000 ? 1 : 0 });
@@ -931,7 +962,7 @@ function draw() {
 const selMarker = L.circleMarker([0, 0], { radius: 8, weight: 3, color: '#fff', fillColor: '#B23A2E', fillOpacity: 1, interactive: false });
 const entryMarker = L.circleMarker([0, 0], { radius: 6, weight: 3, color: '#fff', fillColor: '#0B6E99', fillOpacity: 1, interactive: false });
 const destLayer = L.layerGroup().addTo(map);
-N.dest.forEach(d => L.circleMarker([d.lat, d.lon], { radius: 5, weight: 2, color: '#fff', fillColor: '#1d2a2b', fillOpacity: 1 }).bindTooltip(d.n, { permanent: true, direction: 'right', className: 'dest-label', offset: [6, 0] }).addTo(destLayer));
+N.dest.forEach(d => L.circleMarker([d.lat, d.lon], { radius: 3.5, weight: 1.5, color: '#fff', fillColor: '#1d2a2b', fillOpacity: 0.9 }).bindTooltip(d.n, { permanent: true, direction: 'right', className: 'dest-label', offset: [4, 0] }).addTo(destLayer));
 const repLayer = L.layerGroup().addTo(map);
 
 // UI helpers
@@ -952,6 +983,7 @@ $('chk-cfx').addEventListener('change', e => { state.cfx = e.target.checked; upd
 $('chk-ow').addEventListener('change', e => { state.owl = e.target.checked; update(); });
 $('chk-ml').addEventListener('change', e => { state.mll = e.target.checked; update(); });
 $('chk-crash').addEventListener('change', e => { state.crash = e.target.checked; update(); });
+$('chk-dest').addEventListener('change', e => { state.dest = e.target.checked; if (state.dest) destLayer.addTo(map); else destLayer.remove(); syncLayerMenu(); });
 $('chk-hot').addEventListener('change', e => { state.hot = e.target.checked; update(); });
 ['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); writeHash(); }));
 // colour theme: follow the device, or force light or dark
@@ -1140,7 +1172,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) c
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenus(); });
 [['btn-menu', 'menu-top'], ['dock-sharebtn', 'menu-share'], ['dock-morebtn', 'menu-more'], ['btn-reportmenu', 'menu-report'], ['map-layersbtn', 'menu-layers']].forEach(p => wireMenu(p[0], p[1]));
 // layers: one quick list on the map, kept in step with the Options tab and the key
-const LAYER_LIST = [['hot', 'chk-hot', 'Collision hotspots'], ['crash', 'chk-crash', 'Every bike collision'], ['dz', 'chk-dz', 'Neighbourhood shading'], ['comm', 'chk-comm', 'Community map lines'], ['plan', 'chk-plan', 'City Network plan'], ['owl', 'chk-ow', 'Quiet one-way streets'], ['mll', 'chk-ml', 'Possible missing links'], ['reports', 'chk-reports', 'Shared reports']];
+const LAYER_LIST = [['dest', 'chk-dest', 'Landmark names'], ['hot', 'chk-hot', 'Collision hotspots'], ['crash', 'chk-crash', 'Every bike collision'], ['dz', 'chk-dz', 'Neighbourhood shading'], ['comm', 'chk-comm', 'Community map lines'], ['plan', 'chk-plan', 'City Network plan'], ['owl', 'chk-ow', 'Quiet one-way streets'], ['mll', 'chk-ml', 'Possible missing links'], ['reports', 'chk-reports', 'Shared reports']];
 const setLayer = (id, on) => { const c = document.getElementById(id); if (c && c.checked !== on) { c.checked = on; c.dispatchEvent(new Event('change')); } };
 { const m = document.getElementById('menu-layers'); LAYER_LIST.forEach(([k, id, label]) => { const l = el('label'); const i = el('input'); i.type = 'checkbox'; i.dataset.k = k; i.addEventListener('change', () => setLayer(id, i.checked)); l.append(i, document.createTextNode(label)); m.append(l); }); }
 function syncLayerMenu() { document.querySelectorAll('#menu-layers input').forEach(i => { i.checked = !!state[i.dataset.k]; }); }
@@ -1173,13 +1205,35 @@ function openCompare(by) {
 $('dock-compare').addEventListener('click', () => openCompare('net'));
 $('cmp-by').querySelectorAll('button').forEach(b => b.addEventListener('click', () => openCompare(b.dataset.v)));
 // collapse the side panel to give the map the whole window
-function setPanel(collapsed) {
-  document.querySelector('.app').classList.toggle('collapsed', collapsed); $('btn-expand').hidden = !collapsed;
-  try { localStorage.setItem('gcm-panel', collapsed ? '0' : '1'); } catch (e) {}
-  setTimeout(() => { map.invalidateSize(); if (ml3d) ml3d.resize(); schedule(); }, 60);
+const appEl = document.querySelector('.app');
+let sizeRaf = 0; const relayout = () => { if (sizeRaf) return; sizeRaf = requestAnimationFrame(() => { sizeRaf = 0; map.invalidateSize({ pan: false }); if (ml3d) ml3d.resize(); schedule(); }); };
+function setPanel(collapsed, keep) {
+  appEl.classList.toggle('collapsed', collapsed); $('btn-expand').hidden = !collapsed;
+  $('btn-collapse').setAttribute('aria-label', collapsed ? 'Show the side panel' : 'Hide the side panel'); $('btn-collapse').title = collapsed ? 'Show the side panel' : 'Hide the side panel';
+  $('resizer').setAttribute('aria-valuenow', collapsed ? 0 : parseInt(getComputedStyle(appEl).getPropertyValue('--panel-w')) || 410);
+  if (!keep) try { localStorage.setItem('gcm-panel', collapsed ? '0' : '1'); } catch (e) {}
+  setTimeout(relayout, 30);
 }
-$('btn-collapse').addEventListener('click', () => setPanel(true));
+function setPanelW(w) { w = Math.round(Math.max(300, Math.min(Math.min(680, window.innerWidth - 320), w))); appEl.style.setProperty('--panel-w', w + 'px'); $('resizer').setAttribute('aria-valuenow', w); return w; }
+{ let w = 0; try { w = Number(localStorage.getItem('gcm-panel-w')); } catch (e) {} if (w) setPanelW(w); }
+$('btn-collapse').addEventListener('click', e => { e.stopPropagation(); setPanel(!appEl.classList.contains('collapsed')); });
+$('btn-collapse-m').addEventListener('click', () => setPanel(true));
 $('btn-expand').addEventListener('click', () => setPanel(false));
+{ // drag the panel edge: narrower or wider, or right off to hide it
+  const rz = $('resizer'); let drag = false, moved = false;
+  rz.addEventListener('pointerdown', e => { if (e.button !== 0 || (e.target.closest && e.target.closest('#btn-collapse'))) return; drag = true; moved = false; try { rz.setPointerCapture(e.pointerId); } catch (x) {} rz.classList.add('drag'); appEl.classList.add('resizing'); e.preventDefault(); });
+  rz.addEventListener('pointermove', e => { if (!drag) return; moved = true; const x = e.clientX;
+    if (x < 170) { if (!appEl.classList.contains('collapsed')) setPanel(true, true); } else { if (appEl.classList.contains('collapsed')) setPanel(false, true); setPanelW(x); } relayout(); });
+  const end = e => { if (!drag) return; drag = false; rz.classList.remove('drag'); appEl.classList.remove('resizing');
+    if (!moved) setPanel(!appEl.classList.contains('collapsed'));
+    try { localStorage.setItem('gcm-panel', appEl.classList.contains('collapsed') ? '0' : '1'); localStorage.setItem('gcm-panel-w', String(parseInt(getComputedStyle(appEl).getPropertyValue('--panel-w')) || 410)); } catch (x) {}
+    relayout(); };
+  rz.addEventListener('pointerup', end); rz.addEventListener('pointercancel', end);
+  rz.addEventListener('keydown', e => { const w = parseInt(getComputedStyle(appEl).getPropertyValue('--panel-w')) || 410;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); if (w <= 300) setPanel(true); else { setPanelW(w - 30); relayout(); } }
+    if (e.key === 'ArrowRight') { e.preventDefault(); if (appEl.classList.contains('collapsed')) setPanel(false); else { setPanelW(w + 30); relayout(); } }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPanel(!appEl.classList.contains('collapsed')); } });
+}
 function update(recompute) { syncHazards(); syncLayerMenu(); { const ds = document.getElementById('dock-scen'); if (ds) ds.value = String(state.scen); } renderCity(); renderLegend(); if (recompute && sel) refreshSel(false); else renderCard(); if (recompute) rebuildRouteIfAny(); $('map-scen').value = String(state.scen); writeHash(); schedule(); }
 
 
@@ -1596,13 +1650,79 @@ async function open3d(p) {
     // dragging or rotating by hand pauses; zooming and tilting carry on and are kept
     const pauseByHand = ev => { if (ev && ev.originalEvent && FLY.playing) { FLY.playing = false; $('fly-play').textContent = 'Play'; } };
     ml3d.on('dragstart', pauseByHand); ml3d.on('rotatestart', pauseByHand);
-    const arrow = document.createElement('div'); arrow.className = 'fly-arrow3d';
-    ml3dMk = new maplibregl.Marker({ element: arrow, rotationAlignment: 'map', pitchAlignment: 'map' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
+    const rider = document.createElement('div'); rider.className = 'cyc-wrap'; rider.innerHTML = riderHTML(RT.conf, 'cyc3d');
+    ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
 }
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
-const flyMk = L.marker([0, 0], { icon: L.divIcon({ className: 'fly-pin', html: '<div class="fly-arrow"></div>', iconSize: [0, 0] }), interactive: false, keyboard: false });
+const RIDERS = [ // lean is the torso's angle forward from upright
+  { lean: 9, hb: [50, 21], kit: '#3B82C4', legs: '#2C3E50', frame: '#2A9D8F', helmet: '#7BC043', child: true, name: 'a parent with a child seat' },
+  { lean: 6, hb: [51, 20], kit: '#2E8B57', legs: '#2C3E50', frame: '#9B2335', hair: '#5b3a29', basket: true, step: true, scarf: true, name: 'an upright town bike with a basket' },
+  { lean: 22, hb: [51, 23], kit: '#E07A16', legs: '#2C3E50', frame: '#2F6FAF', helmet: '#26323a', backpack: true, name: 'a hybrid rider' },
+  { lean: 42, hb: [53, 24], kit: '#C0392B', legs: '#151515', frame: '#262626', helmet: '#f1f1f1', bottle: true, shades: true, speed: 0.35, name: 'a road rider' },
+  { lean: 64, hb: [54, 28], kit: '#FFC400', legs: '#151515', frame: '#F1F1F1', helmet: '#FFC400', aero: true, drops: true, shades: true, bib: true, speed: 0.75, name: 'a racer in an aero tuck' }];
+const CY = { R: [17, 40], F: [55, 40], BB: [31, 41], S: [27, 23], H: [27, 20], crank: 5, thigh: 14, shin: 13.5 };
+const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16), f = c => Math.round(k > 0 ? c + (255 - c) * k : c * (1 + k)); const r = f(n >> 16), g = f((n >> 8) & 255), b = f(n & 255); return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); };
+let cycN = 0;
+function cyclistSVG(lv) {
+  const r = RIDERS[lv], id = 'cy' + (++cycN), d2r = Math.PI / 180, L = r.lean * d2r, u = [Math.sin(L), -Math.cos(L)], nb = [-Math.cos(L), -Math.sin(L)];
+  const sh = [CY.H[0] + 15 * u[0], CY.H[1] + 15 * u[1]];
+  const hd = [sh[0] + 4.6 * Math.sin(L + 0.35), sh[1] - 4.6 * Math.cos(L + 0.35)], el = [(sh[0] + r.hb[0]) / 2 + 0.5, (sh[1] + r.hb[1]) / 2 + 2];
+  const at = (k, off) => [CY.H[0] + u[0] * k + nb[0] * off, CY.H[1] + u[1] * k + nb[1] * off];
+  const ln = (p, q, w, c, x) => '<line x1="' + p[0].toFixed(2) + '" y1="' + p[1].toFixed(2) + '" x2="' + q[0].toFixed(2) + '" y2="' + q[1].toFixed(2) + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round"' + (x || '') + '/>';
+  const FR = 'url(#' + id + 'fr)', KIT = 'url(#' + id + 'kit)', SKIN = 'url(#' + id + 'sk)', HEL = 'url(#' + id + 'he)';
+  const wheel = (c, k) => '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="10" fill="none" stroke="#1b1f21" stroke-width="2.8"/><circle cx="' + c[0] + '" cy="' + c[1] + '" r="8.3" fill="none" stroke="#a8b0b3" stroke-width=".7"/>' +
+    '<path d="M' + (c[0] - 8.6) + ' ' + (c[1] - 4.6) + ' A10 10 0 0 1 ' + (c[0] + 1) + ' ' + (c[1] - 9.9) + '" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1" stroke-linecap="round"/>' +
+    '<g class="' + k + '">' + [0, 45, 90, 135].map(a => ln([c[0] + 8 * Math.cos(a * d2r), c[1] + 8 * Math.sin(a * d2r)], [c[0] - 8 * Math.cos(a * d2r), c[1] - 8 * Math.sin(a * d2r)], 0.6, '#7d8689')).join('') + '</g><circle cx="' + c[0] + '" cy="' + c[1] + '" r="1.3" fill="#c9d0d2"/>';
+  let s = '<svg viewBox="0 -12 72 66" width="72" height="66" aria-hidden="true"><defs>' +
+    '<radialGradient id="' + id + 'gs"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="' + id + 'fr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + shade(r.frame, 0.45) + '"/><stop offset=".55" stop-color="' + r.frame + '"/><stop offset="1" stop-color="' + shade(r.frame, -0.35) + '"/></linearGradient>' +
+    '<linearGradient id="' + id + 'kit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + shade(r.kit, 0.35) + '"/><stop offset="1" stop-color="' + shade(r.kit, -0.3) + '"/></linearGradient>' +
+    '<radialGradient id="' + id + 'sk" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#FFE3C8"/><stop offset="1" stop-color="#D49C72"/></radialGradient>' +
+    '<radialGradient id="' + id + 'he" cx="35%" cy="25%" r="85%"><stop offset="0" stop-color="' + shade(r.helmet || r.hair || '#333333', 0.55) + '"/><stop offset="1" stop-color="' + shade(r.helmet || r.hair || '#333333', -0.35) + '"/></radialGradient></defs>';
+  s += '<ellipse cx="36" cy="51" rx="27" ry="2.8" fill="url(#' + id + 'gs)"/>';
+  if (r.speed) s += '<g class="spd" opacity="' + r.speed + '">' + ln([1, 18], [11, 18], 1.2, '#fff') + ln([-1, 26], [9, 26], 1.2, '#fff') + ln([2, 34], [10, 34], 1.2, '#fff') + '</g>';
+  s += '<polyline class="lg2" fill="none" stroke="' + shade(r.legs, -0.25) + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>';
+  s += wheel(CY.R, 'sp1') + wheel(CY.F, 'sp2');
+  const top = r.step ? '<path d="M29 35 Q38 27 50 28" fill="none" stroke="' + FR + '" stroke-width="2.6" stroke-linecap="round"/>' : ln(CY.S, [49, 23], 2.6, FR);
+  s += ln(CY.R, CY.BB, 2.4, FR) + ln(CY.BB, CY.S, 2.6, FR) + ln(CY.S, CY.R, 2, FR) + ln(CY.BB, [51, 30], 2.8, FR) + top + ln([49, 23], [51, 30], 3, FR) + ln([51, 30], CY.F, 2.2, FR) + ln([49, 23], r.hb, 2.2, '#3a4246');
+  if (r.bottle) { const m = [41, 35.5]; s += '<rect x="' + (m[0] - 1.6) + '" y="' + (m[1] - 3.6) + '" width="3.2" height="7.2" rx="1.2" fill="#29B6F6" stroke="#0d6b93" stroke-width=".5" transform="rotate(-62 ' + m[0] + ' ' + m[1] + ')"/>'; }
+  if (r.drops) s += '<path d="M' + r.hb[0] + ' ' + r.hb[1] + ' q4 0 4 4 q0 3 -3 3" fill="none" stroke="#3a4246" stroke-width="2.2" stroke-linecap="round"/>';
+  if (r.basket) s += ln([55, 22], [61, 13], 2.6, '#D9A066') + '<rect x="53" y="21" width="9" height="7" rx="1.5" fill="#C8A165" stroke="#7a5a2b" stroke-width=".9"/>' + ln([53.5, 24], [61.5, 24], 0.6, '#7a5a2b') + ln([57.5, 21.5], [57.5, 27.5], 0.6, '#7a5a2b');
+  if (r.child) s += ln([16, 24], [12, 6], 0.9, '#5d666a') + '<path class="flag" d="M12 6 L20 8.5 L12 11 Z" fill="#E63946"/>' +
+    '<rect x="16.5" y="23.5" width="8" height="3.2" rx="1" fill="#2a3236"/><g class="kid">' + ln([20, 24], [20, 17], 3.6, '#E8871E') + '<circle cx="20" cy="14" r="2.9" fill="' + SKIN + '"/><path d="M17.2 13.4 a2.9 2.9 0 0 1 5.6 0 z" fill="' + HEL + '"/>' +
+    '<g class="wave">' + ln([20.5, 18.5], [24.5, 14.5], 1.6, '#E8871E') + '<circle cx="24.7" cy="14.3" r=".9" fill="#F2C9A0"/></g>' + ln([20, 22.5], [24, 25], 1.8, '#2C3E50') + '</g>';
+  s += '<path d="M23.6 21.6 L30.6 21.6 Q31 23 29.6 23.2 L24 23 Z" fill="#1b1f21"/>';
+  s += '<g class="ck">' + ln(CY.BB, CY.BB, 2.2, '#1b1f21') + '</g><circle cx="' + CY.BB[0] + '" cy="' + CY.BB[1] + '" r="2" fill="#7d8689"/>';
+  s += '<g class="bd">';
+  if (r.backpack) { const c = at(8.5, 3.6); s += '<rect x="' + (c[0] - 3.2) + '" y="' + (c[1] - 5) + '" width="6.4" height="10" rx="2.4" fill="#4E5D6C" stroke="#2c3740" stroke-width=".6" transform="rotate(' + r.lean + ' ' + c[0] + ' ' + c[1] + ')"/>'; }
+  s += ln(CY.H, sh, 5.6, KIT);
+  if (r.bib) { const c = at(8, 2.4); s += '<rect x="' + (c[0] - 2.4) + '" y="' + (c[1] - 2) + '" width="4.8" height="4" rx=".6" fill="#fff" transform="rotate(' + r.lean + ' ' + c[0] + ' ' + c[1] + ')"/>' + ln([c[0] - 1.2, c[1]], [c[0] + 1.2, c[1]], 0.8, '#151515', ' transform="rotate(' + r.lean + ' ' + c[0] + ' ' + c[1] + ')"'); }
+  if (r.scarf) s += '<path class="scarf" d="M' + sh[0] + ' ' + (sh[1] + 0.5) + ' q-6 1.5 -11.5 5.5 q3.5 -1 5 -3.5 q-2.5 0 -4 -1 z" fill="#F4D35E" stroke="#c9a531" stroke-width=".4"/>';
+  s += ln(sh, el, 2.8, KIT) + ln(el, r.hb, 2.4, SKIN);
+  s += '<circle cx="' + hd[0].toFixed(2) + '" cy="' + hd[1].toFixed(2) + '" r="3.8" fill="' + SKIN + '"/>';
+  if (r.aero) s += '<path d="M' + (hd[0] - 7) + ' ' + (hd[1] - 0.2) + ' Q' + (hd[0] - 1) + ' ' + (hd[1] - 7) + ' ' + (hd[0] + 4.2) + ' ' + (hd[1] - 1.2) + ' Z" fill="' + HEL + '" stroke="#151515" stroke-width=".7"/><path d="M' + (hd[0] - 3) + ' ' + (hd[1] - 3.6) + ' q2 -1.2 4 -.4" fill="none" stroke="rgba(255,255,255,.7)" stroke-width=".7" stroke-linecap="round"/>';
+  else if (r.helmet) s += '<path d="M' + (hd[0] - 4.1) + ' ' + (hd[1] - 0.4) + ' a4.1 4.1 0 0 1 8.2 0 z" fill="' + HEL + '"/><path d="M' + (hd[0] - 2) + ' ' + (hd[1] - 3.3) + ' q1.5 -.9 3 0" fill="none" stroke="rgba(255,255,255,.65)" stroke-width=".6" stroke-linecap="round"/>';
+  else s += '<path d="M' + (hd[0] - 3.8) + ' ' + (hd[1] - 0.6) + ' a3.8 3.8 0 0 1 7.6 0 q-2 -1 -3.8 -.6 z" fill="' + HEL + '"/>';
+  if (r.shades) s += ln([hd[0] + 1.2, hd[1] - 0.6], [hd[0] + 3.9, hd[1] - 0.2], 1.3, '#111');
+  s += '</g><polyline class="lg1" fill="none" stroke="' + r.legs + '" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>';
+  return s + '</svg>';
+}
+function knee(h, p, a, b) { const dx = p[0] - h[0], dy = p[1] - h[1]; let d = Math.hypot(dx, dy); d = Math.min(d, a + b - 0.01); const base = Math.atan2(dy, dx), A = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d)))); return [h[0] + a * Math.cos(base - A), h[1] + a * Math.sin(base - A)]; }
+function pedal(root, th, spin) {
+  if (!root) return; const q = root.__q || (root.__q = { l1: root.querySelector('.lg1'), l2: root.querySelector('.lg2'), ck: root.querySelector('.ck line'), s1: root.querySelector('.sp1'), s2: root.querySelector('.sp2'), bd: root.querySelector('.bd'), kid: root.querySelector('.kid') });
+  if (!q.l1) return;
+  const bob = (-0.8 * Math.abs(Math.sin(th))).toFixed(2); if (q.bd) q.bd.setAttribute('transform', 'translate(0 ' + bob + ')'); if (q.kid) q.kid.setAttribute('transform', 'translate(0 ' + (bob * 1.4).toFixed(2) + ')');
+  const p1 = [CY.BB[0] + CY.crank * Math.cos(th), CY.BB[1] + CY.crank * Math.sin(th)], p2 = [CY.BB[0] - CY.crank * Math.cos(th), CY.BB[1] - CY.crank * Math.sin(th)];
+  const f = v => v[0].toFixed(1) + ',' + v[1].toFixed(1);
+  q.l1.setAttribute('points', f(CY.H) + ' ' + f(knee(CY.H, p1, CY.thigh, CY.shin)) + ' ' + f(p1));
+  q.l2.setAttribute('points', f(CY.H) + ' ' + f(knee(CY.H, p2, CY.thigh, CY.shin)) + ' ' + f(p2));
+  q.ck.setAttribute('x1', p2[0].toFixed(1)); q.ck.setAttribute('y1', p2[1].toFixed(1)); q.ck.setAttribute('x2', p1[0].toFixed(1)); q.ck.setAttribute('y2', p1[1].toFixed(1));
+  q.s1.setAttribute('transform', 'rotate(' + spin.toFixed(1) + ' ' + CY.R[0] + ' ' + CY.R[1] + ')'); q.s2.setAttribute('transform', 'rotate(' + spin.toFixed(1) + ' ' + CY.F[0] + ' ' + CY.F[1] + ')');
+}
+const riderHTML = (lv, cls) => '<div class="cyc ' + (cls || '') + '" title="Riding as ' + RIDERS[lv].name + '">' + cyclistSVG(lv) + '</div>';
+const flyMk = L.marker([0, 0], { icon: L.divIcon({ className: 'fly-pin', html: riderHTML(1), iconSize: [0, 0] }), interactive: false, keyboard: false });
 function bearing(a, b) { const y = Math.sin((b.lon - a.lon) * D2R) * Math.cos(b.lat * D2R), x = Math.cos(a.lat * D2R) * Math.sin(b.lat * D2R) - Math.sin(a.lat * D2R) * Math.cos(b.lat * D2R) * Math.cos((b.lon - a.lon) * D2R); return (Math.atan2(y, x) / D2R + 360) % 360; }
 function flyPoint(d) {
   const pr = RT.result.prof, i = Math.max(0, Math.min(pr.length - 2, Math.floor(d / 20))), a = pr[i], b = pr[i + 1], t = Math.max(0, Math.min(1, (d - a.d) / ((b.d - a.d) || 1)));
@@ -1622,9 +1742,13 @@ function flyStep(dt, force) {
   FLY.hd3 = FLY.hd3 == null ? tgt : lerpAngle(FLY.hd3, tgt, ease(1.2));
   FLY.turn = Math.abs(((tgt - FLY.hd3 + 540) % 360) - 180);
   const kc = ease(0.45); FLY.cx = FLY.cx == null ? p.lon : FLY.cx + (p.lon - FLY.cx) * kc; FLY.cy = FLY.cy == null ? p.lat : FLY.cy + (p.lat - FLY.cy) * kc;
-  flyMk.setLatLng([p.lat, p.lon]); const ar = flyMk.getElement && flyMk.getElement(); if (ar && ar.firstChild) ar.firstChild.style.transform = 'translate(-50%,-50%) rotate(' + FLY.hd3 + 'deg)';
+  flyMk.setLatLng([p.lat, p.lon]);
+  FLY.crank = (FLY.crank || 0) + (FLY.playing ? dt * 2 * Math.PI * (0.9 + 0.12 * FLY.speed) : 0); const spin = FLY.crank * 150;
+  const e2 = flyMk.getElement && flyMk.getElement(), c2 = e2 && e2.querySelector('.cyc');
+  if (c2) { const h = FLY.hd3 % 360; if (h > 190 && h < 350) FLY.west = true; else if (h > 10 && h < 170) FLY.west = false; c2.classList.toggle('west', !!FLY.west); c2.classList.toggle('paused', !FLY.playing); pedal(c2.querySelector('svg'), FLY.crank, spin); }
+  if (ml3dMk) { const c3 = ml3dMk.getElement().querySelector('.cyc'); if (c3) c3.classList.toggle('paused', !FLY.playing); pedal(ml3dMk.getElement().querySelector('svg'), FLY.crank, spin); }
   if (follow && !(FLY.three && ml3dReady)) map.setView([FLY.cy, FLY.cx], map.getZoom(), { animate: false });
-  if (FLY.three && ml3dReady) { if (follow) ml3d.jumpTo({ center: [FLY.cx, FLY.cy], bearing: FLY.hd3 }); if (ml3dMk) { ml3dMk.setLngLat([p.lon, p.lat]); ml3dMk.setRotation(FLY.hd3); } }
+  if (FLY.three && ml3dReady) { if (follow) ml3d.jumpTo({ center: [FLY.cx, FLY.cy], bearing: FLY.hd3 }); if (ml3dMk) ml3dMk.setLngLat([p.lon, p.lat]); }
   if (R._cursor) R._cursor(p);
   p.hd = FLY.hd3; $('fly-sv').href = svLink(p);
 }
@@ -1632,7 +1756,8 @@ function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (n
 function startFly() {
   if (!RT.result || !RT.result.prof) return;
   FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup();
-  $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.addTo(map); hoverMk.remove();
+  $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
+  if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
   map.setZoom(Math.max(map.getZoom(), 16), { animate: false });
   FLY.hd3 = null; FLY.cx = FLY.cy = null; FLY.turn = 0; if (FLY.three) open3d(flyPoint(0));
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
@@ -1806,7 +1931,7 @@ $('dock-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.va
 $('dock-clear').addEventListener('click', clearRoute);
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
 // the view, route and settings live in the address, so a copied link reopens exactly what is on screen
-const LAYERS = { hot: 'chk-hot', crash: 'chk-crash', dz: 'chk-dz', comm: 'chk-comm', owl: 'chk-ow', mll: 'chk-ml', plan: 'chk-plan', reports: 'chk-reports' };
+const LAYERS = { dest: 'chk-dest', hot: 'chk-hot', crash: 'chk-crash', dz: 'chk-dz', comm: 'chk-comm', owl: 'chk-ow', mll: 'chk-ml', plan: 'chk-plan', reports: 'chk-reports' };
 const f5 = v => v.toFixed(5);
 function stateToHash() {
   const p = new URLSearchParams(), c = map.getCenter();
@@ -1829,6 +1954,7 @@ function syncControls() {
   Object.entries(LAYERS).forEach(([k, id]) => { $(id).checked = !!state[k]; });
   setBasemap(state.basemap);
   if (state.reports) repLayer.addTo(map); else repLayer.remove();
+  if (state.dest) destLayer.addTo(map); else destLayer.remove();
 }
 function readHash() {
   if (!location.hash || location.hash.length < 3) return false;
