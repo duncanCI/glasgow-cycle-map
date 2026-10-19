@@ -557,7 +557,7 @@ const base = L.tileLayer(tileUrl(), { maxZoom: 19, opacity: 0.5, className: 'bas
 let C = {};
 function readColours() {
   const cs = getComputedStyle(document.documentElement); const g = n => cs.getPropertyValue(n).trim();
-  C = { panel: g('--panel'), water: g('--water'), line: g('--line'), comf: [g('--c-high'), g('--c-med'), g('--c-low'), g('--c-bad')], nr: g('--c-nr'),
+  C = { panel: g('--panel'), ink: g('--ink'), water: g('--water'), line: g('--line'), comf: [g('--c-high'), g('--c-med'), g('--c-low'), g('--c-bad')], nr: g('--c-nr'),
     inf: [g('--c-mixed'), g('--c-paint'), g('--c-segn'), g('--c-segw'), g('--c-off'), g('--c-shared')], plan: g('--c-plan'), planOld: g('--c-plan-old'), strip: g('--c-strip'), casing: g('--casing'),
     gapc: g('--c-gap'), ow: g('--c-ow'), ml: g('--c-ml'), rc: [g('--r0'), g('--r1'), g('--r2'), g('--r3'), g('--r4'), g('--r5'), g('--r6'), g('--r7')], ded: g('--c-ded'), frag: g('--c-frag'), access: g('--c-access'), flood: g('--c-flood'), band: [g('--b0'), g('--b1'), g('--b2'), g('--b3'), g('--b4')], dzc: [g('--dz0'), g('--dz1'), g('--dz2'), g('--dz3')] };
 }
@@ -939,7 +939,7 @@ function segName(e) {
 // street names drawn on top of the thick lines, which otherwise hide the background map's labels
 function drawLabels(ctx, sc, ox, oy, z, res, vis) {
   if (z < 14) return;
-  const placed = [], fs = z >= 16 ? 13 : 12;
+  const placed = [], fs = z >= 16 ? 14 : 13;
   ctx.font = '700 ' + fs + 'px "Atkinson Hyperlegible", Verdana, sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
   const label = (xs, ys, text, at) => {
     const w = ctx.measureText(text).width; let L = 0; const cum = [0];
@@ -950,7 +950,7 @@ function drawLabels(ctx, sc, ox, oy, z, res, vis) {
     if (x < 0 || y < 0 || x > cv.clientWidth || y > cv.clientHeight) return false;
     const r = w / 2 + 6; if (placed.some(p => Math.hypot(p[0] - x, p[1] - y) < p[2] + r)) return false;
     let a = Math.atan2(ys[i] - ys[i - 1], xs[i] - xs[i - 1]); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
-    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.strokeStyle = C.panel; ctx.lineWidth = 4; ctx.strokeText(text, 0, 0); ctx.fillStyle = C.ink; ctx.fillText(text, 0, 0); ctx.restore();
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.strokeStyle = C.panel || '#000'; ctx.lineWidth = 5; ctx.strokeText(text, 0, 0); ctx.fillStyle = C.ink || '#fff'; ctx.fillText(text, 0, 0); ctx.restore();
     placed.push([x, y, r]); return true;
   };
   const R = RT.result;
