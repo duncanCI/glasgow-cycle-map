@@ -46,6 +46,8 @@ body{background:var(--panel);color:var(--ink);font-family:"Atkinson Hyperlegible
 .mapwrap{position:relative;min-height:0}
 #map{position:absolute;inset:0;background:var(--land)}
 .net-canvas{position:absolute;left:0;top:0;pointer-events:none}
+.base-tiles{filter:grayscale(1) contrast(.85) brightness(1.08)}
+@media (prefers-color-scheme: dark){.base-tiles{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}}
 h1{font-size:1.65rem;line-height:1.15;margin:0 0 12px;letter-spacing:-0.01em}
 .lede{font-size:1.06rem;margin:0 0 10px;max-width:38em}
 .lede strong{font-weight:700}
@@ -412,8 +414,8 @@ map.fitBounds([[55.79, -4.39], [55.92, -4.07]]);
 map.createPane('net'); map.getPane('net').style.zIndex = 350; map.getPane('net').style.pointerEvents = 'none';
 const cv = document.createElement('canvas'); cv.className = 'net-canvas'; map.getPane('net').appendChild(cv);
 const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
-const tileUrl = () => 'https://{s}.basemaps.cartocdn.com/' + (mqDark.matches ? 'dark_all' : 'light_all') + '/{z}/{x}/{y}{r}.png';
-const base = L.tileLayer(tileUrl(), { subdomains: 'abcd', maxZoom: 19, opacity: 0.6, attribution: 'Background: &copy; OpenStreetMap contributors &copy; CARTO' }).addTo(map);
+const tileUrl = () => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const base = L.tileLayer(tileUrl(), { maxZoom: 19, opacity: 0.5, className: 'base-tiles', attribution: 'Background: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
 let C = {};
 function readColours() {
   const cs = getComputedStyle(document.documentElement); const g = n => cs.getPropertyValue(n).trim();

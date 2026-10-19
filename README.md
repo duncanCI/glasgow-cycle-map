@@ -65,7 +65,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | City Network routes, stages and constraints | Glasgow City Council Active Travel Strategy routes service, October 2026 | Check with the council before reuse |
 | City boundary | Glasgow City Council | Check with the council before reuse |
 | Data zones, population, deprivation decile | Network Planning Tool data zones file, from National Records of Scotland and the Scottish Index of Multiple Deprivation 2020 | Open Government Licence v3.0 |
-| Background map | CARTO basemaps, from OpenStreetMap | © OpenStreetMap contributors, © CARTO |
+| Background map | OpenStreetMap standard tiles, shown in greyscale | © OpenStreetMap contributors, used under the OpenStreetMap tile usage policy |
 
 The network data embedded in `index.html` is a derived database of OpenStreetMap and is published under the [Open Database Licence 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The code is MIT licensed (see `LICENSE`).
 
