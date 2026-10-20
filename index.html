@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BdSE/ODn2jpxMYbo9pGKJGx4Bki8p4SU4dLbiXo2xZI=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-oxahOwNQCf4avYFK9fNJJ5vr028l38Xldxx8Iqlnn3M=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -638,7 +638,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 20 October 2026, 19:30</p>
+      <p class="note" id="build-id">Version: 20 October 2026, 20:00</p>
     </section>
     </div>
   </aside>
@@ -2510,8 +2510,8 @@ function refreshRider() { if (!FLY.on) return; if (R3.ok) setRider3D(RT.conf); f
 const flyMk = L.marker([0, 0], { icon: L.divIcon({ className: 'fly-pin', html: riderHTML(1), iconSize: [0, 0] }), interactive: false, keyboard: false });
 function bearing(a, b) { const y = Math.sin((b.lon - a.lon) * D2R) * Math.cos(b.lat * D2R), x = Math.cos(a.lat * D2R) * Math.sin(b.lat * D2R) - Math.sin(a.lat * D2R) * Math.cos(b.lat * D2R) * Math.cos((b.lon - a.lon) * D2R); return (Math.atan2(y, x) / D2R + 360) % 360; }
 function flyPoint(d) {
-  const pr = RT.result.prof, i = Math.max(0, Math.min(pr.length - 2, Math.floor(d / 20))), a = pr[i], b = pr[i + 1], t = Math.max(0, Math.min(1, (d - a.d) / ((b.d - a.d) || 1)));
-  const ahead = pr[Math.min(pr.length - 1, i + 3)], back = pr[Math.max(0, i - 1)];
+  const pr = RT.result.prof, i = Math.max(0, Math.min(pr.length - 2, profIdx(pr, d))), a = pr[i], b = pr[i + 1], t = Math.max(0, Math.min(1, (d - a.d) / ((b.d - a.d) || 1)));
+  const ahead = pr[Math.min(pr.length - 1, Math.max(i + 1, profIdx(pr, d + 60)))], back = pr[Math.max(0, Math.min(i, profIdx(pr, d - 20)))]; // heading over the next 60 m, whatever the spacing
   return { d, lat: a.lat + (b.lat - a.lat) * t, lon: a.lon + (b.lon - a.lon) * t, e: a.e + (b.e - a.e) * t, g: a.g, cat: a.cat, nm: a.nm, hd: bearing(back, ahead) };
 }
 const svLink = p => 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6) + '&heading=' + Math.round(p.hd) + '&pitch=0&fov=90';
@@ -2596,6 +2596,8 @@ map.on('zoomstart', () => { if (FLY.on && !FLY.three) FLY.b2.zoom = true; });
 map.on('zoomend', () => { FLY.b2.zoom = false; });
 function recentre() { FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {}; clearTimeout(FLY.settleT); if (ml3d && ml3dReady && FLY.three) ml3d.jumpTo({ zoom: 16.6, pitch: 62 }); else map.setZoom(16, { animate: false }); flyStep(0, true); }
 $('fly-recentre').addEventListener('click', recentre);
+// the last profile point at or before distance d (profiles are 10 m apart with LiDAR, 20 m before it loads)
+function profIdx(pr, d) { let lo = 0, hi = pr.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (pr[mid].d <= d) lo = mid; else hi = mid - 1; } return lo; }
 function profileSvg(R, W, H) {
   const NS = 'http://www.w3.org/2000/svg', L0 = 40, R0 = 10, T0 = 8, B0 = 22, pw = W - L0 - R0, ph = H - T0 - B0;
   const s = document.createElementNS(NS, 'svg'); s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('class', 'rt-chart'); s.setAttribute('role', 'img');
@@ -2619,7 +2621,7 @@ function profileSvg(R, W, H) {
   const cur = mk('line', { x1: 0, x2: 0, y1: T0, y2: T0 + ph, class: 'rt-cursor', visibility: 'hidden' });
   const dot = mk('circle', { r: 4, class: 'rt-dot', visibility: 'hidden' });
   const hit = mk('rect', { x: L0, y: 0, width: pw, height: H, fill: 'transparent', style: 'cursor:crosshair;touch-action:none' });
-  const at = evt => { const b = s.getBoundingClientRect(), x = (evt.clientX - b.left) / b.width * W; const d = Math.max(0, Math.min(R.total, (x - L0) / pw * R.total)); return pr[Math.min(pr.length - 1, Math.round(d / 20))]; };
+  const at = evt => { const b = s.getBoundingClientRect(), x = (evt.clientX - b.left) / b.width * W; const d = Math.max(0, Math.min(R.total, (x - L0) / pw * R.total)), i = profIdx(pr, d); return i + 1 < pr.length && pr[i + 1].d - d < d - pr[i].d ? pr[i + 1] : pr[i]; };
   const showP = (p, nomarker) => { cur.setAttribute('x1', X(p.d)); cur.setAttribute('x2', X(p.d)); cur.setAttribute('visibility', 'visible'); dot.setAttribute('cx', X(p.d)); dot.setAttribute('cy', Y(p.e)); dot.setAttribute('visibility', 'visible');
     const g = Math.round((p.g || 0) * 1000) / 10, grade = Math.abs(g) < 0.5 ? 'flat' : Math.abs(g) + '% ' + (g > 0 ? 'uphill' : 'downhill');
     $('dock-tip').textContent = fmtKm(p.d) + ' km in, ' + RCAT[p.cat] + (p.nm ? ' on ' + p.nm : '') + ', ' + Math.round(p.e) + ' m, ' + grade;
