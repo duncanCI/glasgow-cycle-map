@@ -1568,7 +1568,7 @@ function planRoute(P2, res, conf, scen) {
   // runs of the same street, for labels and the street-by-street list
   const runs = []; for (let i = 0; i < nseg; i++) { const r = runs[runs.length - 1]; if (r && r.nm === sn[i]) { r.i1 = i; r.len += segL[i]; r.cl[sc[i]] = (r.cl[sc[i]] || 0) + segL[i]; } else runs.push({ nm: sn[i], i0: i, i1: i, len: segL[i], cl: { [sc[i]]: segL[i] } }); }
   runs.forEach(r => { r.cat = +Object.keys(r.cl).reduce((a, b) => r.cl[a] >= r.cl[b] ? a : b); });
-  return { cross, capped, crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen };
+  return { path: steps, cross, capped, crN, crK, ll, m, sc, se, sn, runs, segL, total, byCat, prot, jn: jn.size, busy: busy.size, sig: sig.size, prof, up, down, steep, hi, lo, secs, scen };
 }
 function buildRoute() {
   RT.result = null; RT.capped = 0; const P2 = pts();
@@ -1579,9 +1579,25 @@ function buildRoute() {
 function rebuildRouteIfAny() { if (RT.start && RT.end) buildRoute(); }
 
 // route drawing, called at the end of draw()
+// a community-mapped line usually runs beside a street: name it after that street, so labels and directions read
+// "Paisley Road West" rather than the map's own line title ("Line 286"); fall back to a real title, else nothing
+const cNameMemo = new Map();
+function besideStreet(e) {
+  if (cNameMemo.has(e)) return cNameMemo.get(e);
+  const a = eu[e], b = ev[e], ax = NM[2 * a], ay = NM[2 * a + 1], bx = NM[2 * b], by = NM[2 * b + 1], px = (ax + bx) / 2, py = (ay + by) / 2;
+  const L = Math.hypot(bx - ax, by - ay) || 1, ux = (bx - ax) / L, uy = (by - ay) / L, max2 = mtoU(28) ** 2;
+  const ix = Math.floor(px / CELL), iy = Math.floor(py / CELL); let best = '', bd = Infinity;
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const arr = grid.get(gkey(ix + dx, iy + dy)); if (!arr) continue;
+    for (const k of arr) { const nm = N.names[N.nm[k]]; if (!nm) continue; const m = G[k];
+      for (let i = 0; i + 3 < m.length; i += 2) { const d = segD2(px, py, m[i], m[i + 1], m[i + 2], m[i + 3]); if (d > max2 || d >= bd) continue;
+        const sx = m[i + 2] - m[i], sy = m[i + 3] - m[i + 1], sl = Math.hypot(sx, sy) || 1; if (Math.abs((sx * ux + sy * uy) / sl) < 0.8) continue; // roughly parallel only
+        bd = d; best = nm; } } }
+  cNameMemo.set(e, best); return best;
+}
+const realTitle = s => s && !/^(line|path|polyline|untitled|route)\s*\d*$/i.test(s) && !/^\d+$/.test(s) ? s : '';
 function segName(e) {
   if (e < P) return N.names[N.nm[e]] || '';
-  if (ekind[e] === 2) return (CF[ecl[e]].n || '').replace(/\s*\(.*$/, '').replace(/_\d+$/, '').trim();
+  if (ekind[e] === 2) return besideStreet(e) || realTitle((CF[ecl[e]].n || '').replace(/\s*\(.*$/, '').replace(/_\d+$/, '').trim());
   return '';
 }
 // street names drawn on top of the thick lines, which otherwise hide the background map's labels
@@ -1760,7 +1776,7 @@ function renderDock() {
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
   { const nb = R.cross.filter(c => c.busy && !c.sig && !c.unv).length, nu = R.cross.filter(c => c.unv).length; $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's') + (nb ? ', ' + nb + ' busy road' + (nb === 1 ? '' : 's') + ' to cross without a mapped crossing' : '') + (nu ? ', ' + nu + ' crossing' + (nu === 1 ? '' : 's') + ' not confirmed' : ''); }
-  $('dock-tip').textContent = 'Move along the profile to follow the route.'; if (ml3dReady) set3dRoute(); showConf(); $('dock-gmaps').href = googleUrl(R);
+  $('dock-tip').textContent = 'Move along the profile to follow the route.'; if (ml3dReady) set3dRoute(); showConf(); $('dock-gmaps').href = '#';
   const host = $('dock-chart'); host.textContent = ''; host.append(PTIP); PTIP.hidden = true;
   const key = $('dock-key'); key.textContent = '';
   R.byCat.forEach((v, c) => { if (v < 0.005 * R.total) return; const s = el('span', 'dk'); const sw = el('i'); sw.style.background = C.rc[c]; s.append(sw, document.createTextNode(RCAT[c] + ' ' + pct(v, R.total) + '%')); key.append(s); });
@@ -2386,13 +2402,37 @@ function downloadGpx() {
   const url = URL.createObjectURL(new Blob([x], { type: 'application/gpx+xml' }));
   const a = document.createElement('a'); a.href = url; a.download = 'glasgow-cycle-route.gpx'; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
-function googleUrl(R) {
-  const f = p => p.lat.toFixed(5) + ',' + p.lng.toFixed(5);
-  const maxW = window.matchMedia('(max-width: 760px)').matches ? 3 : 8;
-  const via = RT.stops.slice(0, maxW).map(f);
-  const extra = Math.max(0, maxW - via.length);
-  if (!RT.stops.length && extra) for (let k = 1; k <= extra; k++) { const p = R.prof[Math.round(k / (extra + 1) * (R.prof.length - 1))]; via.push(p.lat.toFixed(5) + ',' + p.lon.toFixed(5)); }
-  return 'https://www.google.com/maps/dir/?api=1&travelmode=bicycling&origin=' + f(RT.start) + '&destination=' + f(RT.end) + (via.length ? '&waypoints=' + encodeURIComponent(via.join('|')) : '');
+// Google Maps re-plans its own cycling route between the points it is given, and accepts at most 9 waypoints (3 in a
+// mobile browser). So the waypoints go where Google is most likely to wander: between each pair of points so far,
+// find the shortest legal route (a stand-in for Google's choice), see where this route leaves it, and pin the middle
+// of the longest stretch that differs. Repeat until the points run out or the routes agree.
+function googleUrl(R, withEstimate) {
+  const f = (lat, lng) => lat.toFixed(5) + ',' + lng.toFixed(5), path = R.path || [];
+  const maxW = (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.matchMedia('(max-width: 760px)').matches) ? 3 : 9;
+  if (!path.length) return 'https://www.google.com/maps/dir/?api=1&travelmode=bicycling&origin=' + f(RT.start.lat, RT.start.lng) + '&destination=' + f(RT.end.lat, RT.end.lng);
+  const res = cur(), len = new Float64Array(path.length + 1); path.forEach((s, i) => { len[i + 1] = len[i] + elen[s[0]]; });
+  const stopIdx = []; let si = 0; // keep the rider's own stops as waypoints, in order
+  RT.stops.forEach(st => { for (let i = si; i < path.length; i++) if (path[i][2] === st.node) { stopIdx.push(i + 1); si = i + 1; break; } });
+  let anchors = [0, ...stopIdx.slice(0, maxW), path.length];
+  const memo = new Map();
+  const gap = (i0, i1) => { // the longest stretch of this route between two anchors that the shortest route does not use
+    const key = i0 + ':' + i1; if (memo.has(key)) return memo.get(key);
+    const dir = routeLeg(path[i0][1], path[i1 - 1][2], res, 4), on = new Set((dir || []).map(s => s[0]));
+    let best = { m: 0, at: -1 }, run0 = -1;
+    for (let i = i0; i <= i1; i++) { const off = i < i1 && !on.has(path[i][0]);
+      if (off && run0 < 0) run0 = i; if (!off && run0 >= 0) { const m = len[i] - len[run0]; if (m > best.m) { const mid = len[run0] + m / 2; let j = run0; while (j < i && len[j + 1] < mid) j++; best = { m, at: j + 1 }; } run0 = -1; } }
+    best.offM = (() => { let s = 0; for (let i = i0; i < i1; i++) if (!on.has(path[i][0])) s += elen[path[i][0]]; return s; })();
+    memo.set(key, best); return best;
+  };
+  while (anchors.length - 2 < maxW) {
+    let pick = null;
+    for (let k = 0; k + 1 < anchors.length; k++) { const g = gap(anchors[k], anchors[k + 1]); if (g.at > anchors[k] && g.at < anchors[k + 1] && (!pick || g.m > pick.m)) pick = { m: g.m, at: g.at, k }; }
+    if (!pick || pick.m < 120) break;
+    anchors.splice(pick.k + 1, 0, pick.at);
+  }
+  const via = anchors.slice(1, -1).map(i => { const n = path[i - 1][2]; return f(NODES[2 * n + 1], NODES[2 * n]); });
+  if (withEstimate) { let off = 0; for (let k = 0; k + 1 < anchors.length; k++) off += gap(anchors[k], anchors[k + 1]).offM; R.gmMatch = Math.max(0, Math.round(100 * (1 - off / Math.max(1, len[path.length])))); }
+  return 'https://www.google.com/maps/dir/?api=1&travelmode=bicycling&origin=' + f(RT.start.lat, RT.start.lng) + '&destination=' + f(RT.end.lat, RT.end.lng) + (via.length ? '&waypoints=' + encodeURIComponent(via.join('|')) : '');
 }
 $('btn-route-here').addEventListener('click', () => { if (sel) { setStart(sel.lat, sel.lng); showTab('route'); } });
 
@@ -2483,6 +2523,11 @@ function showConf() {
 function setConf(v, now) { const nv = Math.max(0, Math.min(4, v)); const changed = nv !== RT.conf; RT.conf = nv; showConf(); if (changed) refreshRider(); clearTimeout(confT); if (now) { if (changed || RT.confDirty) { RT.confDirty = false; buildRoute(); } } else if (changed) { RT.confDirty = true; confT = setTimeout(() => { RT.confDirty = false; buildRoute(); }, 350); } }
 ['dock-conf', 'rt-conf'].forEach(i => { $(i).addEventListener('input', e => setConf(+e.target.value)); $(i).addEventListener('change', e => setConf(+e.target.value, true)); });
 $('dock-gpx').addEventListener('click', downloadGpx);
+$('dock-gmaps').addEventListener('click', ev => {
+  const R = RT.result; if (!R || !R.path) { ev.preventDefault(); return; }
+  ev.currentTarget.href = googleUrl(R, true);
+  toast(R.gmMatch >= 97 ? 'Opening Google Maps. It should follow this route closely.' : 'Opening Google Maps. It will likely follow about ' + R.gmMatch + '% of this route, because it re-plans between up to ' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 3 : 9) + ' points. For the exact route, use the GPX file in Strava, Komoot or your bike computer.');
+});
 $('dock-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.value); });
 $('dock-clear').addEventListener('click', clearRoute);
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
