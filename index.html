@@ -440,6 +440,16 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
   .app.flying .maptools{display:none}
   .app[data-sheet=half] .dock,.app[data-sheet=full] .dock{display:none}
   .app.flying .ptip{display:none}
+  /* nothing may push the page or the sheet sideways */
+  html,body{overflow:hidden;overscroll-behavior:none}
+  body{position:fixed;inset:0}
+  .panel{overflow-x:hidden}
+  .mapwrap{overflow:hidden}
+  table.reach-t{display:block;overflow-x:auto;max-width:100%;font-size:0.82rem}
+  .reach-t th,.reach-t td{padding:5px 4px}
+  /* menus open as a card along the bottom of the screen, always fully on screen */
+  .menu,.menu.up,.menu.right{position:fixed;left:8px;right:8px;top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));min-width:0;max-width:none;max-height:70dvh;overflow-y:auto;z-index:3500;padding:6px;box-shadow:0 -6px 28px rgba(0,0,0,.3)}
+  .menu>button,.menu>a,.menu>label{padding:12px;font-size:1rem}
   .tip{top:52px;bottom:auto}
   .cmp{grid-template-columns:7em repeat(4,1fr);font-size:0.8rem}
   .ask-log{max-height:none}
@@ -618,6 +628,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <details class="topic"><summary>Reports</summary><p>Reports open as public GitHub issues on this project, which needs a free GitHub account. They appear on the map once a maintainer adds them to the reports file. FixMyStreet sends a report to the council and needs no GitHub account.</p></details>
       <p><a id="repo-link" href="#" hidden>Source code, data and method on GitHub</a></p>
     
+          <p class="note" id="build-id">Version: 20 October 2026, 11:00</p>
     </section>
     </div>
   </aside>
