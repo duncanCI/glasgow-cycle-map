@@ -69,7 +69,9 @@ Routes follow a cyclist confidence slider with five levels, from "Riding with ch
 
 ## Music for the virtual cycle
 
-"Music for the ride", a button of its own at the top left of the map during a virtual cycle, plays ad-free internet radio in the page: lo-fi and instrumental hip hop, chilled downtempo, reggae, country and Americana, classical, synthwave, Celtic, spy lounge or metal. The stations are listener-supported SomaFM (Fluid, Groove Salad, Heavyweight Reggae, Boot Liquor, ThistleRadio, Secret Agent, Metal Detector), the Swiss public broadcaster's Radio Swiss Classic, and Nightride FM. Each has a fallback address; the music fades in and out, has its own volume, and stops when the ride stops. If you enjoy SomaFM, consider supporting it at somafm.com/support.
+"Music for the ride", a button of its own at the top left of the map during a virtual cycle, opens one short list: lo-fi beats, reggae, country, Celtic, classical, synthwave, 8-bit and rage metal, plus a volume slider. Each plays inside the page from a library of Creative Commons tracks by Kevin MacLeod (incompetech.com, licensed under Creative Commons: By Attribution 4.0), shuffled, with a skip button. Until the library is in place, classical and synthwave fall back to live, ad-free radio (Radio Swiss Classic and Nightride FM).
+
+The library lives in `music/` with its list in `data/music.json`, built by `scripts/fetch_music.py` from the public incompetech catalogue (about four tracks per style; re-encoded to 96 kbps when ffmpeg is available). Build or top it up from the Actions tab with "Fetch the music library", or run the script locally. Every track is credited, as the licence requires.
 
 ## Road crossings
 
@@ -138,7 +140,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Crossings | OpenStreetMap crossing points via Overpass, Glasgow City Council city-centre signal sites (CCTP tactile facilities) | © OpenStreetMap contributors (ODbL); Glasgow City Council open data |
-| Music | Streams from SomaFM, Radio Swiss Classic and Nightride FM, played only when chosen | Each station's own terms |
+| Music | Kevin MacLeod (incompetech.com) library tracks; Radio Swiss Classic and Nightride FM streams as a fallback | CC BY 4.0 for the library; each station's own terms |
 | 3D rider | three.js 0.149, loaded only for the virtual cycle | MIT |
 | 3D virtual cycle | OpenFreeMap vector tiles (OpenMapTiles schema) drawn with MapLibre GL, terrain from Mapzen Terrain Tiles | © OpenMapTiles, data © OpenStreetMap contributors |
 | Background maps | OpenStreetMap standard tiles (light grey and streets), CyclOSM, Esri World Imagery (satellite) | © OpenStreetMap contributors under the tile usage policy; CyclOSM; imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community |

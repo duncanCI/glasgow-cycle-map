@@ -269,7 +269,9 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 @media (max-width:760px){.music-dock{top:10px;left:50px}.music-btn{max-width:190px}}
 .mus-note{font-size:0.72rem;color:var(--muted);padding:4px 10px 6px;max-width:250px}
 .mus-note a{color:var(--accent)}
-#menu-music>button{flex-direction:column;align-items:flex-start;gap:0}
+#menu-music>button{align-items:center}
+#menu-music>a .mus-st{font-size:0.72rem;color:var(--muted)}
+.mus-head{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 10px 2px}
 #menu-music>button .mus-st{font-size:0.72rem;color:var(--muted)}
 #menu-music>button[aria-checked="true"]::after{position:absolute;right:12px}
 #menu-music>button{position:relative;padding-right:28px}
@@ -534,6 +536,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <li>City Network plans, city boundary, automatic cycle counters and road collisions (DfT STATS19): Glasgow City Council. Contains public sector information licensed under the Open Government Licence v3.0.</li>
         <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
         <li>Heights: Mapzen Terrain Tiles on AWS Open Data, from SRTM (NASA).</li>
+        <li>Music library: Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons: By Attribution 4.0</a>. Live radio: Radio Swiss Classic and Nightride FM.</li>
         <li>3D virtual cycle: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
         <li>Background maps: &copy; OpenStreetMap contributors (light grey and streets); CyclOSM; satellite imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community.</li>
       </ul></details>
@@ -571,6 +574,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
     <div class="music-dock" id="music-dock" hidden aria-label="Music for the ride">
       <span class="menu-wrap"><button type="button" class="music-btn" id="fly-musicbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-music"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="music-label">Music</span></button><div class="menu" id="menu-music" role="menu" hidden></div></span>
+      <button type="button" class="music-stop" id="music-skip" hidden aria-label="Next track" title="Next track">⏭</button>
       <button type="button" class="music-stop" id="music-stop" hidden aria-label="Stop the music" title="Stop the music">■</button>
     </div>
     <div class="legend" id="legend-wrap"><button type="button" class="legend-head" id="legend-toggle" aria-expanded="true" aria-controls="legend">Key</button><div id="legend" aria-label="Map key"></div></div>
@@ -1944,23 +1948,15 @@ function photoTick() {
 
 // ---------- music for the virtual cycle: ad-free internet radio, played in the page ----------
 // Listener-supported or public-service stations with no adverts; each has a fallback address in case one is busy.
-const SOMA = ch => [1, 2, 4, 6].map(n => 'https://ice' + n + '.somafm.com/' + ch + '-128-mp3').concat('https://ice.somafm.com/' + ch);
-const RADIO = [
-  ['lofi', 'Lo-fi & instrumental hip hop', 'SomaFM Fluid', SOMA('fluid')],
-  ['chill', 'Chilled downtempo', 'SomaFM Groove Salad', SOMA('groovesalad')],
-  ['reggae', 'Reggae, ska and dub', 'SomaFM Heavyweight Reggae', SOMA('reggae')],
-  ['country', 'Country and Americana', 'SomaFM Boot Liquor', SOMA('bootliquor')],
-  ['classical', 'Classical', 'Radio Swiss Classic', ['https://stream.srg-ssr.ch/m/rsc_de/mp3_128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/mp3/128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/aac/96']],
-  ['synthwave', 'Synthwave', 'Nightride FM', ['https://stream.nightride.fm/nightride.mp3', 'https://stream.nightride.fm/chillsynth.mp3']],
-  ['celtic', 'Celtic', 'SomaFM ThistleRadio', SOMA('thistle')],
-  ['spy', 'Spy lounge', 'SomaFM Secret Agent', SOMA('secretagent')],
-  ['metal', 'Rage metal', 'SomaFM Metal Detector', SOMA('metal')]];
+const RADIO = [ // live, ad-free stations that publish their streams for any player; used when the library has no tracks for a style
+  ['classical', 'Classical', 'Radio Swiss Classic', ['https://stream.srg-ssr.ch/m/rsc_de/mp3_128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/mp3/128', 'https://stream.srg-ssr.ch/srgssr/rsc_de/aac/96'], 'play'],
+  ['synthwave', 'Synthwave', 'Nightride FM', ['https://stream.nightride.fm/nightride.mp3', 'https://stream.nightride.fm/chillsynth.mp3'], 'play']];
 // each choice gets a fresh audio element, so a stopped or switched stream can never report a late error against the new one
 const MUS = { genre: 'off', audio: null, vol: 0.7, fadeT: 0, onChange: null, token: 0 };
 const fadeTo = (a, target, done) => { clearInterval(MUS.fadeT); MUS.fadeT = setInterval(() => { const v = a.volume + (target > a.volume ? 0.05 : -0.08); a.volume = Math.max(0, Math.min(1, target > a.volume ? Math.min(target, v) : Math.max(target, v))); if (Math.abs(a.volume - target) < 0.01) { clearInterval(MUS.fadeT); if (done) done(); } }, 45); };
 function retire(a) { if (!a) return; a.onerror = a.onplaying = a.onstalled = null; try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
 function stopMusic() {
-  MUS.token++; MUS.genre = 'off'; if (MUS.onChange) MUS.onChange();
+  MUS.token++; MUS.genre = 'off'; MUS.now = ''; MUS.skip = null; if (MUS.onChange) MUS.onChange();
   const a = MUS.audio; MUS.audio = null; if (a) fadeTo(a, 0, () => retire(a));
 }
 function playMusic(g) {
@@ -1985,21 +1981,62 @@ function playMusic(g) {
   a.onerror = () => { if (!live() || started) return; const c = a.error && a.error.code; why = c === 2 ? 'network error' : c === 4 ? 'stream not supported here' : 'stream error'; clearTimeout(a._t); next(); };
   next(); // the first attempt runs inside the click, so the browser allows sound
 }
-{ // the music menu on the virtual cycle bar
-  const m = document.getElementById('menu-music'), btn = document.getElementById('fly-musicbtn');
-  const mark = () => { m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false')); const cur = RADIO.find(x => x[0] === MUS.genre);
-    document.getElementById('music-label').textContent = cur ? cur[1] : 'Music for the ride'; document.getElementById('music-dock').classList.toggle('playing', !!cur); document.getElementById('music-stop').hidden = !cur; };
-  document.getElementById('music-stop').addEventListener('click', stopMusic);
-  MUS.onChange = mark;
-  const off = el('button', null, 'Off'); off.type = 'button'; off.setAttribute('role', 'menuitemradio'); off.dataset.g = 'off'; off.addEventListener('click', stopMusic); m.append(off);
-  RADIO.forEach(([g, label, station]) => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g;
-    b.append(el('span', 'mus-lbl', label), el('span', 'mus-st', station)); b.addEventListener('click', () => playMusic(g)); m.append(b); });
-  const vl = el('label', 'mus-vol'); const vr = el('input'); vr.type = 'range'; vr.min = 0; vr.max = 1; vr.step = 0.05; vr.value = MUS.vol; vr.setAttribute('aria-label', 'Music volume');
-  vr.addEventListener('input', () => { MUS.vol = +vr.value; if (MUS.audio && MUS.genre !== 'off') { clearInterval(MUS.fadeT); MUS.audio.volume = MUS.vol; } });
-  vl.append(document.createTextNode('Volume'), vr);
-  const note = el('div', 'mus-note'); note.append(document.createTextNode('Ad-free internet radio from listener-supported '), Object.assign(el('a', null, 'SomaFM'), { href: 'https://somafm.com/support/', target: '_blank', rel: 'noopener' }), document.createTextNode(', Radio Swiss Classic and Nightride FM.'));
-  m.append(vl, note); mark();
+// the music library: Creative Commons tracks by Kevin MacLeod, kept in this site's music/ folder (see scripts/fetch_music.py)
+MUS.lib = null; MUS.now = '';
+const shuffled = n => { const o = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; };
+function playLib(g) {
+  const st = MUS.lib && MUS.lib[g]; if (!st || !st.tracks.length) return;
+  const old = MUS.audio; if (old) { clearInterval(MUS.fadeT); retire(old); }
+  const my = ++MUS.token, a = new Audio(); MUS.audio = a; MUS.genre = g; a.volume = 0; a.preload = 'auto';
+  const order = shuffled(st.tracks.length); let k = 0, fails = 0;
+  const go = () => {
+    if (my !== MUS.token) return; const tr = st.tracks[order[k % order.length]]; MUS.now = tr.title; if (MUS.onChange) MUS.onChange();
+    a.src = tr.file; const p = a.play();
+    if (p && p.then) p.then(() => { fails = 0; if (a.volume < MUS.vol) fadeTo(a, MUS.vol); }).catch(err => { if (my !== MUS.token) return; if (err && err.name === 'NotAllowedError') { toast('Your browser held the sound back: choose the style again to start it.'); stopMusic(); } });
+  };
+  a.onended = () => { if (my !== MUS.token) return; k++; go(); };
+  a.onerror = () => { if (my !== MUS.token) return; if (++fails >= st.tracks.length) { toast('The ' + st.label.toLowerCase() + ' tracks could not be played.'); stopMusic(); return; } k++; go(); };
+  MUS.skip = () => { if (my === MUS.token) { k++; go(); } };
+  go(); // first play runs inside the click
 }
+{ // the music menu
+  const m = document.getElementById('menu-music');
+  const isLib = g => !!(MUS.lib && MUS.lib[g]);
+  const mark = () => {
+    m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false'));
+    const radio = RADIO.find(x => x[0] === MUS.genre), lib = isLib(MUS.genre) ? MUS.lib[MUS.genre] : null, on = !!(radio || lib);
+    document.getElementById('music-label').textContent = lib ? MUS.now : radio ? radio[1] + ' radio' : 'Music for the ride';
+    document.getElementById('music-dock').classList.toggle('playing', on); document.getElementById('music-stop').hidden = !on; document.getElementById('music-skip').hidden = !lib;
+  };
+  MUS.onChange = mark;
+  document.getElementById('music-stop').addEventListener('click', stopMusic);
+  document.getElementById('music-skip').addEventListener('click', () => { if (MUS.skip) MUS.skip(); });
+  const item = (g, label, sub, fn) => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g; b.append(el('span', 'mus-lbl', label), el('span', 'mus-st', sub)); b.addEventListener('click', fn); return b; };
+  // one list, one entry per style: library tracks where we have them, live radio otherwise
+  const STYLE_LIST = [['lofi', 'Lo-fi beats'], ['reggae', 'Reggae'], ['country', 'Country'], ['celtic', 'Celtic'], ['classical', 'Classical'], ['synthwave', 'Synthwave'], ['chip', '8-bit'], ['metal', 'Rage metal']];
+  const build = () => {
+    m.textContent = '';
+    const add = (g, label, fn) => { const b = el('button', null, label); b.type = 'button'; b.setAttribute('role', 'menuitemradio'); b.dataset.g = g; b.addEventListener('click', fn); m.append(b); };
+    add('off', 'Off', stopMusic);
+    STYLE_LIST.forEach(([g, label]) => {
+      if (isLib(g)) add(g, label, () => playLib(g));
+      else if (RADIO.some(r => r[0] === g)) add(g, label, () => playMusic(g));
+    });
+    const vl = el('label', 'mus-vol'); const vr = el('input'); vr.type = 'range'; vr.min = 0; vr.max = 1; vr.step = 0.05; vr.value = MUS.vol; vr.setAttribute('aria-label', 'Music volume');
+    vr.addEventListener('input', () => { MUS.vol = +vr.value; if (MUS.audio && MUS.genre !== 'off') { clearInterval(MUS.fadeT); MUS.audio.volume = MUS.vol; } });
+    vl.append(document.createTextNode('Volume'), vr);
+    const note = el('div', 'mus-note');
+    if (MUS.lib) note.append(document.createTextNode('Music by Kevin MacLeod ('), Object.assign(el('a', null, 'incompetech.com'), { href: 'https://incompetech.com', target: '_blank', rel: 'noopener' }), document.createTextNode('), '),
+      Object.assign(el('a', null, 'CC BY 4.0'), { href: 'https://creativecommons.org/licenses/by/4.0/', target: '_blank', rel: 'noopener' }), document.createTextNode('.'));
+    else note.append(document.createTextNode('Live radio from Radio Swiss Classic and Nightride FM.'));
+    m.append(vl, note); mark();
+  };
+  build();
+  fetch('data/music.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
+    if (j && j.styles && Object.keys(j.styles).length) MUS.lib = j.styles; else MUS.libMissing = true; build();
+  }).catch(() => { MUS.libMissing = true; build(); });
+}
+
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 const RIDERS = [ // lean is the torso's angle forward from upright
