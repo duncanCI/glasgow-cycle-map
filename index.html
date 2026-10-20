@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-tbKTaIAukanObiz9ijidgCZGP5RUnr6oZ3Tz8csbYEE=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fZxX6onvzkvoBDN+3pvOKz4qWBn3u8V+LOn87l/EPfI=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -664,7 +664,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 20 October 2026, 22:30</p>
+      <p class="note" id="build-id">Version: 20 October 2026, 23:00</p>
     </section>
     </div>
   </aside>
@@ -1645,7 +1645,7 @@ const LEVELS = [
   { name: 'Cautious', note: 'Strongly prefers protected track and quiet streets, avoids busy junctions, and avoids steep climbs where it can.', shared: 1.6, lane: [2.2, 3.2, 6, 10], mix: [2.2, 3.2, 6, 10], minor: 2.4, major: 6, jn: 200, cap: 2.0, pen: 220, kmh: 14, hill: 12 },
   { name: 'Steady', note: 'Prefers protected track and will go some way out of the way for it, or to miss a stiff climb.', shared: 1.8, lane: [2.0, 2.5, 3.5, 5.5], mix: [1.8, 2.3, 3.8, 6.0], minor: 1.9, major: 3.8, jn: 80, cap: 1.5, pen: 150, kmh: 16, hill: 7 },
   { name: 'Confident', note: 'Takes protected track when it is close to the line, otherwise rides with traffic.', shared: 1.25, lane: [1.3, 1.6, 2.2, 3.5], mix: [1.2, 1.6, 2.6, 4.0], minor: 1.4, major: 2.6, jn: 0, cap: 1.3, pen: 80, kmh: 18, hill: 3 },
-  { name: 'Very confident', note: 'The shortest legal route, whatever the traffic.', direct: true, jn: 0, cap: Infinity, pen: 0, kmh: 20 }];
+  { name: 'Very confident', note: 'The shortest legal route, whatever the traffic.', direct: true, jn: 0, cap: Infinity, pen: 0, kmh: 20, xq: 0.15 }]; // xq: an unconfirmed crossing of a fast road puts this rider off far less
 const busyEdgeR = e => e < P && N.rated[e] && N.los[e] >= 2;
 function mult(e, res, lvl) {
   const W = LEVELS[lvl];
@@ -1728,8 +1728,9 @@ function routeLeg(s, t, res, lvl) {
       const m = eu[e] === n ? ev[e] : eu[e];
       let nd = dn + elen[e] * mult(e, res, lvl) + crashPen(e, res, lvl) + climbPen(e, n, lvl);
       if (jn && busyN[m] && !busyEdgeR(e) && !res.ded[e]) nd += jn * (XEV[m] === 1 ? 0.3 : 1); // joining or crossing a busy road from a calm street
-      if (hardX[m] && offE(e) && !xOK(m)) nd += XEV[m] === 4 ? 2500 : 800; // a crossing of a fast or dual road with nothing mapped to say it exists
-      nd += ePen[e]; // a community line drawn straight over such a road
+      { const xq = LEVELS[lvl].xq == null ? 1 : LEVELS[lvl].xq; // how much an unconfirmed crossing puts this rider off
+        if (hardX[m] && offE(e) && !xOK(m)) nd += XEV[m] === 4 ? 2500 : 800 * xq; // a crossing of a fast or dual road with nothing mapped to say it exists; mapped as no crossing stays off for everyone
+        nd += ePen[e] * xq; } // a community line drawn straight over such a road
       if (nd < dist[m]) { dist[m] = nd; pred[m] = e; hp.push(nd + hh(m), m); }
     }
   }
