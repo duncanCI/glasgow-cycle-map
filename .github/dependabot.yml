@@ -1,0 +1,8 @@
+# Keeps the pinned GitHub Actions up to date: Dependabot opens a pull request when a new release is out,
+# so the pins never go stale. Review and merge those pull requests as they come.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,15 @@
+{
+ "x0": -4.4,
+ "y0": 55.775,
+ "dx": 0.00016,
+ "dy": 9e-05,
+ "nx": 2126,
+ "ny": 1778,
+ "off": 20.0,
+ "scale": 10.0,
+ "none": 0,
+ "water": 1,
+ "coding": "gzip, row deltas mod 65536, uint16 little-endian",
+ "source": "Scottish Public Sector LiDAR Phase 5 DTM (50 cm), gaps from Phases 6, 3 and 4, at its 4 m overview",
+ "credit": "Crown copyright Scottish Government and Fugro (2021), Open Government Licence v3.0"
+}

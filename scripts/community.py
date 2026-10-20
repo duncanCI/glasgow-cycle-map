@@ -60,13 +60,14 @@ def clean(text):
         return ""
     text = re.sub(r"<br\s*/?>", " | ", text); text = re.sub(r"<[^>]+>", "", text)
     text = html.unescape(text).replace("\xa0", " ")
+    text = re.sub(r"[<>\x00-\x1f\x7f]", " ", text)  # no markup characters or control codes survive, even ones written as &lt; entities
     return re.sub(r"\s+", " ", text).strip(" |")[:300]
 
 def parse(raw):
     doc = ET.fromstring(raw).find("k:Document", NS)
     feats, km = [], {}
     for folder in doc.findall("k:Folder", NS):
-        fname = folder.findtext("k:name", namespaces=NS) or ""
+        fname = clean(folder.findtext("k:name", namespaces=NS) or "")[:80]
         for pm in folder.findall(".//k:Placemark", NS):
             ls = pm.find(".//k:LineString", NS)
             if ls is None:
@@ -111,7 +112,7 @@ def main():
     (ROOT / "data" / "community.geojson").write_text(json.dumps(geo, separators=(",", ":"), ensure_ascii=False))
     page = ROOT / "index.html"; text = page.read_text()
     blob = json.dumps({"meta": {k: meta[k] for k in ("checked", "changed", "lines", "km", "source", "credit")}, "f": feats},
-                      separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+                      separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")  # a "<" can never end the script block early
     new, n = re.subn(r'(<script id="comm-data" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), text, flags=re.S)
     if n != 1:
         sys.exit("Could not find the comm-data block in index.html.")

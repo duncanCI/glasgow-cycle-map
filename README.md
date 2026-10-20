@@ -67,6 +67,26 @@ Each route shows its length and riding time on the profile strip, with the netwo
 
 Routes follow a cyclist confidence slider with five levels, from "Riding with children" to "Very confident". The lowest level treats a quiet street as three times its length and a busy road as up to 25 times, adds 400 m for every busy road it joins or crosses from a calm street, and may run up to 2.5 times the shortest legal route to stay protected. "Cautious" is the default; "Very confident" takes the shortest legal route. A leg that would stretch beyond its level's limit steps up a level, and the profile says so. Riding speed rises from 11 km/h with children to 20 km/h. Stops stay where you put them, including side roads you want to call in on.
 
+## Hills
+
+Heights come from the Scottish Government's public-sector LiDAR: a 50 cm bare-earth terrain model, so the ground itself, without buildings, trees or bridge decks. `scripts/prep_lidar.py` reads its 4 m overview straight from the open copy on AWS and writes a 10 m grid over the city (`data/relief.bin`, about 1.5 MB, loaded after the page) plus a 38 m version embedded in the page for the first seconds. The old source, global terrain tiles at about 30 m, smoothed away Glasgow's short steep streets and counted buildings as climbs. The 10 m grid was checked against 1 m LiDAR sampled along the centreline of Glasgow's steepest streets (Montrose, Garnet, Scott, Buccleuch Street and others): rises agree to within 0.3 m and the steepest 20 m to within about half a percentage point, so profiles use it unsmoothed and climbing is counted a metre at a time. Bare-earth heights see under bridges that the network has no record of (a road over a motorway cutting or a railway seems to dive 10 to 20 m and climb straight back), so any drop or rise steeper than 25% that returns to within 2 m of where it started, within 250 m and at least 4 m off the straight line, is spanned like a bridge; 94 street sections are affected and the city's genuinely steep streets are not.
+
+Because the model is bare earth, bridges and water are spanned in a straight line between their ends rather than dipping to the river. The Clyde Tunnel's foot and cycle tunnels, below the road deck, dip to about 18 m below sea level (about 20 m below the river surface) at their midpoint, which reproduces the 1 in 16 descent and climb either side. Short underpasses are taken straight between their ends.
+
+Hills also shape the route: each link's climb, each way, is counted (ignoring rises under a metre, so survey noise adds nothing), and every metre climbed costs some metres of flat riding: 18 for riding with children, 12 cautious, 7 steady, 3 confident and none for very confident, more on links steeper than 6%. The detour cap still applies, so no route goes absurdly far round a hill.
+
+## Security and privacy
+
+The page is static (no server, no accounts, no cookies, no analytics) and is hardened as follows.
+
+- A Content Security Policy in a `<meta>` tag lets the browser run only the page's own script (named by its SHA-256 hash), files from this site, and the pinned Leaflet, MapLibre and three.js builds from jsDelivr, which also load with Subresource Integrity checks. Injected inline scripts, inline event handlers and scripts from any other host are refused. After any change to the page's script, run `python3 scripts/csp.py` to update the hash; the weekly refresh runs it too.
+- Names from open data (OpenStreetMap, the community map) are only ever shown as text, never as markup. The community import strips markup characters, including ones written as entities, and escapes every `<` in the data it embeds, so a line name can't end its script block early.
+- The font (Atkinson Hyperlegible, SIL Open Font Licence) and the WebLLM library are served from this site, so no third-party code runs when the AI starts, and visitors' details aren't sent to Google Fonts.
+- Shared route links give locations to about 10 metres rather than to the metre.
+- The workflows pin `actions/checkout` to an exact commit, never run two at once, time out after 20 minutes and use only the permissions they need. Dependabot opens a pull request when a pinned action has a new release.
+
+Things only the repository owner can do: keep two-factor authentication on the GitHub account (whoever controls it controls the site), keep "Enforce HTTPS" on in the Pages settings, and remember that the weekly refresh trusts the community map's owner: anything they put on that map reaches the site within a week, as text.
+
 ## On a phone
 
 On screens up to 760 px wide the map fills the screen and the panel becomes a bottom sheet. It starts lowered, showing just the title and tabs; tap or drag its handle (or the title row) to lift it to half or nearly full height, and flick it to move a step. Tapping a tab, a place on the map or the assistant's text box lifts it; planning a route lowers it again so the route shows. The route strip sits just above the sheet with a two-line summary, the action buttons in one scrolling row and a shorter height profile, and steps aside while the sheet is lifted (the Route tab carries the same facts). During a virtual cycle the sheet drops to just its handle and the strip to the ride controls, with Pause and Stop first, so the 3D view gets most of the screen. Place details show in the sheet rather than in a popup over the map.
@@ -146,7 +166,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | City boundary | Glasgow City Council | Check with the council before reuse |
 | Data zones, population, deprivation decile | Network Planning Tool data zones file, from National Records of Scotland and the Scottish Index of Multiple Deprivation 2020 | Open Government Licence v3.0 |
 | Routes built since May 2025 | Glasgow Cycle Map: Now and Future, by u/Correct-Audience-421, refreshed weekly | Used with the author's permission |
-| Heights | Mapzen Terrain Tiles on AWS Open Data, from SRTM in Scotland, resampled to about 37 m | Open data, attribution to Mapzen and SRTM (NASA) |
+| Heights | Scottish Public Sector LiDAR, Phase 5 bare-earth DTM (50 cm; Phases 6, 3 and 4 fill gaps), read from the open copy on AWS at its 4 m overview and kept on a 10 m grid (`data/relief.bin`); a 38 m version is embedded for the first seconds | Open Government Licence v3.0: Crown copyright Scottish Government and Fugro (2021) |
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Crossings | OpenStreetMap crossing points via Overpass, Glasgow City Council city-centre signal sites (CCTP tactile facilities) | © OpenStreetMap contributors (ODbL); Glasgow City Council open data |

@@ -7,11 +7,16 @@ permissions:
   contents: write
   pages: write
 
+concurrency:
+  group: music-library      # never two runs at once, so they can't push over each other
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0, pinned to its exact commit
 
       - name: Download Creative Commons tracks by Kevin MacLeod (incompetech.com)
         run: python3 scripts/fetch_music.py
