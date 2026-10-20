@@ -1794,13 +1794,24 @@ let x3d = [];
 function set3dRoute() {
   if (!ml3dReady || !RT.result) return;
   x3d.forEach(m => m.remove()); x3d = (RT.result.cross || []).filter(c => c.busy).map(c => { const d = document.createElement('div'); d.innerHTML = '<span class="xing big ' + xingCls(c) + '" title="' + xingText(c).replace(/"/g, '') + '"></span>'; return new maplibregl.Marker({ element: d, opacityWhenCovered: '1' }).setLngLat([c.lon, c.lat]).addTo(ml3d); });
-  const data = routeGeo();
-  if (ml3d.getSource('gcm-route')) { ml3d.getSource('gcm-route').setData(data); return; }
+  const data = routeGeo(), names = routeNamesGeo();
+  if (ml3d.getSource('gcm-route')) { ml3d.getSource('gcm-route').setData(data); if (ml3d.getSource('gcm-route-names')) ml3d.getSource('gcm-route-names').setData(names); namesOnTop(); return; }
   ml3d.addSource('gcm-route', { type: 'geojson', data });
   ml3d.addLayer({ id: 'gcm-route-case', type: 'line', source: 'gcm-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 11 } });
   ml3d.addLayer({ id: 'gcm-route', type: 'line', source: 'gcm-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': 6.5 } });
+  ml3d.addSource('gcm-route-names', { type: 'geojson', data: names });
+  ml3d.addLayer({ id: 'gcm-route-names', type: 'symbol', source: 'gcm-route-names',
+    layout: { 'symbol-placement': 'line', 'text-field': ['get', 'nm'], 'text-font': ['Noto Sans Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 14, 12, 18, 16], 'symbol-spacing': 260, 'text-max-angle': 35, 'text-keep-upright': true, 'text-padding': 4, 'text-pitch-alignment': 'viewport' },
+    paint: { 'text-color': '#ffffff', 'text-halo-color': '#152024', 'text-halo-width': 2.2, 'text-halo-blur': 0.4 } });
 }
-const SAT_STYLE = () => ({ version: 8,
+// the street name of each stretch of the route, for labels along it
+function routeNamesGeo() {
+  const R = RT.result, feats = []; if (!R || !R.runs) return { type: 'FeatureCollection', features: feats };
+  R.runs.forEach(r => { if (!r.nm || r.len < 50) return; const co = []; for (let j = r.i0; j <= r.i1 + 1; j++) co.push([R.ll[2 * j], R.ll[2 * j + 1]]); if (co.length > 1) feats.push({ type: 'Feature', properties: { nm: r.nm }, geometry: { type: 'LineString', coordinates: co } }); });
+  return { type: 'FeatureCollection', features: feats };
+}
+const namesOnTop = () => { try { if (ml3d && ml3d.getLayer('gcm-route-names')) ml3d.moveLayer('gcm-route-names'); } catch (e) {} };
+const SAT_STYLE = () => ({ version: 8, glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   sources: {
     sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community' },
     omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '&copy; OpenMapTiles &copy; OpenStreetMap contributors' } },
@@ -1929,7 +1940,7 @@ async function buildPhoto(lon, lat) {
 function plainBuildings(show) { if (ml3d && ml3d.getLayer('gcm-buildings')) ml3d.setPaintProperty('gcm-buildings', 'fill-extrusion-opacity', show ? 0.78 : 0); }
 function addPhoto() {
   if (!ml3d || !photoWanted()) return;
-  if (!ml3d.getLayer('gcm-photo')) { PB.layer = makePhotoLayer(R3.THREE); ml3d.addLayer(PB.layer); }
+  if (!ml3d.getLayer('gcm-photo')) { PB.layer = makePhotoLayer(R3.THREE); ml3d.addLayer(PB.layer); namesOnTop(); }
   try { ml3d.setTerrain(null); } catch (e) {}
   PB.centre = null; const P = FLY.lastP || flyPoint(FLY.d); buildPhoto(P.lon, P.lat);
 }
