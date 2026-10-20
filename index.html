@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fZxX6onvzkvoBDN+3pvOKz4qWBn3u8V+LOn87l/EPfI=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-E0ZORdGMjNqOcg1QMskR1E0n0GktW/k0iHewC5FP05I=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -258,6 +258,18 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu button[aria-checked="true"]{font-weight:700}
 .menu button[aria-checked="true"]::after{content:"♪";margin-left:auto;color:var(--accent)}
 .mus-vol input{flex:1;accent-color:var(--accent)}
+.explore-bar{position:absolute;top:12px;left:12px;z-index:1110;display:flex;flex-direction:column;gap:7px;max-width:250px;padding:10px 12px;border:1.5px solid var(--ink);border-radius:12px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);font-size:0.86rem}
+.explore-bar .xb-row{display:flex;align-items:center;gap:7px}
+.explore-bar input[type=range]{flex:1;accent-color:var(--accent)}
+.explore-bar output{min-width:2.4em;font-weight:700}
+.explore-bar select{font:inherit;font-size:0.84rem}
+.xb-hint{margin:0;color:var(--muted);font-size:0.76rem;line-height:1.35}
+.fly3d.explore{bottom:var(--dock-h,0px)}
+.fly3d:not(.explore) .maplibregl-ctrl-top-right .maplibregl-ctrl-group{display:none}
+#menu-fly .fv-row{display:flex;align-items:center;gap:6px}
+#menu-fly .fv-row input{flex:1;min-width:90px;accent-color:var(--accent)}
+#menu-fly .fv-note{margin:2px 10px 6px;color:var(--muted);font-size:0.74rem;max-width:230px}
+@media (max-width:760px){.fly3d.explore .maplibregl-ctrl-top-right{top:auto;bottom:34px}.explore-bar{top:8px;left:8px;right:8px;max-width:none;flex-direction:row;flex-wrap:wrap;gap:6px 10px;padding:8px 10px}.explore-bar .xb-hint{display:none}.explore-bar strong{width:100%}}
 .sweat-gauge{position:absolute;top:12px;right:12px;z-index:1110;display:flex;gap:9px;align-items:center;padding:8px 30px 8px 10px;border:1.5px solid var(--ink);border-radius:14px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);min-width:178px}
 .sg-face{font-size:2rem;line-height:1;transition:transform .2s}
 .sweat-gauge[data-z="3"] .sg-face{animation:sg-wobble .9s ease-in-out infinite}
@@ -604,6 +616,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <label class="check"><input type="checkbox" id="chk-dz" checked> Shade neighbourhoods by share of streets within 800 m of the main network</label>
     </details>
     <details class="group"><summary>Layers</summary>
+    <label class="check"><input type="checkbox" id="chk-names" checked> Show street names on the map (from zoom 15)</label>
     <label class="check"><input type="checkbox" id="chk-dest" checked> Show landmark names used for the "places you can reach" checks</label>
     <label class="check"><input type="checkbox" id="chk-hot" checked> Show bike collision hotspots, 20 places with at least 4 recorded collisions within 50 m, coloured by risk for the cycling they carry</label>
     <label class="check"><input type="checkbox" id="chk-crash"> Show every recorded bike collision, 2016 to 2023, by severity</label>
@@ -635,7 +648,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <li>Routes built since May 2025: Glasgow Cycle Map: Now and Future, by u/Correct-Audience-421, used with permission.</li>
         <li>City Network plans, city boundary, automatic cycle counters and road collisions (DfT STATS19): Glasgow City Council. Contains public sector information licensed under the Open Government Licence v3.0.</li>
         <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
-        <li>Heights: Scottish Public Sector LiDAR, Phase 5 bare-earth terrain model (50 cm), with Phases 6, 3 and 4 filling gaps: Crown copyright Scottish Government and Fugro (2021), Open Government Licence v3.0. Used on a 10 m grid; bridges and water are spanned in a straight line and the Clyde Tunnel's foot and cycle tunnels dip about 20 m below the river.</li>
+        <li>Heights: Scottish Public Sector LiDAR, Phase 5 bare-earth terrain model (50 cm), with Phases 6, 3 and 4 filling gaps: Crown copyright Scottish Government and Fugro (2021), Open Government Licence v3.0. Used on a 10 m grid, in the profile, the puff-ometer and the 3D terrain; bridges and water are spanned in a straight line and the Clyde Tunnel's foot and cycle tunnels dip about 20 m below the river.</li>
         <li>Music library: Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons: By Attribution 4.0</a>. Live radio: Radio Swiss Classic and Nightride FM.</li>
         <li>Ask the map: WebLLM (Apache 2.0) running Microsoft Phi-4-mini (MIT) or Qwen2.5 1.5B (Apache 2.0) in your browser.</li>
         <li>3D virtual cycle: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
@@ -664,7 +677,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 20 October 2026, 23:00</p>
+      <p class="note" id="build-id">Version: 21 October 2026, 01:00</p>
     </section>
     </div>
   </aside>
@@ -673,10 +686,20 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <div class="resizer" id="resizer" role="separator" aria-orientation="vertical" aria-label="Drag to resize the side panel, or press Enter to hide or show it" aria-valuemin="0" aria-valuemax="680" aria-valuenow="410" tabindex="0"><button type="button" class="rz-btn" id="btn-collapse" aria-label="Hide the side panel" title="Hide the side panel"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M8 2 L4 6 L8 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <button type="button" class="expand" id="btn-expand" hidden aria-label="Show the panel"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 8 L6 4 L10 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="maptools"><span class="menu-wrap"><button type="button" class="maptool" id="map-layersbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-layers">Layers</button><div class="menu right" id="menu-layers" role="menu" hidden></div></span><label class="sr-only" for="map-scen">Network</label>
+      <button type="button" class="maptool" id="map-3d" title="See the hills in 3D: tilt, turn and stretch the terrain">3D</button>
       <select id="map-base" title="Background map" aria-label="Background map"><option value="grey">Light grey</option><option value="streets">Streets</option><option value="cycle">Cycling</option><option value="sat">Satellite</option><option value="none">No background</option></select>
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
     <div class="tip" id="tip" hidden role="note"><strong>New here?</strong> Right-click the map, or press and hold on a phone, to plan a route. Click any street to see how far it is from protected track.<div class="actions"><button type="button" class="chip primary" id="tip-help">How to use</button><button type="button" class="chip" id="tip-close">Got it</button></div></div>
     <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
+    <div class="explore-bar" id="explore-bar" hidden role="group" aria-label="3D terrain view">
+      <strong>3D terrain</strong>
+      <label class="xb-row">Height <input type="range" id="exp-ex" min="1" max="6" step="0.5" value="2" aria-describedby="exp-ex-v"> <output id="exp-ex-v">2×</output></label>
+      <label class="xb-row">Route colours <select id="exp-col"><option value="type">Track type</option><option value="puff">Puff-ometer</option></select></label>
+      <label class="xb-row">Imagery <select id="exp-style"><option value="sat">Satellite</option><option value="map">Map</option></select></label>
+      <label class="xb-row"><input type="checkbox" id="exp-bld"> Buildings</label>
+      <p class="xb-hint">Drag to move. Right-drag, Ctrl-drag or two fingers to tilt and turn. Heights are the LiDAR the puff-ometer uses.</p>
+      <button type="button" class="chip" id="exp-close">Back to the map</button>
+    </div>
     <div class="sweat-gauge" id="sweat-gauge" hidden role="status" aria-label="Puff-ometer">
       <div class="sg-face" id="sg-face" aria-hidden="true">😌</div>
       <div class="sg-body"><div class="sg-label" id="sg-label">Breezy</div><div class="sg-bar" aria-hidden="true"><i id="sg-fill"></i></div><div class="sg-drops" id="sg-drops"></div></div>
@@ -709,7 +732,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
         <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener"><span class="ph-x">Open </span>Street View<span class="ph-x"> here</span></a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
-          <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label><label><input type="checkbox" id="fly-photo" checked> Photo-textured buildings</label></div></span>
+          <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label><label><input type="checkbox" id="fly-photo" checked> Photo-textured buildings</label><label class="fv-row">Terrain height <input type="range" id="fly-ex" min="0" max="6" step="0.5" value="1.5"> <output id="fly-ex-v">1.5×</output></label><label>Route colours <select id="fly-col"><option value="type">Track type</option><option value="puff">Puff-ometer</option></select></label><p class="fv-note" id="fly-ex-note">Buildings stand on the terrain at any height.</p></div></span>
         <button type="button" class="chip" id="fly-recentre" title="Put the camera back behind the rider">Recentre</button>
         <button type="button" class="chip" id="fly-stop">Stop</button>
         <button type="button" class="chip" id="fly-help" aria-label="Virtual cycle controls" title="While it plays: drag to look around, scroll or pinch to zoom, right-drag or two fingers to tilt and turn. The camera keeps your view and carries on following the rider; Recentre puts it back. Click the profile to jump, Space pauses, Escape stops.">?</button></div>
@@ -998,7 +1021,7 @@ function popStats(res, T) {
   }
   return { _share: share, pop, popC, popA, dep, depC };
 }
-const state = { dest: true, basemap: 'grey', hot: true, crash: false, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
+const state = { names: true, dest: true, basemap: 'grey', hot: true, crash: false, comm: false, qa: false, cfx: false, owl: false, mll: false, scen: 1, gap: 100, shared: false, colour: 'distance', plan: false, strips: false, reports: true, dz: true, sel: null, anim: null, fanT: null };
 const cur = () => compute(state.scen, state.gap, state.shared, state.cfx, state.qa);
 const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const fmtKm = m => (m / 1000).toLocaleString('en-GB', { maximumFractionDigits: m < 10000 ? 1 : 0 });
@@ -1220,6 +1243,7 @@ $('chk-cfx').addEventListener('change', e => { state.cfx = e.target.checked; upd
 $('chk-ow').addEventListener('change', e => { state.owl = e.target.checked; update(); });
 $('chk-ml').addEventListener('change', e => { state.mll = e.target.checked; update(); });
 $('chk-crash').addEventListener('change', e => { state.crash = e.target.checked; update(); });
+$('chk-names').addEventListener('change', e => { state.names = e.target.checked; draw(); syncLayerMenu(); });
 $('chk-dest').addEventListener('change', e => { state.dest = e.target.checked; if (state.dest) destLayer.addTo(map); else destLayer.remove(); syncLayerMenu(); });
 $('chk-hot').addEventListener('change', e => { state.hot = e.target.checked; update(); });
 ['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); if (e.target.value === 'sat' && state.dz) { setLayer('chk-dz', false); toast('Neighbourhood shading is off so the satellite image shows clearly. Turn it back on under Layers.'); } writeHash(); }));
@@ -1412,7 +1436,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) c
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenus(); });
 [['btn-menu', 'menu-top'], ['dock-sharebtn', 'menu-share'], ['dock-morebtn', 'menu-more'], ['btn-reportmenu', 'menu-report'], ['map-layersbtn', 'menu-layers'], ['fly-optbtn', 'menu-fly'], ['fly-musicbtn', 'menu-music']].forEach(p => wireMenu(p[0], p[1]));
 // layers: one quick list on the map, kept in step with the Options tab and the key
-const LAYER_LIST = [['dest', 'chk-dest', 'Landmark names'], ['hot', 'chk-hot', 'Collision hotspots'], ['crash', 'chk-crash', 'Every bike collision'], ['dz', 'chk-dz', 'Neighbourhood shading'], ['comm', 'chk-comm', 'Community map lines'], ['plan', 'chk-plan', 'City Network plan'], ['owl', 'chk-ow', 'Quiet one-way streets'], ['mll', 'chk-ml', 'Possible missing links'], ['reports', 'chk-reports', 'Shared reports']];
+const LAYER_LIST = [['names', 'chk-names', 'Street names'], ['dest', 'chk-dest', 'Landmark names'], ['hot', 'chk-hot', 'Collision hotspots'], ['crash', 'chk-crash', 'Every bike collision'], ['dz', 'chk-dz', 'Neighbourhood shading'], ['comm', 'chk-comm', 'Community map lines'], ['plan', 'chk-plan', 'City Network plan'], ['owl', 'chk-ow', 'Quiet one-way streets'], ['mll', 'chk-ml', 'Possible missing links'], ['reports', 'chk-reports', 'Shared reports']];
 const setLayer = (id, on) => { const c = document.getElementById(id); if (c && c.checked !== on) { c.checked = on; c.dispatchEvent(new Event('change')); } };
 { const m = document.getElementById('menu-layers'); LAYER_LIST.forEach(([k, id, label]) => { const l = el('label'); const i = el('input'); i.type = 'checkbox'; i.dataset.k = k; i.addEventListener('change', () => setLayer(id, i.checked)); l.append(i, document.createTextNode(label)); m.append(l); }); }
 function syncLayerMenu() { document.querySelectorAll('#menu-layers input').forEach(i => { i.checked = !!state[i.dataset.k]; }); }
@@ -1855,25 +1879,24 @@ function drawLabels(ctx, sc, ox, oy, z, res, vis) {
   if (z < 14) return;
   const placed = [], fs = z >= 16 ? 14 : 13;
   ctx.font = '700 ' + fs + 'px "Atkinson Hyperlegible", Verdana, sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
-  const label = (xs, ys, text, at) => {
+  const label = (xs, ys, text, at, quiet) => {
     const w = ctx.measureText(text).width; let L = 0; const cum = [0];
     for (let i = 1; i < xs.length; i++) { L += Math.hypot(xs[i] - xs[i - 1], ys[i] - ys[i - 1]); cum.push(L); }
-    if (L < w + 24) return false;
+    if (L < w + (quiet ? 16 : 24)) return false;
     const target = L * at; let i = 1; while (i < cum.length - 1 && cum[i] < target) i++;
     const t = (target - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1), x = xs[i - 1] + (xs[i] - xs[i - 1]) * t, y = ys[i - 1] + (ys[i] - ys[i - 1]) * t;
     if (x < 0 || y < 0 || x > cv.clientWidth || y > cv.clientHeight) return false;
     const r = w / 2 + 6; if (placed.some(p => Math.hypot(p[0] - x, p[1] - y) < p[2] + r)) return false;
     let a = Math.atan2(ys[i] - ys[i - 1], xs[i] - xs[i - 1]); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
-    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.strokeStyle = C.panel || '#000'; ctx.lineWidth = 5; ctx.strokeText(text, 0, 0); ctx.fillStyle = C.ink || '#fff'; ctx.fillText(text, 0, 0); ctx.restore();
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.globalAlpha = quiet ? 0.92 : 1; ctx.setLineDash([]); ctx.strokeStyle = C.panel || '#000'; ctx.lineWidth = quiet ? 4 : 5; ctx.strokeText(text, 0, 0); ctx.fillStyle = C.ink || '#fff'; ctx.fillText(text, 0, 0); ctx.restore();
     placed.push([x, y, r]); return true;
   };
   const R = RT.result;
   if (R && R.runs) R.runs.forEach(rn => { if (!rn.nm) return; const xs = [], ys = []; for (let i = rn.i0; i <= rn.i1 + 1; i++) { xs.push(R.m[2 * i] * sc - ox); ys.push(R.m[2 * i + 1] * sc - oy); }
     if (!label(xs, ys, rn.nm, 0.5)) label(xs, ys, rn.nm, 0.3); });
-  if (state.colour !== 'distance') return;
   // one label per street for protected and planned streets in view, longest stretch first
   const act = actFor(state.scen), best = new Map();
-  for (let k = 0; k < P; k++) {
+  if (state.colour === 'distance') for (let k = 0; k < P; k++) {
     const nm = N.names[N.nm[k]]; if (!nm || !vis(k)) continue;
     if (!((res.ded[k] && isExisting(k, state.shared)) || (N.cn[k] >= 0 && act(N.cn[k])))) continue;
     const b = best.get(nm); if (!b || N.lens[k] > N.lens[b]) best.set(nm, k);
@@ -1888,6 +1911,13 @@ function drawLabels(ctx, sc, ox, oy, z, res, vis) {
   };
   if (z < 15) return;
   [...best.entries()].sort((a, b) => N.lens[b[1]] - N.lens[a[1]]).slice(0, 40).forEach(([nm, k]) => { const m = chain(k, nm), xs = [], ys = []; for (let i = 0; i < m.length; i += 2) { xs.push(m[i] * sc - ox); ys.push(m[i + 1] * sc - oy); } label(xs, ys, nm, 0.5); });
+  // every other street, in a lighter hand, so you can see where you are dragging a pin; the route and protected
+  // streets above keep their places first
+  if (!state.names) return;
+  const all = new Map();
+  for (let k = 0; k < P; k++) { const nm = N.names[N.nm[k]]; if (!nm || !vis(k) || best.has(nm)) continue; const b = all.get(nm); if (b == null || N.lens[k] > N.lens[b]) all.set(nm, k); }
+  ctx.font = '400 ' + (z >= 17 ? 13 : 12) + 'px "Atkinson Hyperlegible", Verdana, sans-serif';
+  [...all.entries()].sort((a, b) => N.lens[b[1]] - N.lens[a[1]]).slice(0, z >= 17 ? 160 : 110).forEach(([nm, k]) => { const m = chain(k, nm), xs = [], ys = []; for (let i = 0; i < m.length; i += 2) { xs.push(m[i] * sc - ox); ys.push(m[i + 1] * sc - oy); } if (!label(xs, ys, nm, 0.5, true)) label(xs, ys, nm, 0.25, true); });
 }
 function drawRoute(ctx, sc, ox, oy, bw) {
   const R = RT.result; if (!R || !R.m) return;
@@ -2078,7 +2108,7 @@ let x3d = [];
 function set3dRoute() {
   if (!ml3dReady || !RT.result) return;
   x3d.forEach(m => m.remove()); x3d = (RT.result.cross || []).filter(c => c.busy).map(c => { const d = document.createElement('div'), sp = document.createElement('span'); sp.className = 'xing big ' + xingCls(c); sp.title = xingText(c); d.append(sp); return new maplibregl.Marker({ element: d, opacityWhenCovered: '1' }).setLngLat([c.lon, c.lat]).addTo(ml3d); });
-  const data = routeGeo(), names = routeNamesGeo();
+  const data = R3COL === 'puff' ? puffGeo() : routeGeo(), names = routeNamesGeo();
   if (ml3d.getSource('gcm-route')) { ml3d.getSource('gcm-route').setData(data); if (ml3d.getSource('gcm-route-names')) ml3d.getSource('gcm-route-names').setData(names); namesOnTop(); return; }
   ml3d.addSource('gcm-route', { type: 'geojson', data });
   ml3d.addLayer({ id: 'gcm-route-case', type: 'line', source: 'gcm-route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 11 } });
@@ -2100,6 +2130,51 @@ const SAT_STYLE = () => ({ version: 8, glyphs: 'https://tiles.openfreemap.org/fo
     sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community' },
     omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '&copy; OpenMapTiles &copy; OpenStreetMap contributors' } },
   layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#59634f' } }, { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-fade-duration': 0 } }] });
+// The 3D terrain is drawn from the same LiDAR heights the profile and puff-ometer use: tiles are made in the page in
+// the format MapLibre reads (terrarium). Outside the LiDAR the global terrain tiles fill in.
+const TERR = { ride: (() => { try { const v = localStorage.getItem('gcm-ex-ride2'); return v == null ? 1.5 : +v; } catch (e) { return 1.5; } })(), exp: (() => { try { return +(localStorage.getItem('gcm-ex-exp') || 2); } catch (e) { return 2; } })() };
+const EXP = { on: false };
+let R3COL = 'type', demProto = false;
+const terrEx = () => EXP.on ? TERR.exp : TERR.ride;
+function addDemProtocol() {
+  if (demProto || !window.maplibregl || !maplibregl.addProtocol || typeof ImageData === 'undefined') return demProto; demProto = true;
+  const S = 512; // 512-pixel tiles, so at a city-wide view each pixel is about the LiDAR's 10 m
+  const awsTile = async (z, x, y, signal) => { // the global terrain, four 256-pixel tiles one zoom down, as one 512 tile
+    const cv2 = new OffscreenCanvas(S, S), g = cv2.getContext('2d');
+    await Promise.all([[0, 0], [1, 0], [0, 1], [1, 1]].map(async ([dx, dy]) => { try { const r = await fetch('https://s3.amazonaws.com/elevation-tiles-prod/terrarium/' + (z + 1) + '/' + (2 * x + dx) + '/' + (2 * y + dy) + '.png', { signal }); if (!r.ok) return; g.drawImage(await createImageBitmap(await r.blob()), dx * 256, dy * 256); } catch (e) {} }));
+    return g.getImageData(0, 0, S, S);
+  };
+  maplibregl.addProtocol('gcmdem', async (params, ac) => {
+    const mt = /gcmdem:\/\/(\d+)\/(\d+)\/(\d+)/.exec(params.url), z = +mt[1], x = +mt[2], y = +mt[3], n = 2 ** z;
+    const latOf = yy => Math.atan(Math.sinh(Math.PI * (1 - 2 * yy / n))) / D2R, lon0 = x / n * 360 - 180, lon1 = (x + 1) / n * 360 - 180, latT = latOf(y), latB = latOf(y + 1);
+    const rx1 = RELIEF.x0 + RELIEF.dx * (RELIEF.nx - 1), ry1 = RELIEF.y0 + RELIEF.dy * (RELIEF.ny - 1);
+    const inside = RELIEF.on && lon1 > RELIEF.x0 && lon0 < rx1 && latT > RELIEF.y0 && latB < ry1, whole = inside && lon0 >= RELIEF.x0 && lon1 <= rx1 && latB >= RELIEF.y0 && latT <= ry1;
+    const img = whole ? new ImageData(S, S) : await awsTile(z, x, y, ac.signal), d = img.data;
+    if (inside) for (let py = 0; py < S; py++) { const la = latOf(y + (py + 0.5) / S); if (la < RELIEF.y0 || la > ry1) continue;
+      for (let px = 0; px < S; px++) { const lo = lon0 + (lon1 - lon0) * (px + 0.5) / S; if (lo < RELIEF.x0 || lo > rx1) continue;
+        let h = zAt(lo, la); if (!isFinite(h)) h = 1; // water at river level
+        const v = Math.max(0, Math.min(65535.99, h + 32768)), o = (py * S + px) * 4; d[o] = v >> 8; d[o + 1] = v & 255; d[o + 2] = Math.floor((v % 1) * 256); d[o + 3] = 255; } }
+    const cv2 = new OffscreenCanvas(S, S); cv2.getContext('2d').putImageData(img, 0, 0);
+    return { data: await (await cv2.convertToBlob({ type: 'image/png' })).arrayBuffer() };
+  });
+  return true;
+}
+function applyTerrain() {
+  if (!ml3d || !ml3d.getSource('gcm-dem')) return; const ex = terrEx();
+  try { if (ex > 0) ml3d.setTerrain({ source: 'gcm-dem', exaggeration: ex }); else ml3d.setTerrain(null); } catch (e) {}
+  bldVisible();
+  if (PB.layer && !PB.busy && FLY.lastP) { PB.centre = null; buildPhoto(FLY.lastP.lon, FLY.lastP.lat); } // re-stand the buildings on the new ground
+}
+// buildings: off by default in the 3D terrain view, so the ground shows; as chosen in the ride
+function bldVisible() { if (!ml3d || !ml3d.getLayer('gcm-buildings')) return; ml3d.setLayoutProperty('gcm-buildings', 'visibility', (!EXP.on || $('exp-bld').checked) ? 'visible' : 'none'); }
+// the route in 3D, coloured by track type or by the puff-ometer's effort
+function puffGeo() {
+  const R = RT.result, feats = []; if (!R || !R.prof) return { type: 'FeatureCollection', features: feats };
+  const pr = R.prof, sw = sweatOf(R, RT.conf); let i0 = 0;
+  for (let i = 1; i <= pr.length; i++) { if (i < pr.length && sw.zone[i] === sw.zone[i0]) continue; const co = []; for (let j = i0; j <= Math.min(i, pr.length - 1); j++) co.push([pr[j].lon, pr[j].lat]);
+    if (co.length > 1) feats.push({ type: 'Feature', properties: { c: C.sw[Math.max(0, sw.zone[i0])] }, geometry: { type: 'LineString', coordinates: co } }); i0 = i; }
+  return { type: 'FeatureCollection', features: feats };
+}
 const style3d = () => FLY.style === 'map' ? 'https://tiles.openfreemap.org/styles/liberty' : SAT_STYLE();
 function attrib3dSmall() { // MapLibre opens its compact credit at first; on a phone fold it to its (i) button straight away
   if (!ml3d || !isPhone()) return; const a = ml3d.getContainer().querySelector('.maplibregl-ctrl-attrib');
@@ -2109,8 +2184,8 @@ function on3dStyle() { setTimeout(attrib3dSmall, 300);
   const st = ml3d.getStyle() || { layers: [] }, src = ml3d.getSource('openmaptiles') ? 'openmaptiles' : ml3d.getSource('omt') ? 'omt' : null;
   if (src && !st.layers.some(l => l.type === 'fill-extrusion')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: src, 'source-layer': 'building', minzoom: 13,
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
-  try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], encoding: 'terrarium', tileSize: 256, maxzoom: 14 }); ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
-  ml3dReady = true; set3dRoute(); flyStep(0, true);
+  try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', ...(typeof OffscreenCanvas !== 'undefined' && addDemProtocol() ? { tiles: ['gcmdem://{z}/{x}/{y}'], tileSize: 512, maxzoom: 14 } : { tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 14 }), encoding: 'terrarium' }); } catch (e) {}
+  ml3dReady = true; applyTerrain(); set3dRoute(); if (FLY.on) flyStep(0, true);
   load3dRider().then(() => { if (photoWanted()) addPhoto(); });
 }
 async function open3d(p) {
@@ -2146,14 +2221,15 @@ async function open3d(p) {
     const rider = document.createElement('div'); rider.className = 'cyc-wrap'; rider.innerHTML = riderHTML(RT.conf, 'cyc3d');
     ml3dMk = new maplibregl.Marker({ element: rider, anchor: 'bottom', rotationAlignment: 'viewport', pitchAlignment: 'viewport', opacity: '1', opacityWhenCovered: '1' }).setLngLat([p.lon, p.lat]).addTo(ml3d);
   } else { ml3d.resize(); set3dRoute(); }
+  if (ml3dMk) ml3dMk.getElement().style.display = EXP.on ? 'none' : '';
 }
 // ---------- photo-textured buildings: roofs wear the satellite image, walls take its colour ----------
 // A three.js layer inside the 3D map. Buildings come from the same OpenFreeMap tiles as the plain extrusions; around
 // the rider their roofs are textured with a 5 x 5 mosaic of satellite tiles, and every wall is tinted with the
-// imagery's colour at that building, lit by a low sun. Terrain is switched off while it runs, so roofs line up.
+// imagery's colour at that building, lit by a low sun. Each building stands on the terrain under its lowest corner, lifted by the same height setting as the ground.
 const PB = { on: true, layer: null, busy: false, centre: null, lastBuild: 0, failed: false, pending: false };
 const SAT_URL = (z, x, y) => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/' + z + '/' + y + '/' + x;
-function photoWanted() { return PB.on && !PB.failed && FLY.style === 'sat' && !!R3.THREE && !!window.maplibregl; }
+function photoWanted() { return PB.on && !PB.failed && FLY.style === 'sat' && !!R3.THREE && !!window.maplibregl && !EXP.on; } // around the rider only
 function makePhotoLayer(THREE) {
   return {
     id: 'gcm-photo', type: 'custom', renderingMode: '3d',
@@ -2178,7 +2254,7 @@ function loadImg(src) { return new Promise(res => { const im = new Image(); im.c
 async function buildPhoto(lon, lat) {
   if (PB.busy || !ml3d || !PB.layer || !photoWanted()) return; PB.busy = true; PB.lastBuild = performance.now();
   try {
-    const T = R3.THREE, MC = maplibregl.MercatorCoordinate, Z = 16, n = 2 ** Z, RAD = 2, NT = 2 * RAD + 1;
+    const T = R3.THREE, MC = maplibregl.MercatorCoordinate, Z = 16, n = 2 ** Z, RAD = 2, NT = 2 * RAD + 1, ex = (ml3d.getTerrain && ml3d.getTerrain()) ? terrEx() : 0;
     const o = MC.fromLngLat([lon, lat], 0), s = o.meterInMercatorCoordinateUnits(), tx = Math.floor(o.x * n), ty = Math.floor(o.y * n);
     const cv = document.createElement('canvas'); cv.width = cv.height = NT * 256; const cx = cv.getContext('2d'); cx.fillStyle = '#6b6f62'; cx.fillRect(0, 0, cv.width, cv.height);
     const jobs = []; for (let dy = -RAD; dy <= RAD; dy++) for (let dx = -RAD; dx <= RAD; dx++) jobs.push(loadImg(SAT_URL(Z, tx + dx, ty + dy)).then(im => { if (im) cx.drawImage(im, (dx + RAD) * 256, (dy + RAD) * 256); }));
@@ -2198,6 +2274,9 @@ async function buildPhoto(lon, lat) {
         let mx = 0, my = 0; out.forEach(p => { mx += p[2]; my += p[3]; }); mx /= out.length; my /= out.length;
         if (Math.abs(mx - o.x) / s > 2500 || Math.abs(my - o.y) / s > 2500) continue; // keep it to the rider's surroundings
         const key = Math.round((mx - o.x) / s / 1.5) + ':' + Math.round((my - o.y) / s / 1.5) + ':' + Math.round(h); if (seen.has(key)) continue; seen.add(key); // the same building from two tile zooms
+        // stand it on the ground: the lowest corner's terrain height, so it never floats on the downhill side
+        let gz = 0; if (ex > 0) { let lo = Infinity; for (const c of poly[0]) { const z = zAt(c[0], c[1]); if (isFinite(z) && z < lo) lo = z; } gz = isFinite(lo) ? Math.max(0, lo) * ex : 0; }
+        const hT = h + gz, hbT = hb + gz;
         const u = (mx - X0) / SPAN, v = (my - Y0) / SPAN, inside = u > 0.002 && u < 0.998 && v > 0.002 && v < 0.998;
         let r = 0.86, gg = 0.83, b = 0.78;
         if (inside) { const k = 4 * (Math.floor(v * cv.height) * cv.width + Math.floor(u * cv.width)); r = 0.45 * px[k] / 255 + 0.55 * 0.74; gg = 0.45 * px[k + 1] / 255 + 0.55 * 0.66; b = 0.45 * px[k + 2] / 255 + 0.55 * 0.57; } // imagery tint, warmed towards sandstone
@@ -2205,10 +2284,10 @@ async function buildPhoto(lon, lat) {
         let tris; try { tris = T.ShapeUtils.triangulateShape(contour, holes); } catch (e) { continue; }
         const all = contour.concat(...holes), mer = out.slice(0, -1).concat(...rings.slice(1).map(rg => rg.slice(0, -1)));
         tris.forEach(tr => tr.forEach(i => { const p = all[i];
-          if (inside) { tp.push(p.x, p.y, h); tuv.push((mer[i][2] - X0) / SPAN, 1 - (mer[i][3] - Y0) / SPAN); }
-          else { pp.push(p.x, p.y, h); pc.push(r, gg, b); } }));
+          if (inside) { tp.push(p.x, p.y, hT); tuv.push((mer[i][2] - X0) / SPAN, 1 - (mer[i][3] - Y0) / SPAN); }
+          else { pp.push(p.x, p.y, hT); pc.push(r, gg, b); } }));
         rings.forEach(rg => { for (let i = 0; i + 1 < rg.length; i++) { const a = rg[i], c = rg[i + 1];
-          wp.push(a[0], a[1], hb, c[0], c[1], hb, c[0], c[1], h, a[0], a[1], hb, c[0], c[1], h, a[0], a[1], h);
+          wp.push(a[0], a[1], hbT, c[0], c[1], hbT, c[0], c[1], hT, a[0], a[1], hbT, c[0], c[1], hT, a[0], a[1], hT);
           for (let q = 0; q < 6; q++) wc.push(r * (q === 2 || q === 4 || q === 5 ? 1 : 0.82), gg * (q === 2 || q === 4 || q === 5 ? 1 : 0.82), b * (q === 2 || q === 4 || q === 5 ? 1 : 0.82)); } }); // a touch darker at street level
       }
     }
@@ -2229,14 +2308,12 @@ function plainBuildings(show) { if (ml3d && ml3d.getLayer('gcm-buildings')) ml3d
 function addPhoto() {
   if (!ml3d || !photoWanted()) return;
   if (!ml3d.getLayer('gcm-photo')) { PB.layer = makePhotoLayer(R3.THREE); ml3d.addLayer(PB.layer); namesOnTop(); }
-  try { ml3d.setTerrain(null); } catch (e) {}
   PB.centre = null; const P = FLY.lastP || flyPoint(FLY.d); buildPhoto(P.lon, P.lat);
 }
 function removePhoto() {
   if (!ml3d) return;
   if (ml3d.getLayer('gcm-photo')) ml3d.removeLayer('gcm-photo'); PB.layer = null; PB.centre = null;
   plainBuildings(true);
-  try { if (ml3d.getSource('gcm-dem')) ml3d.setTerrain({ source: 'gcm-dem', exaggeration: 1.3 }); } catch (e) {}
 }
 // rebuild when the rider has moved on, or new building tiles have arrived; never more than every 2.5 seconds
 function photoTick() {
@@ -2345,6 +2422,28 @@ function playLib(g) {
 }
 
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
+let navAdded = false;
+async function openExplore() {
+  if (FLY.on) return;
+  try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load.'); return; }
+  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { toast('This browser cannot show the 3D view.'); return; }
+  EXP.on = true; $('fly3d').classList.add('explore'); $('explore-bar').hidden = false; appEl.classList.add('exploring'); $('map-3d').setAttribute('aria-pressed', 'true');
+  $('exp-ex').value = TERR.exp; $('exp-ex-v').textContent = TERR.exp + '×'; $('exp-col').value = R3COL; $('exp-style').value = FLY.style;
+  const c = map.getCenter(); await open3d({ lat: c.lat, lon: c.lng, hd: 0 });
+  if (!ml3d) return;
+  if (!navAdded) { ml3d.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right'); navAdded = true; }
+  if (PB.layer && ml3d.getLayer('gcm-photo')) { ml3d.removeLayer('gcm-photo'); PB.layer = null; PB.centre = null; plainBuildings(true); }
+  applyTerrain();
+  const R = RT.result; let cam = null;
+  if (R && R.ll && R.ll.length > 3) { let a = 180, b = 90, c2 = -180, d = -90; for (let i = 0; i < R.ll.length; i += 2) { a = Math.min(a, R.ll[i]); c2 = Math.max(c2, R.ll[i]); b = Math.min(b, R.ll[i + 1]); d = Math.max(d, R.ll[i + 1]); }
+    try { cam = ml3d.cameraForBounds([[a, b], [c2, d]], { padding: { top: 60, bottom: 60, left: isPhone() ? 30 : 290, right: 60 } }); } catch (e) {} }
+  ml3d.jumpTo(cam ? { center: cam.center, zoom: Math.min(16.5, cam.zoom - 0.3), pitch: 58, bearing: -15 } : { center: [c.lng, c.lat], zoom: Math.max(12, map.getZoom() - 1), pitch: 58, bearing: -15 });
+}
+function closeExplore() {
+  if (!EXP.on) return; EXP.on = false; $('explore-bar').hidden = true; $('fly3d').classList.remove('explore'); appEl.classList.remove('exploring'); $('map-3d').setAttribute('aria-pressed', 'false');
+  if (ml3d) { const c = ml3d.getCenter(); map.setView([c.lat, c.lng], Math.max(12, Math.min(18, ml3d.getZoom() + 1)), { animate: false }); }
+  close3d(); bldVisible(); if (ml3dMk) ml3dMk.getElement().style.display = '';
+}
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 const RIDERS = [ // lean is the torso's angle forward from upright
   { lean: 9, hb: [50, 21], kit: '#3B82C4', legs: '#2C3E50', frame: '#2A9D8F', helmet: '#7BC043', child: true, name: 'a parent with a child seat' },
@@ -2605,7 +2704,7 @@ function flyStep(dt, force) {
 }
 function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (now - FLY.t) / 1000) : 0; FLY.t = now; flyStep(dt); FLY.raf = requestAnimationFrame(flyLoop); }
 function startFly() {
-  if (!RT.result || !RT.result.prof) return;
+  if (!RT.result || !RT.result.prof) return; if (EXP.on) closeExplore();
   FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup(); SWEAT_HIDE = false; sgLast = -1; appEl.classList.add('flying'); if (isPhone()) { SHEET.before = SHEET.state; setSheet('mini'); }
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; $('music-dock').hidden = false; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
@@ -2642,8 +2741,19 @@ $('fly-play').addEventListener('click', () => {
 });
 $('fly-speed').addEventListener('change', e => { FLY.speed = +e.target.value; });
 $('fly-stop').addEventListener('click', stopFly);
+$('map-3d').addEventListener('click', () => { if (EXP.on) closeExplore(); else openExplore(); });
+$('exp-close').addEventListener('click', closeExplore);
+$('exp-ex').addEventListener('input', e => { TERR.exp = +e.target.value; $('exp-ex-v').textContent = TERR.exp + '×'; try { localStorage.setItem('gcm-ex-exp', TERR.exp); } catch (x) {} applyTerrain(); });
+const setR3Col = v => { R3COL = v; $('exp-col').value = v; $('fly-col').value = v; set3dRoute(); };
+$('exp-col').addEventListener('change', e => setR3Col(e.target.value));
+$('fly-col').addEventListener('change', e => setR3Col(e.target.value));
+$('exp-style').addEventListener('change', e => { $('fly-style').value = e.target.value; $('fly-style').dispatchEvent(new Event('change')); });
+$('exp-bld').addEventListener('change', bldVisible);
+const syncFlyEx = () => { $('fly-ex').value = TERR.ride; $('fly-ex-v').textContent = TERR.ride ? TERR.ride + '×' : 'flat'; $('fly-photo').disabled = FLY.style !== 'sat'; };
+syncFlyEx();
+$('fly-ex').addEventListener('input', e => { TERR.ride = +e.target.value; try { localStorage.setItem('gcm-ex-ride2', TERR.ride); } catch (x) {} syncFlyEx(); applyTerrain(); });
 $('fly-3d').addEventListener('change', e => { FLY.three = e.target.checked; if (!FLY.on) return; if (FLY.three) open3d(flyPoint(FLY.d)); else { close3d(); flyStep(0, true); } });
-$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; $('fly-photo').disabled = FLY.style !== 'sat'; if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } });
+$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; $('exp-style').value = FLY.style; syncFlyEx(); if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } });
 $('fly-photo').addEventListener('change', e => { PB.on = e.target.checked; PB.failed = false; if (PB.on) load3dRider().then(addPhoto); else removePhoto(); });
 document.addEventListener('keydown', e => { if (!FLY.on || e.target.matches('input, select, textarea')) return; if (e.key === ' ') { e.preventDefault(); $('fly-play').click(); } if (e.key === 'Escape') stopFly(); });
 map.on('dragstart', () => { if (FLY.on) FLY.b2.drag = true; });
