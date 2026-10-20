@@ -67,6 +67,16 @@ Each route shows its length and riding time on the profile strip, with the netwo
 
 Routes follow a cyclist confidence slider with five levels, from "Riding with children" to "Very confident". The lowest level treats a quiet street as three times its length and a busy road as up to 25 times, adds 400 m for every busy road it joins or crosses from a calm street, and may run up to 2.5 times the shortest legal route to stay protected. "Cautious" is the default; "Very confident" takes the shortest legal route. A leg that would stretch beyond its level's limit steps up a level, and the profile says so. Riding speed rises from 11 km/h with children to 20 km/h. Stops stay where you put them, including side roads you want to call in on.
 
+## On a phone
+
+On screens up to 760 px wide the map fills the screen and the panel becomes a bottom sheet. It starts lowered, showing just the title and tabs; tap or drag its handle (or the title row) to lift it to half or nearly full height, and flick it to move a step. Tapping a tab, a place on the map or the assistant's text box lifts it; planning a route lowers it again so the route shows. The route strip sits just above the sheet with a two-line summary, the action buttons in one scrolling row and a shorter height profile, and steps aside while the sheet is lifted (the Route tab carries the same facts). During a virtual cycle the sheet drops to just its handle and the strip to the ride controls, with Pause and Stop first, so the 3D view gets most of the screen. Place details show in the sheet rather than in a popup over the map.
+
+## Ask the map
+
+The "Ask" tab is a chat assistant that can answer questions about the map and control it: plan a route between named places ("route from Partick to Queens Park for a family"), change the rider or network, show or hide layers, change the background, look up a street, read the city figures, compare networks or riders for the current route, start a virtual cycle or play music.
+
+It runs an open model entirely in the browser with WebLLM: Microsoft's Phi-4-mini (MIT licence, about 2.2 GB) or the lighter Qwen2.5 1.5B (Apache 2.0, about 1 GB), downloaded once on first start and cached by the browser. Nothing typed leaves the device, and there is no server or API key. The model is told to use the map's own tools for every figure (routes, stats, comparisons, place facts) rather than inventing numbers. It needs WebGPU (recent Chrome, Edge or Safari); without it, or before the model is started, simple commands are understood directly by a small built-in parser. Place names are matched against street names, the map's landmarks and a short list of well-known places; nearby towns outside the city are recognised and refused honestly.
+
 ## Music for the virtual cycle
 
 "Music for the ride", a button of its own at the top left of the map during a virtual cycle, opens one short list: lo-fi beats, reggae, country, Celtic, classical, synthwave, 8-bit and rage metal, plus a volume slider. Each plays inside the page from a library of Creative Commons tracks by Kevin MacLeod (incompetech.com, licensed under Creative Commons: By Attribution 4.0), shuffled, with a skip button. Until the library is in place, classical and synthwave fall back to live, ad-free radio (Radio Swiss Classic and Nightride FM).
@@ -140,6 +150,7 @@ Traffic figures in the traffic stress view are model estimates from the Network 
 | Cycling levels | NPT modelled daily cycle flows (May 2025), scaled to Glasgow City Council automatic cycle counters (2022 to 2024) and checked against DfT counted pedal cycles (2018) | ODbL (NPT), Open Government Licence v3.0 (council and DfT) |
 | Bike collisions | DfT STATS19 road safety data for Glasgow, 2016 to 2023, published by Glasgow City Council | Open Government Licence v3.0 |
 | Crossings | OpenStreetMap crossing points via Overpass, Glasgow City Council city-centre signal sites (CCTP tactile facilities) | © OpenStreetMap contributors (ODbL); Glasgow City Council open data |
+| Ask the map | WebLLM 0.2.85 running Phi-4-mini or Qwen2.5 1.5B, loaded only when started | Apache 2.0 (WebLLM, Qwen2.5 1.5B), MIT (Phi-4-mini) |
 | Music | Kevin MacLeod (incompetech.com) library tracks; Radio Swiss Classic and Nightride FM streams as a fallback | CC BY 4.0 for the library; each station's own terms |
 | 3D rider | three.js 0.149, loaded only for the virtual cycle | MIT |
 | 3D virtual cycle | OpenFreeMap vector tiles (OpenMapTiles schema) drawn with MapLibre GL, terrain from Mapzen Terrain Tiles | © OpenMapTiles, data © OpenStreetMap contributors |

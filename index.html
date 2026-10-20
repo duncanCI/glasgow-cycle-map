@@ -266,7 +266,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .music-dock.playing .eq i:nth-child(3){animation-delay:-0.6s}
 @keyframes eq{0%,100%{height:4px}50%{height:14px}}
 @media (prefers-reduced-motion: reduce){.music-dock.playing .eq i{animation:none;height:10px}}
-@media (max-width:760px){.music-dock{top:10px;left:50px}.music-btn{max-width:190px}}
+
 .mus-note{font-size:0.72rem;color:var(--muted);padding:4px 10px 6px;max-width:250px}
 .mus-note a{color:var(--accent)}
 #menu-music>button{align-items:center}
@@ -319,6 +319,17 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .xing-line.sig{stroke:#5DBB63}
 .xing-dot{fill:#EF6767;stroke:#fff;stroke-width:1.5}
 .xing-dot.sig{fill:#5DBB63}
+.ask-start{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.ask-egs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.ask-egs .chip{font-size:0.8rem}
+.ask-log{display:flex;flex-direction:column;gap:8px;margin:10px 0;max-height:46vh;overflow-y:auto}
+.ask-msg{padding:8px 11px;border-radius:12px;font-size:0.92rem;line-height:1.4;max-width:92%;white-space:pre-wrap}
+.ask-msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.ask-msg.bot{align-self:flex-start;background:var(--chip)}
+.ask-msg.bot.status{color:var(--muted)}
+.ask-msg.tool{align-self:flex-start;font-size:0.78rem;color:var(--muted);padding:2px 10px;border:1px dashed var(--line);border-radius:999px}
+.ask-row{display:flex;gap:8px;align-items:flex-end}
+.ask-row textarea{flex:1;resize:vertical;min-height:44px;font:inherit;padding:8px 10px;border:1.5px solid var(--ink);border-radius:8px;background:var(--panel);color:var(--ink)}
 .lg-hide{font:inherit;font-size:0.72rem;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;margin-left:6px}
 .fly-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:0.85rem}
 .fly-bar select{width:auto;padding:2px 6px;font-size:0.82rem;border-radius:999px}
@@ -364,51 +375,83 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 .leaflet-control-attribution{font-size:10px;background:color-mix(in srgb,var(--panel) 85%,transparent)!important;color:var(--muted)}
 .leaflet-control-attribution a{color:var(--muted)}
 .leaflet-bar a{background:var(--panel);color:var(--ink);border-bottom-color:var(--line)}
-@media (max-width:760px){
-  .app.collapsed{grid-template-rows:100%}
-  .expand{top:auto;bottom:12px;left:10px}
-  .expand:not([hidden]){display:flex}
-  .resizer{display:none}
-  .mobile-only{display:inline-flex;align-items:center}
-  .app.collapsed .panel{visibility:hidden}
-  .cmp{grid-template-columns:7em repeat(4,1fr);font-size:0.8rem}
-  .topbar{margin:-18px -16px 0;padding:10px 16px 0}
-  .tip{top:auto;bottom:12px;left:10px;right:10px;max-width:none}
-  .mapwrap.has-dock{--dock-h:122px}
-  .dock-head{font-size:0.8rem}
-  .app{grid-template-columns:1fr;grid-template-rows:52% 48%}
-  .mapwrap{order:1}
-  .panel{order:2;border-right:0;border-top:1.5px solid var(--ink);padding:18px 16px 32px}
-  h1{font-size:1.35rem}
-  .city{margin:18px 0 6px;padding:14px 0 4px;border-top:3px solid var(--ink)}
-.city h2{margin:0 0 4px}
-.bars{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-.bar{display:grid;grid-template-columns:10.5em 1fr 3.2em;align-items:center;gap:10px;font:inherit;font-size:0.92rem;background:transparent;color:var(--ink);border:1.5px solid transparent;border-radius:6px;padding:6px 6px;cursor:pointer;text-align:left}
-.bar.on{border-color:var(--ink);font-weight:700}
-.bar-track{height:14px;background:var(--dz0);border-radius:3px;overflow:hidden}
-.bar-fill{display:block;height:100%;background:var(--c-main);transition:width .5s ease}
-.bar-val{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
-.lg-head{margin-top:6px;font-weight:700}
-.lg-sw.thick{height:6px}
-.lg-sw.thick.dash{background:repeating-linear-gradient(90deg,var(--sw) 0 6px,transparent 6px 10px)}
-.card-lead{font-size:1.02rem;margin:0 0 10px}
-.lg-sw.box{height:12px;width:16px;border-radius:2px;opacity:.9}
-@media (prefers-reduced-motion: reduce){.bar-fill{transition:none}}
-.legend{bottom:22px;right:6px;max-width:190px;font-size:0.72rem}
-}
+
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
 /* anything marked hidden stays hidden, whatever display its class sets */
 [hidden]{display:none!important}
 /* the key never grows past the map tools: it scrolls inside, with its heading kept in view */
 .legend{max-height:calc(100% - var(--dock-h,18px) - 82px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .legend .legend-head{position:sticky;top:-8px;z-index:1;background:var(--panel);padding-top:8px;margin-top:-8px;width:100%;text-align:left}
-@media (max-width:760px){.legend{max-height:calc(100% - var(--dock-h,18px) - 70px)}}
+
+
+/* ---------- phones: the map fills the screen and the panel is a bottom sheet you can pull up or push down ---------- */
+.sheet-grab{display:none}
+@media (max-width:760px){
+  .app{display:block;position:relative;height:100%;height:100dvh;overflow:hidden}
+  .mapwrap{position:absolute;inset:0}
+  .panel{position:absolute;left:0;right:0;bottom:0;z-index:1200;box-sizing:border-box;height:var(--sheet-h,112px);border-right:0;border-top:1.5px solid var(--ink);border-radius:14px 14px 0 0;box-shadow:0 -6px 18px rgba(0,0,0,.16);padding:0 16px calc(28px + env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;transition:height .24s ease;background:var(--panel)}
+  .app.sheet-drag .panel{transition:none}
+  .sheet-grab{display:block;position:sticky;top:0;z-index:7;height:24px;margin:0 -16px;background:var(--panel);touch-action:none;cursor:grab;border-radius:14px 14px 0 0}
+  .sheet-grab::before{content:"";position:absolute;left:50%;top:9px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--muted);opacity:.55}
+  .sheet-grab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .topbar{top:24px;margin:0 -16px;padding:0 16px}
+  .brand-row{touch-action:none}
+  .app[data-sheet=peek] .searchrow{display:none}
+  .app[data-sheet=mini] .topbar,.app[data-sheet=mini] .panes{visibility:hidden}
+  .panes{padding-top:14px}
+  .expand,.expand:not([hidden]),.resizer,#btn-collapse-m{display:none!important}
+  .leaflet-control-zoom{display:none}
+  h1{font-size:1.35rem}
+  /* everything on the map sits above the sheet and the route strip */
+  .mapwrap .dock{bottom:var(--sheet-h,112px);padding:5px 10px 6px}
+  .mapwrap .legend,.mapwrap.has-dock .legend{bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px) + 10px);right:6px;max-width:190px;font-size:0.72rem;max-height:calc(100% - var(--sheet-h,112px) - var(--dock-h,0px) - 80px)}
+  .mapwrap .leaflet-bottom,.mapwrap.has-dock .leaflet-bottom{bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px))}
+  .fly3d{bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px))}
+  .tip{top:auto;bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px) + 12px);left:10px;right:10px;max-width:none}
+  .toast{bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px) + 16px);max-width:calc(100% - 32px);text-align:center}
+  .maptools{top:8px;right:8px;gap:4px}
+  .maptools select{max-width:34vw;font-size:0.82rem;padding:6px}
+  .music-dock{top:8px;left:8px}
+  .music-btn{max-width:170px}
+  /* the route strip: one tight block */
+  .dock-head{font-size:0.8rem;gap:4px 10px}
+  .dock-actions{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%;margin-left:0}
+  .dock-actions::-webkit-scrollbar,.fly-bar::-webkit-scrollbar{display:none}
+  .dock-ctrls{flex-wrap:nowrap;gap:10px;font-size:0.78rem;margin-top:3px}
+  .dock-ctrls .dock-conf{gap:5px;min-width:0}
+  .dock-ctrls .dock-conf:last-child{flex:1}
+  .dock-conf select{max-width:36vw}
+  .dock-conf input{width:auto;flex:1;min-width:70px}
+  .dock-key{display:none}
+  .dc-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .dock-more{display:block;font-weight:400;color:var(--muted);font-size:0.76rem}
+  .brand{font-size:0.95rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .brand-row{flex-wrap:nowrap}
+  .brand-row .iconbtn{padding:5px 10px;font-size:0.82rem}
+  .tabs button{padding:8px 8px 7px;font-size:0.88rem}
+  .maptools .maptool,.maptools select{font-size:0.8rem;padding:5px 7px}
+  .fly-bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:0;padding-top:0;border-top:0}
+  .fly-bar>strong,.ph-x{display:none}
+  .fly-bar>*{order:3}
+  .fly-bar>#fly-play{order:0}
+  .fly-bar>#fly-stop{order:1}
+  .fly-bar>#fly-recentre{order:2}
+  .app.flying .dock-head,.app.flying .dock-ctrls{display:none}
+  .app.flying .maptools{display:none}
+  .app[data-sheet=half] .dock,.app[data-sheet=full] .dock{display:none}
+  .app.flying .ptip{display:none}
+  .tip{top:52px;bottom:auto}
+  .cmp{grid-template-columns:7em repeat(4,1fr);font-size:0.8rem}
+  .ask-log{max-height:none}
+  .city{margin:18px 0 6px;padding:14px 0 4px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="app">
   <aside class="panel" aria-label="Controls and results">
+    <div class="sheet-grab" id="sheet-grab" role="button" tabindex="0" aria-label="Pull up or push down the panel"></div>
     <header class="topbar">
       <div class="brand-row"><span class="brand">Glasgow protected cycle map</span>
         <div class="top-actions"><button type="button" class="iconbtn" id="btn-share">Share</button>
@@ -421,6 +464,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <button type="button" role="tab" id="tab-route" data-pane="route" aria-controls="pane-route" aria-selected="false">Route</button>
         <button type="button" role="tab" id="tab-place" data-pane="place" aria-controls="pane-place" aria-selected="false">Place</button>
         <button type="button" role="tab" id="tab-options" data-pane="options" aria-controls="pane-options" aria-selected="false">Options</button>
+        <button type="button" role="tab" id="tab-ask" data-pane="ask" aria-controls="pane-ask" aria-selected="false">Ask</button>
         <button type="button" role="tab" id="tab-about" data-pane="about" aria-controls="pane-about" aria-selected="false">About</button>
       </nav>
     </header>
@@ -527,6 +571,19 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
     <label class="check"><input type="checkbox" id="chk-reports" checked> Show shared reports</label>
     </details>
     </section>
+    <section class="pane ask" role="tabpanel" id="pane-ask" aria-labelledby="tab-ask" hidden>
+      <h2>Ask the map</h2>
+      <p class="note">Ask about cycling in Glasgow, or tell the map what to do: plan a route, switch the network or rider, show layers, compare options, start a virtual cycle or play music.</p>
+      <div id="ask-start" class="ask-start">
+        <p class="note">For open questions, start the AI. It is an open model (Microsoft's Phi-4-mini, MIT licence, or the lighter Qwen2.5 1.5B, Apache 2.0) that runs entirely in your browser, so nothing you type leaves your device. The first start downloads it once.</p>
+        <div class="actions"><button type="button" class="btn" id="ask-start-full">Start the AI (about 2.2 GB)</button><button type="button" class="btn ghost" id="ask-start-light">Lighter model (about 1 GB)</button></div>
+        <p class="note" id="ask-gpu" hidden>This browser can't run the AI model (it needs WebGPU), but simple commands below still work.</p>
+      </div>
+      <div class="ask-egs" aria-label="Examples"><button type="button" class="chip ask-eg">Route from Partick to Queens Park for a family</button><button type="button" class="chip ask-eg">Show collisions</button><button type="button" class="chip ask-eg">Compare networks</button><button type="button" class="chip ask-eg">Fly the route</button></div>
+      <div class="ask-log" id="ask-log" aria-live="polite"></div>
+      <div class="ask-row"><label class="sr-only" for="ask-input">Ask the map</label><textarea id="ask-input" rows="2" placeholder="Ask or tell the map something"></textarea><button type="button" class="btn" id="ask-send">Send</button></div>
+      <p class="note">The AI can make mistakes. Figures come from the map's own data; check anything important on the map.</p>
+    </section>
     <section class="pane" role="tabpanel" id="pane-about" aria-labelledby="tab-about" hidden>
       <details class="topic" open><summary id="sources">Sources and credits</summary>
       <ul class="sources">
@@ -537,6 +594,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         <li>Neighbourhoods and population: National Records of Scotland and the Scottish Index of Multiple Deprivation 2020, via the Network Planning Tool, under the Open Government Licence v3.0.</li>
         <li>Heights: Mapzen Terrain Tiles on AWS Open Data, from SRTM (NASA).</li>
         <li>Music library: Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons: By Attribution 4.0</a>. Live radio: Radio Swiss Classic and Nightride FM.</li>
+        <li>Ask the map: WebLLM (Apache 2.0) running Microsoft Phi-4-mini (MIT) or Qwen2.5 1.5B (Apache 2.0) in your browser.</li>
         <li>3D virtual cycle: OpenFreeMap vector tiles, &copy; OpenMapTiles, data &copy; OpenStreetMap contributors, drawn with MapLibre GL; terrain from Mapzen Terrain Tiles.</li>
         <li>Background maps: &copy; OpenStreetMap contributors (light grey and streets); CyclOSM; satellite imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community.</li>
       </ul></details>
@@ -590,13 +648,13 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
         </span>
         <span class="sr-only" id="dock-tip"></span></div>
       <div class="dock-ctrls">
-        <label class="dock-conf">Network <select id="dock-scen"><option value="0">Today, May 2025</option><option value="1">Today, with updates</option><option value="2">2032 programme</option><option value="3">Full plan</option></select></label>
-        <label class="dock-conf">Confidence <input type="range" id="dock-conf" min="0" max="4" step="1" value="1" list="conf-ticks" aria-describedby="dock-conf-name"><span id="dock-conf-name">Cautious</span></label><datalist id="conf-ticks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
+        <label class="dock-conf"><span class="dc-l">Network</span> <select id="dock-scen"><option value="0">Today, May 2025</option><option value="1">Today, with updates</option><option value="2">2032 programme</option><option value="3">Full plan</option></select></label>
+        <label class="dock-conf"><span class="dc-l">Confidence</span> <input type="range" id="dock-conf" min="0" max="4" step="1" value="1" list="conf-ticks" aria-describedby="dock-conf-name"><span id="dock-conf-name">Cautious</span></label><datalist id="conf-ticks"><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
       </div>
       <div class="fly-bar" id="fly-bar" hidden><strong>Virtual cycle</strong>
         <button type="button" class="chip primary" id="fly-play">Pause</button>
         <label class="dock-conf">Speed <select id="fly-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
-        <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener">Open Street View here</a>
+        <a class="chip" id="fly-sv" href="#" target="_blank" rel="noopener"><span class="ph-x">Open </span>Street View<span class="ph-x"> here</span></a>
         <span class="menu-wrap"><button type="button" class="chip" id="fly-optbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-fly">View</button>
           <div class="menu up" id="menu-fly" role="menu" hidden><label><input type="checkbox" id="fly-3d" checked> 3D with buildings</label><label>Imagery <select id="fly-style"><option value="sat" selected>Satellite</option><option value="map">Map</option></select></label><label><input type="checkbox" id="fly-photo" checked> Photo-textured buildings</label></div></span>
         <button type="button" class="chip" id="fly-recentre" title="Put the camera back behind the rider">Recentre</button>
@@ -1188,11 +1246,11 @@ function select(latlng, k) {
   selMarker.setLatLng(latlng); if (!RT.start) selMarker.addTo(map);
   $('report-form').hidden = true;
   refreshSel(true);
-  if (window.matchMedia('(max-width: 760px)').matches) $('card').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  if (isPhone() && !select.quiet) { if (SHEET.state !== 'full') setSheet('half'); setTimeout(() => keepAbove(latlng), 280); }
 }
 let placePop = null;
 function placePopup() {
-  if (!sel) return; const k = sel.k, res = cur(), r = sel.r, nm = N.names[N.nm[k]] || 'Unnamed street or path';
+  if (!sel || isPhone()) return; const k = sel.k, res = cur(), r = sel.r, nm = N.names[N.nm[k]] || 'Unnamed street or path';
   const box = el('div', 'pop place'); box.append(el('strong', null, nm));
   const line = (t, v) => { const p = el('p'); p.append(el('span', 'pk', t + ': '), document.createTextNode(v)); box.append(p); };
   line('Layout', INFNAME[N.inf[k]] + (N.rated[k] ? ', ' + STRESS[N.los[k]].toLowerCase() + ' from traffic' : ''));
@@ -1331,7 +1389,34 @@ $('cmp-by').querySelectorAll('button').forEach(b => b.addEventListener('click', 
 // collapse the side panel to give the map the whole window
 const appEl = document.querySelector('.app');
 let sizeRaf = 0; const relayout = () => { if (sizeRaf) return; sizeRaf = requestAnimationFrame(() => { sizeRaf = 0; map.invalidateSize({ pan: false }); if (ml3d) ml3d.resize(); schedule(); }); };
+// ---------- phones: the panel is a bottom sheet over a full-screen map ----------
+const isPhone = () => window.matchMedia('(max-width: 760px)').matches;
+const SHEET = { state: 'peek', before: null };
+const sheetPx = () => isPhone() ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sheet-h')) || 0) : 0;
+function sheetH(st) {
+  const vh = window.innerHeight;
+  if (st === 'mini') return 24;
+  if (st === 'full') return Math.round(vh - Math.min(64, vh * 0.08));
+  if (st === 'half') return Math.round(vh * 0.5);
+  const grab = $('sheet-grab'), top = document.querySelector('.topbar'); // peek: the handle, the title row and the tabs
+  return Math.min(Math.round(vh * 0.4), (grab ? grab.offsetHeight : 24) + (top ? top.offsetHeight : 88) + 2);
+}
+function setSheet(st) {
+  if (!isPhone()) return;
+  SHEET.state = st; appEl.dataset.sheet = st; // set first: the peek height depends on what the state hides
+  document.documentElement.style.setProperty('--sheet-h', sheetH(st) + 'px');
+  if (st === 'peek' || st === 'mini') { const pn = document.querySelector('.panel'); if (pn) pn.scrollTop = 0; }
+  $('sheet-grab').setAttribute('aria-label', st === 'full' ? 'Push the panel down' : 'Pull up the panel');
+  clearTimeout(setSheet.t); setSheet.t = setTimeout(relayout, 260); // after the slide, so the 3D view fits the space left
+}
+const sheetNext = () => ({ mini: 'peek', peek: 'half', half: 'full', full: 'peek' })[SHEET.state] || 'half';
+// keep a point on the map in view above the sheet and the route strip
+function keepAbove(latlng) {
+  if (!isPhone()) return; const p = map.latLngToContainerPoint(latlng), dock = $('dock'), dh = dock && !dock.hidden ? dock.offsetHeight : 0;
+  const bottom = window.innerHeight - sheetPx() - dh - 36; if (p.y > bottom) map.panBy([0, p.y - bottom + 24], { animate: true }); else if (p.y < 60) map.panBy([0, p.y - 80], { animate: true });
+}
 function setPanel(collapsed, keep) {
+  if (isPhone()) { setSheet(collapsed ? 'peek' : 'half'); return; }
   appEl.classList.toggle('collapsed', collapsed); $('btn-expand').hidden = !collapsed;
   $('btn-collapse').setAttribute('aria-label', collapsed ? 'Show the side panel' : 'Hide the side panel'); $('btn-collapse').title = collapsed ? 'Show the side panel' : 'Hide the side panel';
   $('resizer').setAttribute('aria-valuenow', collapsed ? 0 : parseInt(getComputedStyle(appEl).getPropertyValue('--panel-w')) || 410);
@@ -1343,6 +1428,23 @@ function setPanelW(w) { w = Math.round(Math.max(300, Math.min(Math.min(680, wind
 $('btn-collapse').addEventListener('click', e => { e.stopPropagation(); setPanel(!appEl.classList.contains('collapsed')); });
 $('btn-collapse-m').addEventListener('click', () => setPanel(true));
 $('btn-expand').addEventListener('click', () => setPanel(false));
+{ // drag the handle or title row to resize the sheet; a tap steps it up; a flick follows its direction
+  const pn = document.querySelector('.panel'); let drag = false, moved = false, y0 = 0, h0 = 0, ly = 0, lt = 0, vy = 0;
+  const down = e => { if (!isPhone() || (e.button && e.button !== 0) || (e.target.closest && e.target.closest('button,a,input,select,label'))) return;
+    drag = true; moved = false; y0 = ly = e.clientY; lt = performance.now(); vy = 0; h0 = pn.getBoundingClientRect().height; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} appEl.classList.add('sheet-drag'); };
+  const move = e => { if (!drag) return; const dy = e.clientY - y0; if (Math.abs(dy) > 5) moved = true; const now = performance.now(); vy = (e.clientY - ly) / Math.max(1, now - lt); ly = e.clientY; lt = now;
+    document.documentElement.style.setProperty('--sheet-h', Math.max(24, Math.min(window.innerHeight - 40, h0 - dy)) + 'px'); e.preventDefault(); };
+  const up = e => { if (!drag) return; drag = false; appEl.classList.remove('sheet-drag');
+    if (!moved) { setSheet(sheetNext()); return; }
+    const h = h0 - (e.clientY - y0), order = FLY.on ? ['mini', 'peek', 'half', 'full'] : ['peek', 'half', 'full'];
+    let best = order.reduce((b, s) => Math.abs(sheetH(s) - h) < Math.abs(sheetH(b) - h) ? s : b, order[0]);
+    if (Math.abs(vy) > 0.5) { const cur = Math.max(0, order.indexOf(SHEET.state)), i = order.indexOf(best); best = vy < 0 ? order[Math.min(order.length - 1, Math.max(i, cur + 1))] : order[Math.max(0, Math.min(i, cur - 1))]; }
+    setSheet(best); };
+  [$('sheet-grab'), document.querySelector('.brand-row')].forEach(x => { if (!x) return; x.addEventListener('pointerdown', down); x.addEventListener('pointermove', move); x.addEventListener('pointerup', up); x.addEventListener('pointercancel', up); });
+  $('sheet-grab').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSheet(sheetNext()); } else if (e.key === 'ArrowUp') { e.preventDefault(); setSheet({ mini: 'peek', peek: 'half', half: 'full' }[SHEET.state] || 'full'); } else if (e.key === 'ArrowDown') { e.preventDefault(); setSheet({ full: 'half', half: 'peek' }[SHEET.state] || 'peek'); } });
+  let wasPhone = isPhone();
+  window.addEventListener('resize', () => { const ph = isPhone(); if (ph) setSheet(SHEET.state); else if (wasPhone) { document.documentElement.style.removeProperty('--sheet-h'); delete appEl.dataset.sheet; relayout(); } wasPhone = ph; });
+}
 { // drag the panel edge: narrower or wider, or right off to hide it
   const rz = $('resizer'); let drag = false, moved = false;
   rz.addEventListener('pointerdown', e => { if (e.button !== 0 || (e.target.closest && e.target.closest('#btn-collapse'))) return; drag = true; moved = false; try { rz.setPointerCapture(e.pointerId); } catch (x) {} rz.classList.add('drag'); appEl.classList.add('resizing'); e.preventDefault(); });
@@ -1702,7 +1804,7 @@ function addStop(lat, lng) {
 function fitRoute() {
   const R = RT.result; if (!R || !R.ll) return; let a = 90, b = 180, c = -90, d = -180;
   for (let i = 0; i < R.ll.length; i += 2) { a = Math.min(a, R.ll[i + 1]); c = Math.max(c, R.ll[i + 1]); b = Math.min(b, R.ll[i]); d = Math.max(d, R.ll[i]); }
-  const dh = ($('dock').offsetHeight || 150) + 30; map.fitBounds([[a, b], [c, d]], { paddingTopLeft: [40, 40], paddingBottomRight: [40, dh], maxZoom: 16 });
+  const dh = ($('dock').offsetHeight || 150) + 30 + sheetPx(), ph = isPhone(); map.fitBounds([[a, b], [c, d]], { paddingTopLeft: [ph ? 24 : 40, ph ? 56 : 40], paddingBottomRight: [ph ? 24 : 40, dh], maxZoom: 16 });
 }
 const xingLayer = L.layerGroup().addTo(map);
 const xingCls = c => c.unv ? 'unv' : c.sig ? 'sig' : 'nos';
@@ -1781,17 +1883,22 @@ function renderRoute() {
 const PTIP = document.getElementById('ptip');
 function renderDock() {
   const dock = $('dock'), wrap = document.querySelector('.mapwrap'), R = RT.result, on = !!(R && R.prof);
+  if (on && isPhone() && R !== renderDock.last && (SHEET.state === 'half' || SHEET.state === 'full') && document.activeElement !== $('ask-input')) setSheet('peek'); renderDock.last = R;
   dock.hidden = !on; wrap.classList.toggle('has-dock', on);
   if (on) wrap.style.setProperty('--dock-h', dock.offsetHeight + 'px'); else wrap.style.removeProperty('--dock-h');
   if (!on) return;
   const g = R.prof, prot = pct(R.prot, R.total);
-  { const nb = R.cross.filter(c => c.busy && !c.sig && !c.unv).length, nu = R.cross.filter(c => c.unv).length; $('dock-sum').textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's') + (nb ? ', ' + nb + ' busy road' + (nb === 1 ? '' : 's') + ' to cross without a mapped crossing' : '') + (nu ? ', ' + nu + ' crossing' + (nu === 1 ? '' : 's') + ' not confirmed' : ''); }
+  { const nb = R.cross.filter(c => c.busy && !c.sig && !c.unv).length, nu = R.cross.filter(c => c.unv).length; const ds = $('dock-sum'); ds.textContent = '';
+    if (isPhone()) { // a phone gets the same facts in two short lines
+      ds.append(document.createTextNode(fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up'),
+        el('span', 'dock-more', R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's') + (nb ? ', ' + nb + ' busy road' + (nb === 1 ? '' : 's') + ' to cross unaided' : '') + (nu ? ', ' + nu + ' crossing' + (nu === 1 ? '' : 's') + ' not confirmed' : '')));
+    } else ds.textContent = fmtKm(R.total) + ' km, about ' + fmtTime(R.secs) + ', ' + prot + '% protected, ' + Math.round(R.up) + ' m up, ' + R.crN + ' recorded bike collision' + (R.crN === 1 ? '' : 's') + (nb ? ', ' + nb + ' busy road' + (nb === 1 ? '' : 's') + ' to cross without a mapped crossing' : '') + (nu ? ', ' + nu + ' crossing' + (nu === 1 ? '' : 's') + ' not confirmed' : ''); }
   $('dock-tip').textContent = 'Move along the profile to follow the route.'; if (ml3dReady) set3dRoute(); showConf(); $('dock-gmaps').href = '#';
   const host = $('dock-chart'); host.textContent = ''; host.append(PTIP); PTIP.hidden = true;
   const key = $('dock-key'); key.textContent = '';
   R.byCat.forEach((v, c) => { if (v < 0.005 * R.total) return; const s = el('span', 'dk'); const sw = el('i'); sw.style.background = C.rc[c]; s.append(sw, document.createTextNode(RCAT[c] + ' ' + pct(v, R.total) + '%')); key.append(s); });
   if (RT.capped) key.append(el('span', 'dk note', 'Part of this route rides as "' + LEVELS[RT.capped].name + '", because the ' + LEVELS[RT.conf].name.toLowerCase() + ' route was more than ' + LEVELS[RT.conf].cap + ' times the length of the shortest one.'));
-  if (!dock.classList.contains('min')) host.append(profileSvg(R, Math.max(300, Math.round(host.clientWidth || 600)), window.matchMedia('(max-width: 760px)').matches ? 92 : 116));
+  if (!dock.classList.contains('min')) host.append(profileSvg(R, Math.max(300, Math.round(host.clientWidth || 600)), isPhone() ? 64 : 116));
 }
 $('dock-min').addEventListener('click', () => { const d = $('dock'); d.classList.toggle('min'); $('dock-min').textContent = d.classList.contains('min') ? 'Show profile' : 'Hide profile'; renderDock(); });
 if (window.ResizeObserver) { let rto = 0; new ResizeObserver(() => { clearTimeout(rto); rto = setTimeout(() => { if (RT.result && RT.result.prof) renderDock(); }, 120); }).observe($('dock-chart'));
@@ -2042,7 +2149,7 @@ function playLib(g) {
   const mark = () => {
     m.querySelectorAll('button[data-g]').forEach(b => b.setAttribute('aria-checked', b.dataset.g === MUS.genre ? 'true' : 'false'));
     const radio = RADIO.find(x => x[0] === MUS.genre), lib = isLib(MUS.genre) ? MUS.lib[MUS.genre] : null, on = !!(radio || lib);
-    document.getElementById('music-label').textContent = lib ? MUS.now : radio ? radio[1] + ' radio' : 'Music for the ride';
+    document.getElementById('music-label').textContent = lib ? MUS.now : radio ? radio[1] + ' radio' : (isPhone() ? 'Music' : 'Music for the ride');
     document.getElementById('music-dock').classList.toggle('playing', on); document.getElementById('music-stop').hidden = !on; document.getElementById('music-skip').hidden = !lib;
   };
   MUS.onChange = mark;
@@ -2322,7 +2429,7 @@ function flyStep(dt, force) {
 function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (now - FLY.t) / 1000) : 0; FLY.t = now; flyStep(dt); FLY.raf = requestAnimationFrame(flyLoop); }
 function startFly() {
   if (!RT.result || !RT.result.prof) return;
-  FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup();
+  FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup(); appEl.classList.add('flying'); if (isPhone()) { SHEET.before = SHEET.state; setSheet('mini'); }
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; $('music-dock').hidden = false; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
@@ -2332,7 +2439,7 @@ function startFly() {
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
 }
 function stopFly() {
-  if (!FLY.on) return; stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
+  if (!FLY.on) return; appEl.classList.remove('flying'); if (isPhone()) setSheet(SHEET.before && SHEET.before !== 'mini' ? SHEET.before : 'peek'); stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
   const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
   if (map.options) map.options.touchZoom = true;
   flyMk.remove(); if (RT.result) fitRoute();
@@ -2510,7 +2617,7 @@ function showTab(name) {
   const pn = document.querySelector('.panel'); if (pn) pn.scrollTop = 0;
 }
 document.querySelectorAll('.tabs [role=tab]').forEach((b, i, all) => {
-  b.addEventListener('click', () => showTab(b.dataset.pane));
+  b.addEventListener('click', () => { showTab(b.dataset.pane); if (isPhone() && (SHEET.state === 'peek' || SHEET.state === 'mini')) setSheet('half'); });
   b.addEventListener('keydown', e => { if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return; const n = all[(i + (e.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length]; showTab(n.dataset.pane); n.focus(); });
 });
 const openHelp = () => { const d = $('help'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); };
@@ -2600,7 +2707,194 @@ function loadDemo(fit) {
   syncMarkers(); buildRoute(); if (fit !== false) fitRoute();
 }
 $('btn-demo').addEventListener('click', () => { loadDemo(true); });
-if (store.get('gcm-panel') === '0') setPanel(true);
+// ---------- Ask the map: an open AI model running in the browser, with tools that read and control the map ----------
+// The model (Microsoft Phi-4-mini or Qwen2.5 1.5B, via WebLLM) downloads once and runs on the device's graphics chip: nothing typed leaves the
+// browser. Every figure it gives comes from the map's own tools. Without WebGPU, or before the model is started,
+// simple commands are understood directly.
+const AGENT = { engine: null, loading: false, model: null, msgs: [], busy: false };
+const AGENT_MODELS = { full: ['Phi-4-mini-instruct-q4f16_1-MLC', 'about 2.2 GB'], light: ['Qwen2.5-1.5B-Instruct-q4f16_1-MLC', 'about 1 GB'] }; // both openly licensed: MIT and Apache 2.0
+const WEBLLM_URL = 'https://esm.run/@mlc-ai/web-llm@0.2.85';
+// places people name that are not street names
+const PLACES = {
+  'university of glasgow': [55.8721, -4.2882], 'glasgow university': [55.8721, -4.2882], 'uni': [55.8721, -4.2882], 'partick station': [55.8698, -4.3088], 'partick': [55.8698, -4.3088],
+  'queen elizabeth university hospital': [55.8625, -4.3393], 'qeuh': [55.8625, -4.3393], 'george square': [55.8612, -4.2502], 'city centre': [55.8612, -4.2502], 'glasgow green': [55.8505, -4.2370],
+  'queens park': [55.8346, -4.2683], "queen's park": [55.8346, -4.2683], 'central station': [55.8599, -4.2577], 'queen street station': [55.8622, -4.2510], 'buchanan bus station': [55.8650, -4.2515],
+  'kelvingrove': [55.8686, -4.2905], 'kelvingrove park': [55.8686, -4.2860], 'riverside museum': [55.8653, -4.3062], 'hydro': [55.8603, -4.2860], 'sec': [55.8607, -4.2875], 'glasgow cathedral': [55.8629, -4.2343],
+  'barras': [55.8559, -4.2357], 'botanic gardens': [55.8786, -4.2896], 'hampden': [55.8258, -4.2520], 'celtic park': [55.8497, -4.2055], 'ibrox': [55.8532, -4.3091], 'pollok park': [55.8312, -4.3134],
+  'burrell collection': [55.8306, -4.3125], 'bellahouston park': [55.8463, -4.3163], 'jordanhill': [55.8840, -4.3370], 'shawlands': [55.8290, -4.2847], 'finnieston': [55.8655, -4.2825], 'dennistoun': [55.8610, -4.2185],
+  'merchant city': [55.8590, -4.2460], 'hillhead': [55.8755, -4.2925], 'govan': [55.8620, -4.3120], 'gorbals': [55.8500, -4.2550], 'byres road': [55.8740, -4.2935],
+  // nearby towns outside the city, so a request for them is answered honestly rather than matched to a street name
+  'paisley': [55.8456, -4.4239], 'clydebank': [55.9010, -4.4050], 'renfrew': [55.8720, -4.3880], 'rutherglen': [55.8290, -4.2140], 'cambuslang': [55.8100, -4.1610], 'bearsden': [55.9150, -4.3330],
+  'milngavie': [55.9420, -4.3170], 'bishopbriggs': [55.9060, -4.2240], 'giffnock': [55.8030, -4.2920], 'newton mearns': [55.7720, -4.3340], 'east kilbride': [55.7640, -4.1770], 'glasgow airport': [55.8700, -4.4330]
+};
+function findPlace(q) {
+  if (!q) return null; const s = String(q).trim(), m = s.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (m) return { lat: +m[1], lng: +m[2], name: s };
+  const k = s.toLowerCase().replace(/[.!?]+$/, '').replace(/^the\s+/, '').trim();
+  if (PLACES[k]) return { lat: PLACES[k][0], lng: PLACES[k][1], name: s };
+  for (const d of N.dest) if (d.n.toLowerCase() === k) return { lat: d.lat, lng: d.lon, name: d.n };
+  const names = [...namePieces.keys()], low = names.map(n => n.toLowerCase());
+  let i = low.indexOf(k); if (i < 0) i = low.findIndex(n => n.startsWith(k)); if (i < 0) i = low.findIndex(n => n.includes(k));
+  if (i < 0) { const key = Object.keys(PLACES).find(p => p.includes(k) || k.includes(p)); if (key) return { lat: PLACES[key][0], lng: PLACES[key][1], name: key }; return null; }
+  const ks = namePieces.get(names[i]); let best = ks[0]; ks.forEach(x => { if (N.lens[x] > N.lens[best]) best = x; });
+  const g = pieceLL(best), j = Math.floor(g.length / 4) * 2; return { lat: g[j + 1], lng: g[j], name: names[i] };
+}
+const CONF_WORDS = [['children', 0], ['child', 0], ['family', 0], ['kids', 0], ['very confident', 4], ['confident', 3], ['steady', 2], ['cautious', 1], ['nervous', 1]];
+const confOf = s => { const t = String(s || '').toLowerCase(); for (const [w, i] of CONF_WORDS) if (t.includes(w)) return i; const n = parseInt(t, 10); return n >= 0 && n <= 4 ? n : null; };
+const NET_WORDS = [['may 2025', 0], ['may', 0], ['community', 1], ['today', 1], ['now', 1], ['2032', 2], ['full', 3], ['270', 3], ['plan', 3]];
+const netOf = s => { const t = String(s || '').toLowerCase(); for (const [w, i] of NET_WORDS) if (t.includes(w)) return i; return null; };
+const LAYER_IDS = { hotspots: 'chk-hot', hotspot: 'chk-hot', collisions: 'chk-crash', crashes: 'chk-crash', shading: 'chk-dz', neighbourhoods: 'chk-dz', plan: 'chk-plan', 'city network': 'chk-plan', community: 'chk-comm',
+  oneway: 'chk-ow', 'one-way': 'chk-ow', missing_links: 'chk-ml', 'missing links': 'chk-ml', reports: 'chk-reports', landmarks: 'chk-dest' };
+const BASE_WORDS = { grey: 'grey', gray: 'grey', light: 'grey', streets: 'streets', street: 'streets', cycling: 'cycle', cyclosm: 'cycle', satellite: 'sat', aerial: 'sat', none: 'none' };
+function routeSummary() {
+  const R = RT.result; if (!R || !R.prof) return { route: 'none' };
+  const streets = {}; (R.runs || []).forEach(r => { if (r.nm) streets[r.nm] = (streets[r.nm] || 0) + r.len; });
+  const top = Object.entries(streets).sort((a, b) => b[1] - a[1]).slice(0, 6).map(x => x[0]);
+  const busy = (R.cross || []).filter(c => c.busy && !c.sig).map(c => c.nm || 'a busy road');
+  return { km: +(R.total / 1000).toFixed(1), minutes: Math.round(R.secs / 60), protected_percent: pct(R.prot, R.total), climb_m: Math.round(R.up), recorded_collisions: R.crN,
+    rider: ['riding with children', 'a cautious rider', 'a steady rider', 'a confident rider', 'a very confident rider'][RT.conf], network: SCEN[state.scen], main_streets: top, busy_roads_to_cross_without_a_crossing: busy.slice(0, 5) };
+}
+function cityStats() {
+  const g = id => (document.getElementById(id) || {}).textContent || '';
+  return { shown_network: SCEN[state.scen], residents_within_800m_today_with_community_updates: g('lede-now'), residents_within_800m_on_may_2025_data: g('lede-may'), with_2032_programme: g('lede-2032'), with_full_plan: g('lede-full'),
+    main_network_km_on_shown_network: g('city-main'), cut_off_fragments: g('city-frag'), fragment_km: g('city-fragkm'), most_deprived_fifth_within_800m: g('city-dep') };
+}
+// the tools the model (and the command parser) can use
+const TOOLS = {
+  plan_route(a) {
+    const A = findPlace(a.from), B = findPlace(a.to);
+    if (!A || !B) return { error: 'Could not find ' + (!A ? a.from : a.to) + ' in Glasgow. Try a street name or a landmark.' };
+    if (!inArea(A.lat, A.lng) || !inArea(B.lat, B.lng)) return { error: 'That place is outside the Glasgow City boundary this map covers.' };
+    const c = confOf(a.confidence); if (c != null) { RT.conf = c; showConf(); }
+    stopFly(); RT.demo = false; RT.stops = []; RT.start = makePt(A.lat, A.lng); RT.end = makePt(B.lat, B.lng); syncMarkers(); buildRoute(); fitRoute(); showTab('route');
+    return Object.assign({ from: A.name, to: B.name }, routeSummary());
+  },
+  route_details() { return routeSummary(); },
+  set_confidence(a) { const c = confOf(a.level); if (c == null) return { error: 'Use one of: children, cautious, steady, confident, very confident.' }; setConf(c, true); return Object.assign({ rider: LEVELS[c].name }, RT.result ? routeSummary() : {}); },
+  set_network(a) { const n = netOf(a.network); if (n == null) return { error: 'Use one of: may 2025, today, 2032, full plan.' }; setScen(n); return Object.assign(cityStats(), RT.result ? { route: routeSummary() } : {}); },
+  layers(a) { const id = LAYER_IDS[String(a.layer || '').toLowerCase()]; if (!id) return { error: 'Unknown layer. Layers: ' + Object.keys(LAYER_IDS).join(', ') }; const on = !(a.on === false || /off|hide|false|no/i.test(String(a.on))); setLayer(id, on); return { layer: a.layer, on }; },
+  basemap(a) { const b = BASE_WORDS[String(a.name || '').toLowerCase()]; if (!b) return { error: 'Backgrounds: grey, streets, cycling, satellite, none.' }; setBasemap(b); return { background: b }; },
+  place_info(a) {
+    const P = findPlace(a.place); if (!P) return { error: 'Could not find ' + a.place + '.' };
+    select({ lat: P.lat, lng: P.lng }); map.setView([P.lat, P.lng], Math.max(map.getZoom(), 16));
+    const body = document.getElementById('card-body'), lines = [];
+    if (body) body.querySelectorAll('h3, h4, p, li, dt').forEach(n => { if (n.closest('details:not([open])') && n.tagName !== 'DT') return; if (n.tagName === 'DT') { const dd = n.nextElementSibling; lines.push(n.textContent.trim() + ': ' + (dd ? dd.textContent.trim() : '')); } else lines.push(n.textContent.trim()); });
+    return { place: P.name, facts: lines.filter(x => x && x !== P.name).join('\n').slice(0, 800) };
+  },
+  city_stats() { return cityStats(); },
+  compare(a) {
+    const P2 = pts(); if (P2.length < 2) return { error: 'Plan a route first.' };
+    const byConf = /conf|rider/i.test(String(a.by || ''));
+    const rows = byConf ? LEVELS.map((L0, c) => [L0.name, planRoute(P2, cur(), c, state.scen)]) : SCEN.map((s, i) => [s, planRoute(P2, compute(i, state.gap, state.shared), RT.conf, i)]);
+    return { by: byConf ? 'rider confidence' : 'network', rows: rows.map(([n, r]) => r && !r.error ? { option: n, km: +(r.total / 1000).toFixed(1), minutes: Math.round(r.secs / 60), protected_percent: pct(r.prot, r.total), collisions: r.crN } : { option: n, error: 'no route' }) };
+  },
+  virtual_cycle(a) { if (/stop|end/i.test(String(a.action || ''))) { stopFly(); return { virtual_cycle: 'stopped' }; } if (!RT.result) return { error: 'Plan a route first.' }; startFly(); return { virtual_cycle: 'started', note: 'Riding the route in 3D.' }; },
+  music(a) { const s = String(a.style || '').toLowerCase().replace('8-bit', 'chip').replace('8bit', 'chip').replace('lo-fi', 'lofi');
+    if (/off|stop/.test(s)) { stopMusic(); return { music: 'off' }; } if (MUS.lib && MUS.lib[s]) { playLib(s); return { music: MUS.lib[s].label }; } if (RADIO.some(r => r[0] === s)) { playMusic(s); return { music: s + ' radio' }; }
+    return { error: 'Styles available: ' + (MUS.lib ? Object.keys(MUS.lib).join(', ') : 'classical, synthwave') + '.' }; }
+};
+const TOOL_LABEL = { plan_route: 'Planning the route', route_details: 'Reading the route', set_confidence: 'Changing the rider', set_network: 'Switching the network', layers: 'Changing a layer', basemap: 'Changing the background',
+  place_info: 'Looking at that place', city_stats: 'Reading the city figures', compare: 'Comparing options', virtual_cycle: 'Starting the virtual cycle', music: 'Choosing music' };
+function runTool(name, args) { const f = TOOLS[name]; if (!f) return { error: 'No tool called ' + name }; try { return f(args || {}); } catch (e) { return { error: 'That did not work: ' + e.message }; } }
+// commands understood without the AI model
+function parseCommand(text) {
+  const t = text.trim(), l = t.toLowerCase();
+  let m = l.match(/(?:route|ride|cycle|get|directions?)?\s*from\s+(.+?)\s+to\s+(.+?)(?:\s+(?:for|as)\s+(?:a\s+)?(.+))?$/);
+  if (m) return ['plan_route', { from: m[1], to: m[2], confidence: m[3] || '' }];
+  if (/\b(fly|virtual cycle|ride it|ride the route)\b/.test(l)) return ['virtual_cycle', { action: /stop/.test(l) ? 'stop' : 'start' }];
+  if (/\bmusic\b|\bplay\b/.test(l)) { const s = ['lofi', 'lo-fi', 'reggae', 'country', 'celtic', 'classical', 'synthwave', '8-bit', '8bit', 'metal', 'off', 'stop'].find(w => l.includes(w)); if (s) return ['music', { style: s }]; }
+  if (/compare/.test(l)) return ['compare', { by: /conf|rider/.test(l) ? 'confidence' : 'network' }];
+  const lay = Object.keys(LAYER_IDS).find(k => l.includes(k)); if (lay && /(show|hide|turn|switch|on|off)/.test(l)) return ['layers', { layer: lay, on: !/(hide|off|remove)/.test(l) }];
+  const bm = Object.keys(BASE_WORDS).find(k => new RegExp('\\b' + k + '\\b').test(l)); if (bm && /(background|basemap|map|view|switch|show)/.test(l)) return ['basemap', { name: bm }];
+  if (/(network|scenario)/.test(l) && netOf(l) != null) return ['set_network', { network: l }];
+  if (/(rider|confidence|riding with|as a)/.test(l) && confOf(l) != null) return ['set_confidence', { level: l }];
+  if (/(stats|figures|how much|what share|percent|%|how many)/.test(l)) return ['city_stats', {}];
+  m = l.match(/^(?:what about|tell me about|show me|where is|look at)\s+(.+)$/); if (m) return ['place_info', { place: m[1] }];
+  if (/(this route|the route|my route)/.test(l)) return ['route_details', {}];
+  return null;
+}
+function describe(name, r) {
+  if (r.error) return r.error;
+  if (name === 'plan_route' || name === 'route_details' || (name === 'set_confidence' && r.km)) return r.route === 'none' ? 'There is no route yet. Try "route from Partick to Queens Park".' :
+    r.km + ' km, about ' + r.minutes + ' minutes ' + (RT.conf ? 'for ' : '') + r.rider + ', ' + r.protected_percent + '% protected, ' + r.climb_m + ' m of climbing and ' + r.recorded_collisions + ' recorded bike collisions along it.' +
+    (r.busy_roads_to_cross_without_a_crossing && r.busy_roads_to_cross_without_a_crossing.length ? ' Busy roads to cross without a mapped crossing: ' + r.busy_roads_to_cross_without_a_crossing.join(', ') + '.' : '') + (r.main_streets && r.main_streets.length ? ' Mostly on ' + r.main_streets.slice(0, 4).join(', ') + '.' : '');
+  if (name === 'city_stats' || name === 'set_network') return r.residents_within_800m_today_with_community_updates + ' of residents live within 800 m of the main protected network today (' + r.residents_within_800m_on_may_2025_data + ' on the May 2025 data alone). The 2032 programme would make it ' + r.with_2032_programme + ', and the full plan ' + r.with_full_plan + '.' + (name === 'set_network' ? ' Now showing ' + r.shown_network + ', where the main network is ' + r.main_network_km_on_shown_network + ' km.' : '');
+  if (name === 'compare') return 'Compared by ' + r.by + ': ' + r.rows.map(x => x.error ? x.option + ': no route' : x.option + ' ' + x.km + ' km, ' + x.minutes + ' min, ' + x.protected_percent + '% protected, ' + x.collisions + ' collisions').join('; ') + '.';
+  if (name === 'place_info') return r.facts ? r.place + '. ' + r.facts.split('\n').slice(0, 7).map(x => /[.!?]$/.test(x) ? x : x + '.').join(' ') : r.place;
+  if (name === 'layers') return (r.on ? 'Showing ' : 'Hiding ') + r.layer + '.';
+  if (name === 'basemap') return 'Background changed.';
+  if (name === 'virtual_cycle') return r.virtual_cycle === 'started' ? 'Off we go: riding the route in 3D.' : 'Virtual cycle stopped.';
+  if (name === 'music') return r.music === 'off' ? 'Music off.' : 'Playing ' + r.music + '.';
+  return 'Done.';
+}
+function agentSystem() {
+  return 'You are the assistant inside the Glasgow Cycle Map, a web map of Glasgow\'s protected cycle network, routes, traffic stress and bike collisions. Answer in British English, briefly (under 100 words), warmly and plainly. '
+    + 'Use tools for any fact or number and never invent figures. To use a tool, reply with ONLY this, on one line: <tool>{"name":"TOOL","args":{...}}</tool>. After the result arrives, answer the user from it.\n'
+    + 'Tools:\n- plan_route {"from","to","confidence"?}: plan a bike route between two places in Glasgow (street names, landmarks or "lat,lng"); confidence is children, cautious, steady, confident or very confident.\n'
+    + '- route_details {}: facts about the current route.\n- set_confidence {"level"}\n- set_network {"network"}: may 2025, today, 2032 or full plan.\n- layers {"layer","on"}: hotspots, collisions, shading, plan, community, oneway, missing_links, reports, landmarks.\n'
+    + '- basemap {"name"}: grey, streets, cycling, satellite, none.\n- place_info {"place"}: show a street or place and the facts about it.\n- city_stats {}: headline figures for the current network.\n- compare {"by"}: network or confidence, for the current route.\n'
+    + '- virtual_cycle {"action"}: start or stop a 3D ride along the route.\n- music {"style"}: lofi, reggae, country, celtic, classical, synthwave, 8bit, metal or off.\n'
+    + 'Example. User: How do I cycle from Partick to Queens Park with my kids? You: <tool>{"name":"plan_route","args":{"from":"Partick station","to":"Queens Park","confidence":"children"}}</tool>\n'
+    + 'Now: network ' + SCEN[state.scen] + '; rider ' + LEVELS[RT.conf].name + '; ' + (RT.result && RT.result.prof ? 'a route is shown (' + (RT.result.total / 1000).toFixed(1) + ' km)' : 'no route shown') + '.';
+}
+// ---------- chat panel ----------
+function askLog(role, text, cls) { const log = $('ask-log'), b = el('div', 'ask-msg ' + role + (cls ? ' ' + cls : ''), text); log.append(b); log.scrollTop = log.scrollHeight; b.scrollIntoView && b.scrollIntoView({ block: 'nearest' }); return b; }
+async function startAgent(kind) {
+  if (AGENT.engine || AGENT.loading) return;
+  if (!navigator.gpu) { askLog('bot', 'This browser cannot run the AI model (it needs WebGPU, found in recent Chrome, Edge and Safari). Simple commands still work, such as "route from Partick to Queens Park" or "show collisions".'); return; }
+  AGENT.loading = true; const [id, size] = AGENT_MODELS[kind] || AGENT_MODELS.full; $('ask-start').hidden = true;
+  const prog = askLog('bot', 'Downloading the open AI model (' + size + ', once; later visits load it from your browser)...', 'status');
+  try {
+    const webllm = await import(WEBLLM_URL);
+    AGENT.engine = await webllm.CreateMLCEngine(id, { initProgressCallback: p => { prog.textContent = 'Loading the AI model: ' + Math.round((p.progress || 0) * 100) + '%. ' + (p.text || '').replace(/\[.*?\]\s*/, '').slice(0, 80); } });
+    AGENT.model = id; prog.textContent = 'Ready. Ask me anything about cycling in Glasgow, or tell me what to show.'; prog.classList.remove('status');
+  } catch (e) {
+    prog.textContent = 'The AI model could not start (' + (e && e.message ? e.message.slice(0, 120) : 'unknown error') + '). Simple commands still work.'; $('ask-start').hidden = false;
+  } finally { AGENT.loading = false; }
+}
+async function llm(messages, onToken) {
+  const stream = await AGENT.engine.chat.completions.create({ messages, temperature: 0.2, max_tokens: 320, stream: true });
+  let out = ''; for await (const ch of stream) { const d = (ch.choices && ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || ''; out += d; if (onToken) onToken(out); }
+  return out;
+}
+async function askSend(text) {
+  text = (text || '').trim(); if (!text || AGENT.busy) return; AGENT.busy = true; $('ask-send').disabled = true;
+  askLog('user', text);
+  try {
+    if (!AGENT.engine) { // no model: understand simple commands directly
+      const cmd = parseCommand(text);
+      if (!cmd) { askLog('bot', AGENT.loading ? 'The AI model is still loading. Meanwhile I understand commands like "route from Hillhead to Glasgow Green for a family", "show collisions", "satellite view" or "compare networks".' : 'I understand commands like "route from Hillhead to Glasgow Green for a family", "show collisions", "satellite view", "compare networks" or "fly the route". Start the AI model above for open questions.'); return; }
+      const chip = askLog('tool', TOOL_LABEL[cmd[0]] + '...'); const r = runTool(cmd[0], cmd[1]); chip.remove(); askLog('bot', describe(cmd[0], r)); return;
+    }
+    AGENT.msgs.push({ role: 'user', content: text });
+    for (let step = 0; step < 4; step++) {
+      const msgs = [{ role: 'system', content: agentSystem() }].concat(AGENT.msgs.slice(-10));
+      const bubble = askLog('bot', '…');
+      const out = await llm(msgs, s => { bubble.textContent = /^\s*<tool/.test(s) ? 'Thinking...' : s.replace(/<tool>[\s\S]*$/, ''); });
+      const m = out.match(/<tool>\s*(\{[\s\S]*?\})\s*<\/tool>/) || out.match(/^\s*(\{\s*"name"[\s\S]*\})\s*$/);
+      let call = null; if (m) { try { call = JSON.parse(m[1]); } catch (e) { call = null; } }
+      if (call && call.name) {
+        bubble.remove(); const chip = askLog('tool', (TOOL_LABEL[call.name] || 'Working') + '...');
+        const r = runTool(call.name, call.args || call.arguments || {}); chip.textContent = (TOOL_LABEL[call.name] || 'Done') + (r.error ? ': did not work' : ': done');
+        AGENT.msgs.push({ role: 'assistant', content: out.trim() });
+        AGENT.msgs.push({ role: 'user', content: 'Tool result for ' + call.name + ': ' + JSON.stringify(r).slice(0, 1400) + '\nAnswer my question from this result, briefly, without mentioning tools or JSON.' });
+        continue;
+      }
+      bubble.textContent = out.replace(/<\/?tool>/g, '').trim() || 'Done.'; AGENT.msgs.push({ role: 'assistant', content: out.trim() }); return;
+    }
+    askLog('bot', 'I got a bit tangled there. Could you ask that another way?');
+  } catch (e) { askLog('bot', 'Something went wrong: ' + (e && e.message ? e.message.slice(0, 140) : 'unknown error')); }
+  finally { AGENT.busy = false; $('ask-send').disabled = false; $('ask-input').focus(); }
+}
+$('ask-start-full').addEventListener('click', () => startAgent('full'));
+$('ask-start-light').addEventListener('click', () => startAgent('light'));
+$('ask-send').addEventListener('click', () => { const i = $('ask-input'); const v = i.value; i.value = ''; askSend(v); });
+$('ask-input').addEventListener('focus', () => { if (isPhone()) setSheet('full'); });
+$('ask-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('ask-send').click(); } });
+document.querySelectorAll('.ask-eg').forEach(b => b.addEventListener('click', () => askSend(b.textContent)));
+if (!navigator.gpu) { const n = $('ask-gpu'); if (n) n.hidden = false; }
+
+if (isPhone()) setSheet('peek'); else if (store.get('gcm-panel') === '0') setPanel(true);
 setTheme(store.get('gcm-theme') || 'auto'); readColours(); setBasemap(state.basemap); showConf();
 update(); draw(); loadReports();
 if (!readHash()) loadDemo(true);
