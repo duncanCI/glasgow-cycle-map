@@ -1,0 +1,241 @@
+{
+ "generated": "2026-10-20T00:01:13Z",
+ "artist": "Kevin MacLeod",
+ "source": "https://incompetech.com",
+ "licence": "Creative Commons: By Attribution 4.0",
+ "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+ "styles": {
+  "lofi": {
+   "label": "Lo-fi and chilled beats",
+   "tracks": [
+    {
+     "title": "Lobby Time",
+     "file": "music/lofi/lobby-time.mp3",
+     "length": 193.0,
+     "credit": "\"Lobby Time\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Airport Lounge",
+     "file": "music/lofi/airport-lounge.mp3",
+     "length": 308.0,
+     "credit": "\"Airport Lounge\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Wallpaper",
+     "file": "music/lofi/wallpaper.mp3",
+     "length": 220.0,
+     "credit": "\"Wallpaper\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Backbay Lounge",
+     "file": "music/lofi/backbay-lounge.mp3",
+     "length": 267.0,
+     "credit": "\"Backbay Lounge\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "reggae": {
+   "label": "Reggae and ska",
+   "tracks": [
+    {
+     "title": "Island Meet and Greet",
+     "file": "music/reggae/island-meet-and-greet.mp3",
+     "length": 217.0,
+     "credit": "\"Island Meet and Greet\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Secret of Tiki Island",
+     "file": "music/reggae/secret-of-tiki-island.mp3",
+     "length": 196.0,
+     "credit": "\"Secret of Tiki Island\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Upbeat Forever",
+     "file": "music/reggae/upbeat-forever.mp3",
+     "length": 195.0,
+     "credit": "\"Upbeat Forever\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Blue Ska",
+     "file": "music/reggae/blue-ska.mp3",
+     "length": 146.0,
+     "credit": "\"Blue Ska\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "country": {
+   "label": "Country and bluegrass",
+   "tracks": [
+    {
+     "title": "Hillbilly Swing",
+     "file": "music/country/hillbilly-swing.mp3",
+     "length": 167.0,
+     "credit": "\"Hillbilly Swing\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Cattails",
+     "file": "music/country/cattails.mp3",
+     "length": 159.0,
+     "credit": "\"Cattails\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Dances and Dames",
+     "file": "music/country/dances-and-dames.mp3",
+     "length": 147.0,
+     "credit": "\"Dances and Dames\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Hot Pursuit",
+     "file": "music/country/hot-pursuit.mp3",
+     "length": 169.0,
+     "credit": "\"Hot Pursuit\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "celtic": {
+   "label": "Celtic",
+   "tracks": [
+    {
+     "title": "Achaidh Cheide",
+     "file": "music/celtic/achaidh-cheide.mp3",
+     "length": 134.0,
+     "credit": "\"Achaidh Cheide\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Celtic Impulse",
+     "file": "music/celtic/celtic-impulse.mp3",
+     "length": 158.0,
+     "credit": "\"Celtic Impulse\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Thatched Villagers",
+     "file": "music/celtic/thatched-villagers.mp3",
+     "length": 245.0,
+     "credit": "\"Thatched Villagers\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Master of the Feast",
+     "file": "music/celtic/master-of-the-feast.mp3",
+     "length": 228.0,
+     "credit": "\"Master of the Feast\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "classical": {
+   "label": "Classical",
+   "tracks": [
+    {
+     "title": "Canon in D Major",
+     "file": "music/classical/canon-in-d-major.mp3",
+     "length": 356.0,
+     "credit": "\"Canon in D Major\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Danse Macabre",
+     "file": "music/classical/danse-macabre.mp3",
+     "length": 406.0,
+     "credit": "\"Danse Macabre\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Prelude and Action",
+     "file": "music/classical/prelude-and-action.mp3",
+     "length": 99.0,
+     "credit": "\"Prelude and Action\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "String Impromptu Number 1",
+     "file": "music/classical/string-impromptu-number-1.mp3",
+     "length": 374.0,
+     "credit": "\"String Impromptu Number 1\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "synthwave": {
+   "label": "Synthwave and retro",
+   "tracks": [
+    {
+     "title": "Eighties Action",
+     "file": "music/synthwave/eighties-action.mp3",
+     "length": 171.0,
+     "credit": "\"Eighties Action\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Night Vigil",
+     "file": "music/synthwave/night-vigil.mp3",
+     "length": 288.0,
+     "credit": "\"Night Vigil\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Neon Laser Horizon",
+     "file": "music/synthwave/neon-laser-horizon.mp3",
+     "length": 179.0,
+     "credit": "\"Neon Laser Horizon\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Disco con Tutti",
+     "file": "music/synthwave/disco-con-tutti.mp3",
+     "length": 236.0,
+     "credit": "\"Disco con Tutti\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "chip": {
+   "label": "8-bit",
+   "tracks": [
+    {
+     "title": "8bit Dungeon Boss",
+     "file": "music/chip/8bit-dungeon-boss.mp3",
+     "length": 172.0,
+     "credit": "\"8bit Dungeon Boss\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "8bit Dungeon Level",
+     "file": "music/chip/8bit-dungeon-level.mp3",
+     "length": 217.0,
+     "credit": "\"8bit Dungeon Level\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Pixel Peeker Polka - faster",
+     "file": "music/chip/pixel-peeker-polka-faster.mp3",
+     "length": 202.0,
+     "credit": "\"Pixel Peeker Polka - faster\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Pixelland",
+     "file": "music/chip/pixelland.mp3",
+     "length": 234.0,
+     "credit": "\"Pixelland\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  },
+  "metal": {
+   "label": "Rage metal",
+   "tracks": [
+    {
+     "title": "Volatile Reaction",
+     "file": "music/metal/volatile-reaction.mp3",
+     "length": 165.0,
+     "credit": "\"Volatile Reaction\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Movement Proposition",
+     "file": "music/metal/movement-proposition.mp3",
+     "length": 141.0,
+     "credit": "\"Movement Proposition\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Ready Aim Fire",
+     "file": "music/metal/ready-aim-fire.mp3",
+     "length": 217.0,
+     "credit": "\"Ready Aim Fire\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    },
+    {
+     "title": "Ghost Dance",
+     "file": "music/metal/ghost-dance.mp3",
+     "length": 73.0,
+     "credit": "\"Ghost Dance\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0"
+    }
+   ]
+  }
+ }
+}
