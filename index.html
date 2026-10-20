@@ -51,10 +51,10 @@ body{background:var(--panel);color:var(--ink);font-family:"Atkinson Hyperlegible
 .base-tiles.grey{filter:grayscale(1) contrast(.85) brightness(1.08)}
 :root[data-theme="dark"] .base-tiles.grey{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}
 :root[data-theme="dark"] .base-tiles.streets,:root[data-theme="dark"] .base-tiles.cycle{filter:brightness(.72) contrast(1.05)}
-:root[data-theme="dark"] .base-tiles.sat{filter:brightness(.8)}
+:root[data-theme="dark"] .base-tiles.sat{filter:none}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .base-tiles.grey{filter:grayscale(1) invert(1) brightness(.7) contrast(.9)}
   :root:not([data-theme="light"]) .base-tiles.streets,:root:not([data-theme="light"]) .base-tiles.cycle{filter:brightness(.72) contrast(1.05)}
-  :root:not([data-theme="light"]) .base-tiles.sat{filter:brightness(.8)}}
+  :root:not([data-theme="light"]) .base-tiles.sat{filter:none}}
 h1{font-size:1.65rem;line-height:1.15;margin:0 0 12px;letter-spacing:-0.01em}
 .lede{font-size:1.06rem;margin:0 0 10px;max-width:38em}
 .lede strong{font-weight:700}
@@ -924,7 +924,7 @@ const BASEMAPS = {
   grey: { name: 'Light grey', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: 'Background: ' + OSM, opacity: 0.5 },
   streets: { name: 'Streets', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: 'Background: ' + OSM, opacity: 0.85 },
   cycle: { name: 'Cycling (CyclOSM)', url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', sub: 'abc', attr: 'Background: CyclOSM, ' + OSM, opacity: 0.8 },
-  sat: { name: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community', opacity: 0.9 },
+  sat: { name: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: 'Imagery &copy; Esri, Maxar, Earthstar Geographics and the GIS User Community', opacity: 1 },
   none: null };
 let base = null;
 function setBasemap(id) {
@@ -1073,7 +1073,7 @@ function draw() {
     ctx.setLineDash([3, 3]); ctx.strokeStyle = C.gapc; ctx.lineWidth = Math.max(1.5, bw * 1.4); ctx.stroke(); ctx.setLineDash([]);
     if (r.access.length) { ctx.setLineDash([5, 4]); ctx.strokeStyle = C.access; ctx.lineWidth = bw * 2 + 1.5; ctx.beginPath(); r.access.forEach(e => { if (e < P) path(G[e]); else seg(e); }); ctx.stroke(); ctx.setLineDash([]); }
   }
-  if (RT.result && RT.result.m) { ctx.fillStyle = C.veil; ctx.fillRect(0, 0, s.x, s.y); } // fade the network back while a route is shown
+  if (RT.result && RT.result.m && state.basemap !== 'sat') { ctx.fillStyle = C.veil; ctx.fillRect(0, 0, s.x, s.y); } // fade the network back while a route is shown (not over satellite imagery)
   drawRoute(ctx, sc, ox, oy, bw);
   if (sel && sel.chain) { ctx.beginPath(); sel.chain.forEach(m => path(m)); ctx.setLineDash([]); ctx.strokeStyle = C.casing; ctx.lineWidth = bw * 2.4 + 6; ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1; ctx.strokeStyle = C.selc; ctx.lineWidth = bw * 2.4 + 2; ctx.stroke(); }
   drawLabels(ctx, sc, ox, oy, z, res, vis);
@@ -1106,7 +1106,7 @@ $('chk-ml').addEventListener('change', e => { state.mll = e.target.checked; upda
 $('chk-crash').addEventListener('change', e => { state.crash = e.target.checked; update(); });
 $('chk-dest').addEventListener('change', e => { state.dest = e.target.checked; if (state.dest) destLayer.addTo(map); else destLayer.remove(); syncLayerMenu(); });
 $('chk-hot').addEventListener('change', e => { state.hot = e.target.checked; update(); });
-['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); writeHash(); }));
+['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); if (e.target.value === 'sat' && state.dz) { setLayer('chk-dz', false); toast('Neighbourhood shading is off so the satellite image shows clearly. Turn it back on under Layers.'); } writeHash(); }));
 // colour theme: follow the device, or force light or dark
 const THEMES = ['auto', 'light', 'dark'], THEME_NAME = { auto: 'Auto', light: 'Light', dark: 'Dark' };
 function setTheme(th) {
@@ -2408,7 +2408,7 @@ function downloadGpx() {
 // of the longest stretch that differs. Repeat until the points run out or the routes agree.
 function googleUrl(R, withEstimate) {
   const f = (lat, lng) => lat.toFixed(5) + ',' + lng.toFixed(5), path = R.path || [];
-  const maxW = (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.matchMedia('(max-width: 760px)').matches) ? 3 : 9;
+  const maxW = (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.matchMedia('(max-width: 760px)').matches) ? 3 : 7; // Google takes 10 points on the web (3 stops on mobile); one is left free so the route can still be edited there
   if (!path.length) return 'https://www.google.com/maps/dir/?api=1&travelmode=bicycling&origin=' + f(RT.start.lat, RT.start.lng) + '&destination=' + f(RT.end.lat, RT.end.lng);
   const res = cur(), len = new Float64Array(path.length + 1); path.forEach((s, i) => { len[i + 1] = len[i] + elen[s[0]]; });
   const stopIdx = []; let si = 0; // keep the rider's own stops as waypoints, in order
@@ -2426,7 +2426,7 @@ function googleUrl(R, withEstimate) {
   };
   while (anchors.length - 2 < maxW) {
     let pick = null;
-    for (let k = 0; k + 1 < anchors.length; k++) { const g = gap(anchors[k], anchors[k + 1]); if (g.at > anchors[k] && g.at < anchors[k + 1] && (!pick || g.m > pick.m)) pick = { m: g.m, at: g.at, k }; }
+    for (let k = 0; k + 1 < anchors.length; k++) { const g = gap(anchors[k], anchors[k + 1]); if (g.at > anchors[k] && g.at < anchors[k + 1] && len[g.at] - len[anchors[k]] >= 150 && len[anchors[k + 1]] - len[g.at] >= 150 && (!pick || g.m > pick.m)) pick = { m: g.m, at: g.at, k }; }
     if (!pick || pick.m < 120) break;
     anchors.splice(pick.k + 1, 0, pick.at);
   }
@@ -2526,7 +2526,7 @@ $('dock-gpx').addEventListener('click', downloadGpx);
 $('dock-gmaps').addEventListener('click', ev => {
   const R = RT.result; if (!R || !R.path) { ev.preventDefault(); return; }
   ev.currentTarget.href = googleUrl(R, true);
-  toast(R.gmMatch >= 97 ? 'Opening Google Maps. It should follow this route closely.' : 'Opening Google Maps. It will likely follow about ' + R.gmMatch + '% of this route, because it re-plans between up to ' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 3 : 9) + ' points. For the exact route, use the GPX file in Strava, Komoot or your bike computer.');
+  toast(R.gmMatch >= 97 ? 'Opening Google Maps. It should follow this route closely.' : 'Opening Google Maps. It will likely follow about ' + R.gmMatch + '% of this route, because it re-plans between up to ' + (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 3 : 7) + ' stops. For the exact route, use the GPX file in Strava, Komoot or your bike computer.');
 });
 $('dock-scen').addEventListener('change', e => { stopFan(); setScen(+e.target.value); });
 $('dock-clear').addEventListener('click', clearRoute);
