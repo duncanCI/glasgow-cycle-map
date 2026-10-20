@@ -81,7 +81,7 @@ It runs an open model entirely in the browser with WebLLM: Microsoft's Phi-4-min
 
 "Music for the ride", a button of its own at the top left of the map during a virtual cycle, opens one short list: lo-fi beats, reggae, country, Celtic, classical, synthwave, 8-bit and rage metal, plus a volume slider. Each plays inside the page from a library of Creative Commons tracks by Kevin MacLeod (incompetech.com, licensed under Creative Commons: By Attribution 4.0), shuffled, with a skip button. Until the library is in place, classical and synthwave fall back to live, ad-free radio (Radio Swiss Classic and Nightride FM).
 
-The library lives in `music/` with its list in `data/music.json`, built by `scripts/fetch_music.py` from the public incompetech catalogue (about four tracks per style; re-encoded to 96 kbps when ffmpeg is available). Build or top it up from the Actions tab with "Fetch the music library", or run the script locally. Every track is credited, as the licence requires.
+The library lives in `music/` with its list in `data/music.json`, built by `scripts/fetch_music.py` from the public incompetech catalogue (about four tracks per style; re-encoded to 96 kbps when ffmpeg is available). Build or top it up from the Actions tab with "Fetch the music library", or run the script locally. Every track is credited, as the licence requires. Music pauses whenever the page is hidden (another tab or app) and resumes on return during the ride; stopping the ride stops it. iPhones and iPads don't let web pages set audio volume, so there the fades are skipped, the stop is immediate and the volume slider is hidden in favour of the phone's own buttons.
 
 ## Road crossings
 

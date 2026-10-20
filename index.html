@@ -440,6 +440,9 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
   .app.flying .maptools{display:none}
   .app[data-sheet=half] .dock,.app[data-sheet=full] .dock{display:none}
   .app.flying .ptip{display:none}
+  .leaflet-control-attribution{max-width:56vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1.7;cursor:pointer}
+  .leaflet-control-attribution.open{white-space:normal;max-width:calc(100vw - 20px)}
+  .maplibregl-ctrl-attrib.maplibregl-compact-show{max-width:calc(100vw - 20px);font-size:10px}
   /* nothing may push the page or the sheet sideways */
   html,body{overflow:hidden;overscroll-behavior:none}
   body{position:fixed;inset:0}
@@ -628,7 +631,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <details class="topic"><summary>Reports</summary><p>Reports open as public GitHub issues on this project, which needs a free GitHub account. They appear on the map once a maintainer adds them to the reports file. FixMyStreet sends a report to the council and needs no GitHub account.</p></details>
       <p><a id="repo-link" href="#" hidden>Source code, data and method on GitHub</a></p>
     
-          <p class="note" id="build-id">Version: 20 October 2026, 11:00</p>
+          <p class="note" id="build-id">Version: 20 October 2026, 12:00</p>
     </section>
     </div>
   </aside>
@@ -983,6 +986,8 @@ function route(res, k) {
 const map = L.map('map', { zoomAnimation: true, fadeAnimation: true, markerZoomAnimation: true, zoomSnap: 0, zoomDelta: 0.5, scrollWheelZoom: false, minZoom: 11, maxZoom: 18, maxBounds: [[55.74, -4.52], [55.96, -3.98]] });
 map.attributionControl.setPrefix(false);
 map.attributionControl.addAttribution('<a href="#" data-about>Sources and credits</a>');
+{ const ac = map.attributionControl.getContainer ? map.attributionControl.getContainer() : null; if (ac) ac.title = 'Tap to read the map credits in full';
+  if (ac) ac.addEventListener('click', e => { if (!isPhone() || e.target.closest('a')) return; ac.classList.toggle('open'); }); }
 map.getContainer().addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-about]'); if (a) { e.preventDefault(); e.stopPropagation(); showTab('about'); const s = document.getElementById('sources'); if (s) s.scrollIntoView({ block: 'start' }); } }, true);
 map.fitBounds([[55.79, -4.39], [55.92, -4.07]]);
 map.createPane('net'); map.getPane('net').style.zIndex = 350; map.getPane('net').style.pointerEvents = 'none';
@@ -1961,7 +1966,11 @@ const SAT_STYLE = () => ({ version: 8, glyphs: 'https://tiles.openfreemap.org/fo
     omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '&copy; OpenMapTiles &copy; OpenStreetMap contributors' } },
   layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#59634f' } }, { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-fade-duration': 0 } }] });
 const style3d = () => FLY.style === 'map' ? 'https://tiles.openfreemap.org/styles/liberty' : SAT_STYLE();
-function on3dStyle() {
+function attrib3dSmall() { // MapLibre opens its compact credit at first; on a phone fold it to its (i) button straight away
+  if (!ml3d || !isPhone()) return; const a = ml3d.getContainer().querySelector('.maplibregl-ctrl-attrib');
+  if (a && a.classList.contains('maplibregl-compact')) a.classList.remove('maplibregl-compact-show');
+}
+function on3dStyle() { setTimeout(attrib3dSmall, 300);
   const st = ml3d.getStyle() || { layers: [] }, src = ml3d.getSource('openmaptiles') ? 'openmaptiles' : ml3d.getSource('omt') ? 'omt' : null;
   if (src && !st.layers.some(l => l.type === 'fill-extrusion')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: src, 'source-layer': 'building', minzoom: 13,
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
@@ -2108,11 +2117,19 @@ const RADIO = [ // live, ad-free stations that publish their streams for any pla
   ['synthwave', 'Synthwave', 'Nightride FM', ['https://stream.nightride.fm/nightride.mp3', 'https://stream.nightride.fm/chillsynth.mp3'], 'play']];
 // each choice gets a fresh audio element, so a stopped or switched stream can never report a late error against the new one
 const MUS = { genre: 'off', audio: null, vol: 0.7, fadeT: 0, onChange: null, token: 0 };
-const fadeTo = (a, target, done) => { clearInterval(MUS.fadeT); MUS.fadeT = setInterval(() => { const v = a.volume + (target > a.volume ? 0.05 : -0.08); a.volume = Math.max(0, Math.min(1, target > a.volume ? Math.min(target, v) : Math.max(target, v))); if (Math.abs(a.volume - target) < 0.01) { clearInterval(MUS.fadeT); if (done) done(); } }, 45); };
+// volume can't be set on iPhones and iPads (the browser keeps it at full): there, fades are skipped and stops are immediate
+const VOL_OK = (() => { try { const a = new Audio(); a.volume = 0.5; return Math.abs(a.volume - 0.5) < 0.01; } catch (e) { return false; } })();
+const fadeTo = (a, target, done) => {
+  clearInterval(MUS.fadeT); let n = 0;
+  if (!VOL_OK) { if (done) done(); return; }
+  MUS.fadeT = setInterval(() => { const before = a.volume, v = before + (target > before ? 0.05 : -0.08);
+    a.volume = Math.max(0, Math.min(1, target > before ? Math.min(target, v) : Math.max(target, v)));
+    if (Math.abs(a.volume - target) < 0.01 || a.volume === before || ++n > 40) { clearInterval(MUS.fadeT); if (done) done(); } }, 45); // never longer than 2 seconds
+};
 function retire(a) { if (!a) return; a.onerror = a.onplaying = a.onstalled = null; try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
 function stopMusic() {
-  MUS.token++; MUS.genre = 'off'; MUS.now = ''; MUS.skip = null; if (MUS.onChange) MUS.onChange();
-  const a = MUS.audio; MUS.audio = null; if (a) fadeTo(a, 0, () => retire(a));
+  MUS.token++; MUS.genre = 'off'; MUS.now = ''; MUS.skip = null; MUS.held = false; if (MUS.onChange) MUS.onChange();
+  const a = MUS.audio; MUS.audio = null; if (a) { fadeTo(a, 0, () => retire(a)); setTimeout(() => retire(a), 2500); } // a hard stop behind the fade, whatever happens
 }
 function playMusic(g) {
   const st = RADIO.find(r => r[0] === g); if (!st) return stopMusic();
@@ -2179,7 +2196,7 @@ function playLib(g) {
     });
     const vl = el('label', 'mus-vol'); const vr = el('input'); vr.type = 'range'; vr.min = 0; vr.max = 1; vr.step = 0.05; vr.value = MUS.vol; vr.setAttribute('aria-label', 'Music volume');
     vr.addEventListener('input', () => { MUS.vol = +vr.value; if (MUS.audio && MUS.genre !== 'off') { clearInterval(MUS.fadeT); MUS.audio.volume = MUS.vol; } });
-    vl.append(document.createTextNode('Volume'), vr);
+    vl.append(document.createTextNode('Volume'), vr); if (!VOL_OK) vl.hidden = true; // use the phone's own volume buttons
     const note = el('div', 'mus-note');
     if (MUS.lib) note.append(document.createTextNode('Music by Kevin MacLeod ('), Object.assign(el('a', null, 'incompetech.com'), { href: 'https://incompetech.com', target: '_blank', rel: 'noopener' }), document.createTextNode('), '),
       Object.assign(el('a', null, 'CC BY 4.0'), { href: 'https://creativecommons.org/licenses/by/4.0/', target: '_blank', rel: 'noopener' }), document.createTextNode('.'));
@@ -2456,6 +2473,12 @@ function stopFly() {
   flyMk.remove(); if (RT.result) fitRoute();
 }
 $('dock-fly').addEventListener('click', startFly);
+document.addEventListener('visibilitychange', () => {
+  const a = MUS.audio; if (!a) return;
+  if (document.hidden) { if (!a.paused) { MUS.held = true; a.pause(); } }
+  else if (MUS.held) { MUS.held = false; if (FLY.on) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else stopMusic(); }
+});
+window.addEventListener('pagehide', () => stopMusic());
 $('fly-play').addEventListener('click', () => {
   if (FLY.d >= (RT.result ? RT.result.total : 0)) { FLY.d = 0; FLY.hd3 = null; FLY.cx = FLY.cy = null; }
   FLY.playing = !FLY.playing; FLY.t = 0; $('fly-play').textContent = FLY.playing ? 'Pause' : 'Play';
