@@ -103,6 +103,12 @@ It runs an open model entirely in the browser with WebLLM: Microsoft's Phi-4-min
 
 The library lives in `music/` with its list in `data/music.json`, built by `scripts/fetch_music.py` from the public incompetech catalogue (about four tracks per style; re-encoded to 96 kbps when ffmpeg is available). Build or top it up from the Actions tab with "Fetch the music library", or run the script locally. Every track is credited, as the licence requires. Music pauses whenever the page is hidden (another tab or app) and resumes on return during the ride; stopping the ride stops it. iPhones and iPads don't let web pages set audio volume, so there the fades are skipped, the stop is immediate and the volume slider is hidden in favour of the phone's own buttons.
 
+## Sweat-ometer
+
+A bit of fun with a serious use for less confident riders: where on a route you'd be huffing and puffing. For every 10 m of the profile it works out the power needed at the speed the time estimate assumes (weight against the slope and rolling resistance, plus air resistance, with a heavier, more upright rider and bike for "Riding with children" and a lighter, sleeker one for "Very confident"), as a multiple of that rider's own easy cruising power on the flat. Smoothed over about 50 m, that gives six zones: freewheeling 😎 (downhill), breezy 😌, warming up 🙂, huffing 😅, puffing 😰 and dripping 🥵. Sweat builds while working hard and dries off on the flat and downhill, up to five drops: a kilometre at 2% is about one drop, the climb out of the Clyde Tunnel two, a long West End haul three or more.
+
+The "💦 Sweat-ometer" button on the route strip adds an effort strip and drops over the hardest stretches to the height profile, and the effort to its hover text. During a virtual cycle a gauge at the top right shows the face, the effort and the drops so far (× hides it for that ride). The route card gives the route's sweat rating.
+
 ## Road crossings
 
 Wherever the route leaves a path or shared pavement and crosses a road, the app records a road crossing: at a junction where a path meets the road on both sides, or where a community-mapped line is drawn straight across a carriageway between junctions. Each crossing is checked against `data/crossings.json`, which holds OpenStreetMap's crossing points (signals, toucans, zebras, marked and uncontrolled crossings, and places mapped as no crossing) and the council's city-centre signal sites. The weekly Action refreshes it with `scripts/fetch_crossings.py`.

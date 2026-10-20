@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-oxahOwNQCf4avYFK9fNJJ5vr028l38Xldxx8Iqlnn3M=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-d1JN6o5O6kRLweuL+R/u3CrOrGS3UMU7c181TWjQ68c=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -258,6 +258,24 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu button[aria-checked="true"]{font-weight:700}
 .menu button[aria-checked="true"]::after{content:"♪";margin-left:auto;color:var(--accent)}
 .mus-vol input{flex:1;accent-color:var(--accent)}
+.sweat-gauge{position:absolute;top:12px;right:12px;z-index:1110;display:flex;gap:9px;align-items:center;padding:8px 30px 8px 10px;border:1.5px solid var(--ink);border-radius:14px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);min-width:178px}
+.sg-face{font-size:2rem;line-height:1;transition:transform .2s}
+.sweat-gauge[data-z="3"] .sg-face{animation:sg-wobble .9s ease-in-out infinite}
+.sweat-gauge[data-z="4"] .sg-face{animation:sg-wobble .45s ease-in-out infinite}
+@keyframes sg-wobble{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}}
+.sg-label{font-weight:700;font-size:0.92rem}
+.sg-bar{height:7px;width:112px;border-radius:4px;background:var(--line);overflow:hidden;margin:4px 0 3px}
+.sg-bar i{display:block;height:100%;width:0;border-radius:4px;transition:width .25s,background .25s}
+.sg-drops{font-size:0.82rem;letter-spacing:1px;white-space:nowrap}
+.sg-drops span{opacity:.22;filter:grayscale(1);transition:opacity .4s,filter .4s}
+.sg-drops span.on{opacity:1;filter:none}
+.sg-drops span.new{animation:sg-drip .6s ease-out}
+@keyframes sg-drip{0%{transform:translateY(-6px) scale(1.4)}100%{transform:none}}
+.sg-x{position:absolute;top:4px;right:6px;border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 4px}
+#dock-sweat[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sw-drop{font-size:12px}
+@media (prefers-reduced-motion: reduce){.sweat-gauge .sg-face,.sg-drops span.new{animation:none!important}}
+@media (max-width:760px){.sweat-gauge{top:8px;right:8px;min-width:0;padding:6px 26px 6px 8px;gap:7px}.sg-face{font-size:1.6rem}.sg-bar{width:84px}.sg-label{font-size:0.82rem}}
 .music-dock{position:absolute;top:12px;left:56px;z-index:1110;display:flex;gap:6px;align-items:center}
 .music-btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:0.9rem;font-weight:700;padding:8px 14px 8px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);cursor:pointer;max-width:280px}
 .music-btn #music-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -638,7 +656,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 20 October 2026, 20:00</p>
+      <p class="note" id="build-id">Version: 20 October 2026, 21:00</p>
     </section>
     </div>
   </aside>
@@ -651,6 +669,11 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
     <div class="tip" id="tip" hidden role="note"><strong>New here?</strong> Right-click the map, or press and hold on a phone, to plan a route. Click any street to see how far it is from protected track.<div class="actions"><button type="button" class="chip primary" id="tip-help">How to use</button><button type="button" class="chip" id="tip-close">Got it</button></div></div>
     <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
+    <div class="sweat-gauge" id="sweat-gauge" hidden role="status" aria-label="Sweat-ometer">
+      <div class="sg-face" id="sg-face" aria-hidden="true">😌</div>
+      <div class="sg-body"><div class="sg-label" id="sg-label">Breezy</div><div class="sg-bar" aria-hidden="true"><i id="sg-fill"></i></div><div class="sg-drops" id="sg-drops"></div></div>
+      <button type="button" class="sg-x" id="sg-x" aria-label="Hide the sweat-ometer for this ride" title="Hide for this ride">×</button>
+    </div>
     <div class="music-dock" id="music-dock" hidden aria-label="Music for the ride">
       <span class="menu-wrap"><button type="button" class="music-btn" id="fly-musicbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-music"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="music-label">Music</span></button><div class="menu" id="menu-music" role="menu" hidden></div></span>
       <button type="button" class="music-stop" id="music-skip" hidden aria-label="Next track" title="Next track">⏭</button>
@@ -661,6 +684,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <div class="dock-head"><strong id="dock-sum"></strong>
         <span class="dock-actions">
           <button type="button" class="chip primary" id="dock-fly">Virtual cycle</button>
+          <button type="button" class="chip" id="dock-sweat" aria-pressed="false" title="Show where you would be huffing and puffing">💦 Sweat-ometer</button>
           <button type="button" class="chip" id="dock-compare" aria-haspopup="dialog">Compare</button>
           <span class="menu-wrap"><button type="button" class="chip" id="dock-sharebtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-share">Share or export</button>
             <div class="menu up" id="menu-share" role="menu" hidden><button type="button" role="menuitem" id="dock-share">Copy a link to this view</button><button type="button" role="menuitem" id="dock-gpx">Download GPX for Strava</button><a role="menuitem" id="dock-gmaps" href="#" target="_blank" rel="noopener">Open in Google Maps</a></div></span>
@@ -716,6 +740,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
 <script>(function () {
 'use strict';
 const textNode = s => { const n = document.createElement('span'); n.textContent = String(s); return n; }; // for map labels: names come from open data, so never as markup
+let SWEAT_ON = (() => { try { return localStorage.getItem('gcm-sweat') === '1'; } catch (e) { return false; } })(), SWEAT_HIDE = false;
 const APP_VER = '2026-10-19c';
 try { if (localStorage.getItem('gcm-ver') !== APP_VER) { ['gcm-panel', 'gcm-panel-w', 'gcm-key'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('gcm-ver', APP_VER); } } catch (e) {}
 const N = JSON.parse(document.getElementById('net-data').textContent);
@@ -1966,6 +1991,7 @@ function renderRoute() {
   st('Protected', pct(R.prot, R.total) + '%');
   st('Climb', Math.round(R.up) + ' m up, ' + Math.round(R.down) + ' m down');
   st('Steepest 100 m', Math.max(0, Math.round(R.steep * 1000) / 10) + '%');
+  { const sw = sweatOf(R, RT.conf), n = sweatDrops(sw.peak); st('Sweat-ometer', n ? '💦'.repeat(n) + ' ' + n + ' of 5' + (sw.peakNm ? ', sweatiest by ' + sw.peakNm : '') : 'Barely a bead 😌'); }
   st('Junctions passed', String(R.jn));
   { const bx = R.cross.filter(c => c.busy), bs = bx.filter(c => c.sig).length, qx = R.cross.length - bx.length;
     st('Crossing roads from paths', bx.length ? bx.length + ' busy road' + (bx.length === 1 ? '' : 's') + (bs ? ', ' + bs + ' at mapped crossings' : ', none at mapped crossings') + (bx.some(c => c.unv) ? ', ' + bx.filter(c => c.unv).length + ' not confirmed' : '') + (qx ? '; ' + qx + ' side road' + (qx === 1 ? '' : 's') : '') : qx ? qx + ' side road' + (qx === 1 ? '' : 's') + ', no busy roads' : 'None'); }
@@ -2516,6 +2542,20 @@ function flyPoint(d) {
 }
 const svLink = p => 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6) + '&heading=' + Math.round(p.hd) + '&pitch=0&fov=90';
 // the camera only follows the route while playing (or on an explicit jump); paused, the view is yours to pan, zoom and tilt
+let sgLast = -1;
+function sweatGauge(d) {
+  const g = $('sweat-gauge'), R = RT.result; if (!g) return;
+  if (!FLY.on || SWEAT_HIDE || !R || !R.prof) { g.hidden = true; return; }
+  const sw = sweatOf(R, RT.conf), i = profIdx(R.prof, d), z = Math.max(0, sw.zone[i]), r = sw.eff[i], s = sw.S[i];
+  g.hidden = false; g.dataset.z = String(Math.max(0, z - 1));
+  $('sg-face').textContent = SWEAT_ZONE[z][1]; $('sg-label').textContent = SWEAT_ZONE[z][0];
+  const f = $('sg-fill'); f.style.width = Math.min(100, Math.max(4, 100 * r / 4.5)) + '%'; f.style.background = SWEAT_ZONE[z][2];
+  const n = sweatDrops(s), dr = $('sg-drops');
+  if (dr.childElementCount !== 5) { dr.textContent = ''; for (let k = 0; k < 5; k++) dr.append(el('span', null, '💧')); }
+  [...dr.children].forEach((sp, k) => { const on = k < n; if (on && !sp.classList.contains('on') && sgLast >= 0) { sp.classList.add('new'); setTimeout(() => sp.classList.remove('new'), 650); } sp.classList.toggle('on', on); });
+  dr.setAttribute('aria-label', 'Sweat ' + n + ' of 5'); sgLast = n;
+  g.setAttribute('aria-label', 'Sweat-ometer: ' + SWEAT_ZONE[z][0] + ', sweat ' + n + ' of 5');
+}
 function flyStep(dt, force) {
   const R = RT.result; if (!R || !R.prof) { stopFly(); return; }
   const follow = FLY.playing || force;
@@ -2528,7 +2568,7 @@ function flyStep(dt, force) {
   FLY.hd3 = FLY.hd3 == null ? tgt : lerpAngle(FLY.hd3, tgt, ease(1.2));
   FLY.turn = Math.abs(((tgt - FLY.hd3 + 540) % 360) - 180);
   const kc = ease(0.45); FLY.cx = FLY.cx == null ? p.lon : FLY.cx + (p.lon - FLY.cx) * kc; FLY.cy = FLY.cy == null ? p.lat : FLY.cy + (p.lat - FLY.cy) * kc;
-  flyMk.setLatLng([p.lat, p.lon]);
+  flyMk.setLatLng([p.lat, p.lon]); sweatGauge(FLY.d);
   FLY.crank = (FLY.crank || 0) + (FLY.playing ? dt * 2 * Math.PI * (0.9 + 0.12 * FLY.speed) : 0); const spin = FLY.crank * 150;
   const e2 = flyMk.getElement && flyMk.getElement(), c2 = e2 && e2.querySelector('.cyc');
   if (c2) { const h = FLY.hd3 % 360; if (h > 190 && h < 350) FLY.west = true; else if (h > 10 && h < 170) FLY.west = false; c2.classList.toggle('west', !!FLY.west); c2.classList.toggle('paused', !FLY.playing); pedal(c2.querySelector('svg'), FLY.crank, spin); }
@@ -2554,7 +2594,7 @@ function flyStep(dt, force) {
 function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (now - FLY.t) / 1000) : 0; FLY.t = now; flyStep(dt); FLY.raf = requestAnimationFrame(flyLoop); }
 function startFly() {
   if (!RT.result || !RT.result.prof) return;
-  FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup(); appEl.classList.add('flying'); if (isPhone()) { SHEET.before = SHEET.state; setSheet('mini'); }
+  FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup(); SWEAT_HIDE = false; sgLast = -1; appEl.classList.add('flying'); if (isPhone()) { SHEET.before = SHEET.state; setSheet('mini'); }
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; $('music-dock').hidden = false; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
   if (ml3dMk) ml3dMk.getElement().innerHTML = riderHTML(RT.conf, 'cyc3d');
@@ -2565,11 +2605,15 @@ function startFly() {
 }
 function stopFly() {
   if (!FLY.on) return; appEl.classList.remove('flying'); if (isPhone()) setSheet(SHEET.before && SHEET.before !== 'mini' ? SHEET.before : 'peek'); stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
-  const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d();
+  const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d(); { const sg = document.getElementById('sweat-gauge'); if (sg) sg.hidden = true; }
   if (map.options) map.options.touchZoom = true;
   flyMk.remove(); if (RT.result) fitRoute();
 }
 $('dock-fly').addEventListener('click', startFly);
+const syncSweatBtn = () => $('dock-sweat').setAttribute('aria-pressed', SWEAT_ON ? 'true' : 'false');
+syncSweatBtn();
+$('dock-sweat').addEventListener('click', () => { SWEAT_ON = !SWEAT_ON; try { localStorage.setItem('gcm-sweat', SWEAT_ON ? '1' : '0'); } catch (e) {} syncSweatBtn(); if (RT.result && RT.result.prof) renderDock(); if (FLY.on) { SWEAT_HIDE = false; sweatGauge(FLY.d); } });
+$('sg-x').addEventListener('click', () => { SWEAT_HIDE = true; $('sweat-gauge').hidden = true; });
 document.addEventListener('visibilitychange', () => {
   const a = MUS.audio; if (!a) return;
   if (document.hidden) { if (!a.paused) { MUS.held = true; a.pause(); } }
@@ -2596,6 +2640,33 @@ map.on('zoomstart', () => { if (FLY.on && !FLY.three) FLY.b2.zoom = true; });
 map.on('zoomend', () => { FLY.b2.zoom = false; });
 function recentre() { FLY.off3 = FLY.off2 = null; FLY.bOff = 0; FLY.b3 = {}; FLY.b2 = {}; clearTimeout(FLY.settleT); if (ml3d && ml3dReady && FLY.three) ml3d.jumpTo({ zoom: 16.6, pitch: 62 }); else map.setZoom(16, { animate: false }); flyStep(0, true); }
 $('fly-recentre').addEventListener('click', recentre);
+// ---------- the sweat-ometer: how hard each stretch feels, from the power it takes at the speed the time estimate assumes ----------
+// Power to ride = weight against the slope and rolling resistance, plus air resistance, at that speed. Effort is that
+// power as a multiple of the rider's own easy cruising power on the flat, so a child-carrying parent and a racer each
+// feel their own hills. Sweat builds over time while working hard and dries off on the flat and downhill.
+const SWEAT_RIDER = [ // rider and bike in kg, frontal drag area in m2, rolling resistance
+  [105, 0.70, 0.008], [88, 0.60, 0.007], [85, 0.52, 0.006], [82, 0.42, 0.005], [78, 0.34, 0.004]];
+const SWEAT_ZONE = [['Freewheeling', '😎', '#3a8fd8'], ['Breezy', '😌', '#8ab17d'], ['Warming up', '🙂', '#e9c46a'], ['Huffing', '😅', '#f4a261'], ['Puffing', '😰', '#e76f51'], ['Dripping', '🥵', '#c1121f']];
+function sweatOf(R, conf) {
+  if (R.sw && R.sw.conf === conf && R.sw.n === R.prof.length) return R.sw;
+  const pr = R.prof, n = pr.length, [m, cda, crr] = SWEAT_RIDER[conf], base = LEVELS[conf].kmh / 3.6;
+  const power = (v, g) => (m * 9.81 * (g + crr) * v + 0.6 * cda * v * v * v) / 0.97; // 0.6 = half the air density
+  const flat = power(base, 0), zone = new Int8Array(n), eff = new Float32Array(n), S = new Float32Array(n);
+  let s = 0;
+  for (let i = 1; i < n; i++) {
+    const g = pr[i].g || 0, dd = pr[i].d - pr[i - 1].d || 1;
+    let v = LEVELS[conf].kmh * (pr[i - 1].cat === 3 ? 0.85 : 1); v *= g > 0 ? Math.max(0.35, 1 - 7.5 * g) : Math.min(1.5, 1 - 3 * g); v /= 3.6; // as the time estimate
+    const r = Math.max(0, power(v, g)) / flat, dt = dd / v;
+    eff[i] = r; zone[i] = g < -0.025 ? 0 : r < 1.3 ? 1 : r < 2 ? 2 : r < 2.8 ? 3 : r < 3.8 ? 4 : 5;
+    s += (0.009 * Math.max(0, r - 1.5) - 0.005 * s * (r < 1.3 ? 1 : 0.3)) * dt; s = Math.max(0, Math.min(5, s)); S[i] = s; // a kilometre at 2% is about a drop, the climb out of the Clyde Tunnel two, a long West End haul three or more
+  }
+  zone[0] = zone[1] || 1; eff[0] = eff[1] || 1;
+  { const sm = new Float32Array(n), gs = new Float32Array(n); for (let i = 0; i < n; i++) { let a = 0, b = 0, c = 0; for (let k = Math.max(0, i - 2); k <= Math.min(n - 1, i + 2); k++) { a += eff[k]; b += pr[k].g || 0; c++; } sm[i] = a / c; gs[i] = b / c; }
+    for (let i = 0; i < n; i++) { const r = sm[i]; zone[i] = gs[i] < -0.025 ? 0 : r < 1.3 ? 1 : r < 2 ? 2 : r < 2.8 ? 3 : r < 3.8 ? 4 : 5; eff[i] = r; } }
+  let peak = 0, peakAt = 0; for (let i = 0; i < n; i++) if (S[i] > peak) { peak = S[i]; peakAt = i; }
+  R.sw = { conf, n, zone, eff, S, peak, peakNm: pr[peakAt] ? pr[peakAt].nm : '' }; return R.sw;
+}
+const sweatDrops = s => Math.min(5, Math.round(s));
 // the last profile point at or before distance d (profiles are 10 m apart with LiDAR, 20 m before it loads)
 function profIdx(pr, d) { let lo = 0, hi = pr.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (pr[mid].d <= d) lo = mid; else hi = mid - 1; } return lo; }
 function profileSvg(R, W, H) {
@@ -2618,15 +2689,22 @@ function profileSvg(R, W, H) {
     i0 = i;
   }
   (R.cross || []).filter(c => c.busy).forEach(c => { mk('line', { x1: X(c.d), x2: X(c.d), y1: T0, y2: T0 + ph, class: 'xing-line ' + xingCls(c) }); mk('circle', { cx: X(c.d), cy: T0 + 5, r: 4.5, class: 'xing-dot ' + xingCls(c) }); });
+  if (SWEAT_ON) { const sw = sweatOf(R, RT.conf); let j0 = 0;
+    for (let i = 1; i <= pr.length; i++) { if (i < pr.length && sw.zone[i] === sw.zone[j0]) continue;
+      const z = sw.zone[j0]; if (z !== 1) mk('rect', { x: X(pr[j0].d), y: T0, width: Math.max(0.8, X(pr[Math.min(i, pr.length - 1)].d) - X(pr[j0].d)), height: 6, fill: SWEAT_ZONE[z][2], opacity: 0.9 });
+      if (z >= 4 && pr[Math.min(i, pr.length - 1)].d - pr[j0].d >= 30) { const mid = pr[Math.floor((j0 + Math.min(i, pr.length - 1)) / 2)]; const tx = mk('text', { x: X(mid.d), y: Math.max(T0 + 18, Y(mid.e) - 6), 'text-anchor': 'middle', class: 'sw-drop' }); tx.textContent = z >= 5 ? '💦💦' : '💦'; }
+      j0 = i; } }
   const cur = mk('line', { x1: 0, x2: 0, y1: T0, y2: T0 + ph, class: 'rt-cursor', visibility: 'hidden' });
   const dot = mk('circle', { r: 4, class: 'rt-dot', visibility: 'hidden' });
   const hit = mk('rect', { x: L0, y: 0, width: pw, height: H, fill: 'transparent', style: 'cursor:crosshair;touch-action:none' });
   const at = evt => { const b = s.getBoundingClientRect(), x = (evt.clientX - b.left) / b.width * W; const d = Math.max(0, Math.min(R.total, (x - L0) / pw * R.total)), i = profIdx(pr, d); return i + 1 < pr.length && pr[i + 1].d - d < d - pr[i].d ? pr[i + 1] : pr[i]; };
   const showP = (p, nomarker) => { cur.setAttribute('x1', X(p.d)); cur.setAttribute('x2', X(p.d)); cur.setAttribute('visibility', 'visible'); dot.setAttribute('cx', X(p.d)); dot.setAttribute('cy', Y(p.e)); dot.setAttribute('visibility', 'visible');
     const g = Math.round((p.g || 0) * 1000) / 10, grade = Math.abs(g) < 0.5 ? 'flat' : Math.abs(g) + '% ' + (g > 0 ? 'uphill' : 'downhill');
-    $('dock-tip').textContent = fmtKm(p.d) + ' km in, ' + RCAT[p.cat] + (p.nm ? ' on ' + p.nm : '') + ', ' + Math.round(p.e) + ' m, ' + grade;
+    const swz = SWEAT_ON ? sweatOf(R, RT.conf).zone[pr.indexOf(p)] : null;
+    $('dock-tip').textContent = fmtKm(p.d) + ' km in, ' + RCAT[p.cat] + (p.nm ? ' on ' + p.nm : '') + ', ' + Math.round(p.e) + ' m, ' + grade + (swz != null && swz >= 0 ? ', ' + SWEAT_ZONE[swz][0].toLowerCase() + ' ' + SWEAT_ZONE[swz][1] : '');
     PTIP.textContent = ''; const ty = el('div', 'pt-type'); const sw = el('i'); sw.style.background = C.rc[p.cat]; ty.append(sw, document.createTextNode(RCAT[p.cat])); ty.style.color = C.rc[p.cat];
     PTIP.append(ty); if (p.nm) PTIP.append(el('div', null, p.nm));
+    if (swz != null && swz >= 0) PTIP.append(el('div', 'pt-sweat', SWEAT_ZONE[swz][1] + ' ' + SWEAT_ZONE[swz][0]));
     { const xc = (R.cross || []).find(c => c.busy && Math.abs(c.d - p.d) < 40); if (xc) { const xr = el('div', 'pt-x'); xr.append(el('span', 'xing ' + xingCls(xc)), document.createTextNode(xc.unv ? 'No crossing mapped: check it exists' : xc.sig ? (xc.zebra ? 'Zebra crossing' : 'Signal crossing') : 'Busy road, no mapped crossing: be ready to stop')); PTIP.append(xr); } } PTIP.append(el('div', 'pt-row', fmtKm(p.d) + ' km in, ' + Math.round(p.e) + ' m above sea level, ' + grade));
     const box = s.getBoundingClientRect(), hb = s.parentNode.getBoundingClientRect(); PTIP.hidden = false;
     const px = (X(p.d) / W) * box.width + (box.left - hb.left), py = (Y(p.e) / H) * box.height + (box.top - hb.top) - 10;
