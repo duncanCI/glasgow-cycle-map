@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-E0ZORdGMjNqOcg1QMskR1E0n0GktW/k0iHewC5FP05I=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-X/cXOrpjzsAlxwQ18Wcr5qrFE8JxOwlIe33EwpON7dQ=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -258,18 +258,24 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .menu button[aria-checked="true"]{font-weight:700}
 .menu button[aria-checked="true"]::after{content:"♪";margin-left:auto;color:var(--accent)}
 .mus-vol input{flex:1;accent-color:var(--accent)}
-.explore-bar{position:absolute;top:12px;left:12px;z-index:1110;display:flex;flex-direction:column;gap:7px;max-width:250px;padding:10px 12px;border:1.5px solid var(--ink);border-radius:12px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);font-size:0.86rem}
+.explore-bar{position:absolute;bottom:calc(var(--dock-h,0px) + 14px);left:12px;z-index:1110;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 12px;max-width:min(560px,calc(100% - 24px));padding:7px 10px;border:1.5px solid var(--ink);border-radius:12px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);font-size:0.86rem}
 .explore-bar .xb-row{display:flex;align-items:center;gap:7px}
 .explore-bar input[type=range]{flex:1;accent-color:var(--accent)}
 .explore-bar output{min-width:2.4em;font-weight:700}
 .explore-bar select{font:inherit;font-size:0.84rem}
 .xb-hint{margin:0;color:var(--muted);font-size:0.76rem;line-height:1.35}
 .fly3d.explore{bottom:var(--dock-h,0px)}
+.app.exploring .maptools{z-index:1115}
+.app.exploring .leaflet-control-zoom{visibility:hidden}
+#map-3d[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rt-menu3d{position:absolute;z-index:1120;transform:translate(-50%,calc(-100% - 10px));background:var(--panel);border:1.5px solid var(--ink);border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,.25);padding:4px;display:flex;flex-direction:column;min-width:150px}
+.rt-menu3d button{font:inherit;font-size:0.9rem;text-align:left;padding:8px 10px;border:0;background:none;color:var(--ink);border-radius:6px;cursor:pointer}
+.rt-menu3d button:hover,.rt-menu3d button:focus-visible{background:var(--chip)}
 .fly3d:not(.explore) .maplibregl-ctrl-top-right .maplibregl-ctrl-group{display:none}
 #menu-fly .fv-row{display:flex;align-items:center;gap:6px}
 #menu-fly .fv-row input{flex:1;min-width:90px;accent-color:var(--accent)}
 #menu-fly .fv-note{margin:2px 10px 6px;color:var(--muted);font-size:0.74rem;max-width:230px}
-@media (max-width:760px){.fly3d.explore .maplibregl-ctrl-top-right{top:auto;bottom:34px}.explore-bar{top:8px;left:8px;right:8px;max-width:none;flex-direction:row;flex-wrap:wrap;gap:6px 10px;padding:8px 10px}.explore-bar .xb-hint{display:none}.explore-bar strong{width:100%}}
+@media (max-width:760px){.explore-bar{bottom:calc(var(--sheet-h,112px) + var(--dock-h,0px) + 10px);left:8px;right:8px;max-width:none;gap:6px 10px;padding:6px 9px}}
 .sweat-gauge{position:absolute;top:12px;right:12px;z-index:1110;display:flex;gap:9px;align-items:center;padding:8px 30px 8px 10px;border:1.5px solid var(--ink);border-radius:14px;background:var(--panel);color:var(--ink);box-shadow:0 2px 0 var(--ink);min-width:178px}
 .sg-face{font-size:2rem;line-height:1;transition:transform .2s}
 .sweat-gauge[data-z="3"] .sg-face{animation:sg-wobble .9s ease-in-out infinite}
@@ -677,7 +683,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 21 October 2026, 01:00</p>
+      <p class="note" id="build-id">Version: 21 October 2026, 02:00</p>
     </section>
     </div>
   </aside>
@@ -691,14 +697,11 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
       <select id="map-scen" title="Network to show"><option value="0">Today, as of May 2025</option><option value="1">Today, with community updates</option><option value="2">2032 programme</option><option value="3">Full 270 km plan</option></select></div>
     <div class="tip" id="tip" hidden role="note"><strong>New here?</strong> Right-click the map, or press and hold on a phone, to plan a route. Click any street to see how far it is from protected track.<div class="actions"><button type="button" class="chip primary" id="tip-help">How to use</button><button type="button" class="chip" id="tip-close">Got it</button></div></div>
     <div class="fly3d" id="fly3d" hidden><div id="fly3d-map"></div></div>
-    <div class="explore-bar" id="explore-bar" hidden role="group" aria-label="3D terrain view">
-      <strong>3D terrain</strong>
-      <label class="xb-row">Height <input type="range" id="exp-ex" min="1" max="6" step="0.5" value="2" aria-describedby="exp-ex-v"> <output id="exp-ex-v">2×</output></label>
-      <label class="xb-row">Route colours <select id="exp-col"><option value="type">Track type</option><option value="puff">Puff-ometer</option></select></label>
-      <label class="xb-row">Imagery <select id="exp-style"><option value="sat">Satellite</option><option value="map">Map</option></select></label>
+    <div class="explore-bar" id="explore-bar" hidden role="group" aria-label="3D view">
+      <label class="xb-row">Hills <input type="range" id="exp-ex" min="1" max="6" step="0.5" value="1.5" aria-describedby="exp-ex-v"> <output id="exp-ex-v">1.5×</output></label>
+      <label class="xb-row">Route <select id="exp-col"><option value="type">Track type</option><option value="puff">Puff-ometer</option></select></label>
       <label class="xb-row"><input type="checkbox" id="exp-bld"> Buildings</label>
-      <p class="xb-hint">Drag to move. Right-drag, Ctrl-drag or two fingers to tilt and turn. Heights are the LiDAR the puff-ometer uses.</p>
-      <button type="button" class="chip" id="exp-close">Back to the map</button>
+      <button type="button" class="chip" id="exp-close" title="Back to the flat map (or tilt the view right down)">2D</button>
     </div>
     <div class="sweat-gauge" id="sweat-gauge" hidden role="status" aria-label="Puff-ometer">
       <div class="sg-face" id="sg-face" aria-hidden="true">😌</div>
@@ -1246,7 +1249,7 @@ $('chk-crash').addEventListener('change', e => { state.crash = e.target.checked;
 $('chk-names').addEventListener('change', e => { state.names = e.target.checked; draw(); syncLayerMenu(); });
 $('chk-dest').addEventListener('change', e => { state.dest = e.target.checked; if (state.dest) destLayer.addTo(map); else destLayer.remove(); syncLayerMenu(); });
 $('chk-hot').addEventListener('change', e => { state.hot = e.target.checked; update(); });
-['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); if (e.target.value === 'sat' && state.dz) { setLayer('chk-dz', false); toast('Neighbourhood shading is off so the satellite image shows clearly. Turn it back on under Layers.'); } writeHash(); }));
+['map-base', 'opt-base'].forEach(i => $(i).addEventListener('change', e => { setBasemap(e.target.value); if (EXP.on) { const st = e.target.value === 'sat' ? 'sat' : 'map'; if (st !== FLY.style) { $('fly-style').value = st; $('fly-style').dispatchEvent(new Event('change')); } } if (e.target.value === 'sat' && state.dz) { setLayer('chk-dz', false); toast('Neighbourhood shading is off so the satellite image shows clearly. Turn it back on under Layers.'); } writeHash(); }));
 // colour theme: follow the device, or force light or dark
 const THEMES = ['auto', 'light', 'dark'], THEME_NAME = { auto: 'Auto', light: 'Light', dark: 'Dark' };
 function setTheme(th) {
@@ -1322,8 +1325,8 @@ function renderLegend() {
 // selection and card
 map.on('click', e => { if (routeHit(e.latlng)) return; select(e.latlng); });
 function select(latlng, k) {
-  if (k == null) k = nearest(mx(latlng.lng), my(latlng.lat), Math.max(16 / Math.pow(2, map.getZoom()), mtoU(25)));
-  if (k < 0) { sel = null; selMarker.remove(); entryMarker.remove(); renderCard('Click closer to a street or path.'); schedule(); return; }
+  if (k == null) k = nearest(mx(latlng.lng), my(latlng.lat), (isPhone() ? 22 : 12) / Math.pow(2, map.getZoom())); // within a finger or a cursor's width of a street
+  if (k < 0) { const had = !!sel; sel = null; selMarker.remove(); entryMarker.remove(); map.closePopup(); if (had) { renderCard(); schedule(); } return; } // clicking off a street just lets go
   sel = { k, lat: latlng.lat, lng: latlng.lng }; if (!select.quiet) showTab('place');
   selMarker.setLatLng(latlng); if (!RT.start) selMarker.addTo(map);
   $('report-form').hidden = true;
@@ -1542,7 +1545,7 @@ $('btn-expand').addEventListener('click', () => setPanel(false));
     if (e.key === 'ArrowRight') { e.preventDefault(); if (appEl.classList.contains('collapsed')) setPanel(false); else { setPanelW(w + 30); relayout(); } }
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPanel(!appEl.classList.contains('collapsed')); } });
 }
-function update(recompute) { syncHazards(); syncLayerMenu(); { const ds = document.getElementById('dock-scen'); if (ds) ds.value = String(state.scen); } renderCity(); renderLegend(); if (recompute && sel) refreshSel(false); else renderCard(); if (recompute) rebuildRouteIfAny(); $('map-scen').value = String(state.scen); writeHash(); schedule(); }
+function update(recompute) { if (EXP.on) setTimeout(set3dNetwork, 0); syncHazards(); syncLayerMenu(); { const ds = document.getElementById('dock-scen'); if (ds) ds.value = String(state.scen); } renderCity(); renderLegend(); if (recompute && sel) refreshSel(false); else renderCard(); if (recompute) rebuildRouteIfAny(); $('map-scen').value = String(state.scen); writeHash(); schedule(); }
 
 
 // ---------- route planner ----------
@@ -1958,7 +1961,7 @@ map.on('mousemove', e => { hoverLL = e.latlng; if (hoverRaf) return; hoverRaf = 
   map.getContainer().style.cursor = on ? 'copy' : ''; if (on) { hoverTip.setLatLng(hoverLL); if (!map.hasLayer(hoverTip)) hoverTip.addTo(map); } else if (map.hasLayer(hoverTip)) hoverTip.remove(); }); });
 map.on('mouseout', () => { if (map.hasLayer(hoverTip)) hoverTip.remove(); });
 function syncMarkers() {
-  RT.markers.forEach(mk => mk.remove()); RT.markers = [];
+  RT.markers.forEach(mk => mk.remove()); RT.markers = []; setTimeout(sync3dMarkers, 0);
   if (RT.start || RT.end) { selMarker.remove(); entryMarker.remove(); } else if (sel) { selMarker.addTo(map); }
   const add = (pt, label, cls, onMove) => { const mk = L.marker([pt.lat, pt.lng], { icon: pinIcon(label, cls), draggable: true, keyboard: false, title: 'Drag to move' }).addTo(map);
     mk.on('dragend', () => { const ll = mk.getLatLng(); if (!inArea(ll.lat, ll.lng)) { outsideArea(); syncMarkers(); return; } onMove(makePt(ll.lat, ll.lng)); syncMarkers(); buildRoute(); }); RT.markers.push(mk); };
@@ -1994,15 +1997,29 @@ function drawCrossings() {
 }
 function clearRoute() { stopFly(); xingLayer.clearLayers(); RT.start = RT.end = null; RT.stops = []; RT.result = null; syncMarkers(); hoverMk.remove(); renderRoute(); schedule(); }
 const hoverMk = L.circleMarker([0, 0], { radius: 7, weight: 3, color: '#fff', fillColor: '#18211F', fillOpacity: 1, interactive: false });
-map.on('contextmenu', ev => {
-  const { lat, lng } = ev.latlng, box = el('div', 'rt-menu');
-  const btn = (t, f) => { const b = el('button', null, t); b.type = 'button'; b.addEventListener('click', () => { map.closePopup(); f(); }); box.append(b); };
+function routeMenu(lat, lng, cls, done) {
+  const box = el('div', cls);
+  const btn = (t, f) => { const b = el('button', null, t); b.type = 'button'; b.addEventListener('click', () => { done(); f(); }); box.append(b); };
   btn('Route from here', () => { setStart(lat, lng); showTab('route'); });
   btn('Route to here', () => { setEnd(lat, lng); showTab('route'); });
   if (RT.start && RT.end) btn('Add a stop here', () => { addStop(lat, lng); showTab('route'); });
   if (RT.start || RT.end) btn('Clear the route', clearRoute);
-  L.popup({ closeButton: false, className: 'rt-popup', offset: [0, -4] }).setLatLng(ev.latlng).setContent(box).openOn(map);
-});
+  return box;
+}
+map.on('contextmenu', ev => { const box = routeMenu(ev.latlng.lat, ev.latlng.lng, 'rt-menu', () => map.closePopup()); L.popup({ closeButton: false, className: 'rt-popup', offset: [0, -4] }).setLatLng(ev.latlng).setContent(box).openOn(map); });
+// the right button on the flat map: a still click opens the route menu; dragging tilts the map up into 3D
+{ const wrap = $('map').parentElement, TL = { p: 0, b: 0 }; let rb = null;
+  const inMap = e => e.target && e.target.closest && e.target.closest('#map') && !e.target.closest('.leaflet-popup, .leaflet-control');
+  wrap.addEventListener('contextmenu', e => { if (!inMap(e) || (rb && rb.touch) || e.pointerType === 'touch') return; e.preventDefault(); e.stopPropagation(); }, true);
+  wrap.addEventListener('pointerdown', e => {
+    if (!inMap(e)) return; if (e.pointerType === 'touch') { rb = { touch: true }; return; }
+    if (e.button === 2 || (e.button === 0 && e.ctrlKey)) { rb = { x: e.clientX, y: e.clientY, moved: false }; e.stopPropagation(); try { wrap.setPointerCapture(e.pointerId); } catch (x) {} } else rb = null; }, true);
+  wrap.addEventListener('pointermove', e => { if (!rb || rb.touch) return; const dx = e.clientX - rb.x, dy = e.clientY - rb.y;
+    if (!rb.moved && Math.hypot(dx, dy) > 6) { if (FLY.on) { rb = null; return; } rb.moved = true; TL.p = 0; TL.b = 0; openExplore({ pitch: 0 }); }
+    if (rb.moved) { TL.p = Math.max(0, Math.min(70, -dy * 0.28)); TL.b = dx * 0.25; if (ml3d && EXP.on) ml3d.jumpTo({ pitch: TL.p, bearing: TL.b }); else EXP.want = { pitch: TL.p, bearing: TL.b }; e.stopPropagation(); } }, true);
+  wrap.addEventListener('pointerup', e => { if (!rb || rb.touch) { rb = null; return; } const r = rb; rb = null; e.stopPropagation();
+    if (r.moved) { if (TL.p < 4) closeExplore(); return; }
+    const ll = map.mouseEventToLatLng(e); map.fire('contextmenu', { latlng: ll, layerPoint: map.latLngToLayerPoint(ll), containerPoint: map.latLngToContainerPoint(ll), originalEvent: e }); }, true); }
 
 // route panel
 const fmtTime = s => { const mn = Math.max(1, Math.round(s / 60)); return mn < 60 ? mn + ' min' : Math.floor(mn / 60) + ' h' + (mn % 60 ? ' ' + (mn % 60) + ' min' : ''); };
@@ -2132,10 +2149,11 @@ const SAT_STYLE = () => ({ version: 8, glyphs: 'https://tiles.openfreemap.org/fo
   layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#59634f' } }, { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-fade-duration': 0 } }] });
 // The 3D terrain is drawn from the same LiDAR heights the profile and puff-ometer use: tiles are made in the page in
 // the format MapLibre reads (terrarium). Outside the LiDAR the global terrain tiles fill in.
-const TERR = { ride: (() => { try { const v = localStorage.getItem('gcm-ex-ride2'); return v == null ? 1.5 : +v; } catch (e) { return 1.5; } })(), exp: (() => { try { return +(localStorage.getItem('gcm-ex-exp') || 2); } catch (e) { return 2; } })() };
+const TERR = { ex: (() => { try { const v = localStorage.getItem('gcm-ex'); return v == null ? 1.5 : +v; } catch (e) { return 1.5; } })() };
+const setEx = v => { TERR.ex = v; try { localStorage.setItem('gcm-ex', v); } catch (x) {} $('exp-ex').value = Math.max(1, v); $('exp-ex-v').textContent = (v || 1) + '×'; $('fly-ex').value = v; $('fly-ex-v').textContent = v ? v + '×' : 'flat'; applyTerrain(); };
 const EXP = { on: false };
 let R3COL = 'type', demProto = false;
-const terrEx = () => EXP.on ? TERR.exp : TERR.ride;
+const terrEx = () => EXP.on ? Math.max(1, TERR.ex) : TERR.ex;
 function addDemProtocol() {
   if (demProto || !window.maplibregl || !maplibregl.addProtocol || typeof ImageData === 'undefined') return demProto; demProto = true;
   const S = 512; // 512-pixel tiles, so at a city-wide view each pixel is about the LiDAR's 10 m
@@ -2185,7 +2203,7 @@ function on3dStyle() { setTimeout(attrib3dSmall, 300);
   if (src && !st.layers.some(l => l.type === 'fill-extrusion')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: src, 'source-layer': 'building', minzoom: 13,
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
   try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', ...(typeof OffscreenCanvas !== 'undefined' && addDemProtocol() ? { tiles: ['gcmdem://{z}/{x}/{y}'], tileSize: 512, maxzoom: 14 } : { tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 14 }), encoding: 'terrarium' }); } catch (e) {}
-  ml3dReady = true; applyTerrain(); set3dRoute(); if (FLY.on) flyStep(0, true);
+  ml3dReady = true; NET3D.sig = ''; applyTerrain(); set3dRoute(); if (EXP.on) { set3dNetworkNow(); sync3dMarkers(); } if (FLY.on) flyStep(0, true);
   load3dRider().then(() => { if (photoWanted()) addPhoto(); });
 }
 async function open3d(p) {
@@ -2423,26 +2441,84 @@ function playLib(g) {
 
 function close3d() { const f = document.getElementById('fly3d'); if (f) f.hidden = true; }
 let navAdded = false;
-async function openExplore() {
-  if (FLY.on) return;
-  try { await loadMapLibre(); } catch (e) { toast('The 3D view could not load.'); return; }
-  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { toast('This browser cannot show the 3D view.'); return; }
-  EXP.on = true; $('fly3d').classList.add('explore'); $('explore-bar').hidden = false; appEl.classList.add('exploring'); $('map-3d').setAttribute('aria-pressed', 'true');
-  $('exp-ex').value = TERR.exp; $('exp-ex-v').textContent = TERR.exp + '×'; $('exp-col').value = R3COL; $('exp-style').value = FLY.style;
+// the 3D view is the same map tilted: same place, same network and route, same pins to drag and menus to use
+async function openExplore(opt) {
+  if (FLY.on || EXP.on) return; opt = opt || {};
+  EXP.on = true; EXP.want = { pitch: opt.pitch == null ? 50 : opt.pitch, bearing: 0 };
+  try { await loadMapLibre(); } catch (e) { EXP.on = false; toast('The 3D view could not load.'); return; }
+  if (!window.maplibregl || (maplibregl.supported && !maplibregl.supported())) { EXP.on = false; toast('This browser cannot show the 3D view.'); return; }
+  const style = state.basemap === 'sat' ? 'sat' : 'map'; if (FLY.style !== style) { FLY.style = style; $('fly-style').value = style; if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } }
+  $('fly3d').classList.add('explore'); $('explore-bar').hidden = false; appEl.classList.add('exploring'); $('map-3d').setAttribute('aria-pressed', 'true'); $('map-3d').textContent = '2D';
+  $('exp-col').value = R3COL; syncFlyEx(); map.closePopup();
   const c = map.getCenter(); await open3d({ lat: c.lat, lon: c.lng, hd: 0 });
-  if (!ml3d) return;
-  if (!navAdded) { ml3d.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right'); navAdded = true; }
+  if (!ml3d || !EXP.on) return;
+  if (!navAdded) { ml3d.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right'); navAdded = true; wire3d(); }
   if (PB.layer && ml3d.getLayer('gcm-photo')) { ml3d.removeLayer('gcm-photo'); PB.layer = null; PB.centre = null; plainBuildings(true); }
-  applyTerrain();
-  const R = RT.result; let cam = null;
-  if (R && R.ll && R.ll.length > 3) { let a = 180, b = 90, c2 = -180, d = -90; for (let i = 0; i < R.ll.length; i += 2) { a = Math.min(a, R.ll[i]); c2 = Math.max(c2, R.ll[i]); b = Math.min(b, R.ll[i + 1]); d = Math.max(d, R.ll[i + 1]); }
-    try { cam = ml3d.cameraForBounds([[a, b], [c2, d]], { padding: { top: 60, bottom: 60, left: isPhone() ? 30 : 290, right: 60 } }); } catch (e) {} }
-  ml3d.jumpTo(cam ? { center: cam.center, zoom: Math.min(16.5, cam.zoom - 0.3), pitch: 58, bearing: -15 } : { center: [c.lng, c.lat], zoom: Math.max(12, map.getZoom() - 1), pitch: 58, bearing: -15 });
+  ml3d.jumpTo({ center: [c.lng, c.lat], zoom: map.getZoom() - 1, pitch: EXP.want.pitch, bearing: EXP.want.bearing });
+  applyTerrain(); set3dNetwork(); sync3dMarkers();
+  if (!openExplore.told) { openExplore.told = true; toast('3D: right-drag (or Ctrl-drag, or two fingers) to tilt and turn. Tilt right down to go back to the flat map.'); }
 }
 function closeExplore() {
-  if (!EXP.on) return; EXP.on = false; $('explore-bar').hidden = true; $('fly3d').classList.remove('explore'); appEl.classList.remove('exploring'); $('map-3d').setAttribute('aria-pressed', 'false');
-  if (ml3d) { const c = ml3d.getCenter(); map.setView([c.lat, c.lng], Math.max(12, Math.min(18, ml3d.getZoom() + 1)), { animate: false }); }
-  close3d(); bldVisible(); if (ml3dMk) ml3dMk.getElement().style.display = '';
+  if (!EXP.on) return; EXP.on = false; $('explore-bar').hidden = true; $('fly3d').classList.remove('explore'); appEl.classList.remove('exploring'); $('map-3d').setAttribute('aria-pressed', 'false'); $('map-3d').textContent = '3D';
+  if (ml3d) { const c = ml3d.getCenter(); map.setView([c.lat, c.lng], Math.max(11, Math.min(19, ml3d.getZoom() + 1)), { animate: false }); }
+  menu3dClose(); mk3.forEach(m => m.remove()); mk3 = []; close3d(); bldVisible(); if (ml3dMk) ml3dMk.getElement().style.display = '';
+  if (ml3d && ml3d.getLayer('gcm-net')) ml3d.setLayoutProperty('gcm-net', 'visibility', 'none');
+}
+// the network in 3D, coloured as on the flat map. Geometry is built once; the data is only resent when the colours
+// would change (network, colour scheme, shared paths), and calls in quick succession are merged into one.
+const NET3D = { feats: null, sig: '', t: 0 };
+function set3dNetwork() { clearTimeout(NET3D.t); NET3D.t = setTimeout(set3dNetworkNow, 60); }
+function set3dNetworkNow() {
+  if (!ml3d || !ml3dReady) return;
+  const has = !!ml3d.getSource('gcm-net'), sig = [state.colour, state.scen, state.shared ? 1 : 0, state.gap].join('|');
+  if (!has || sig !== NET3D.sig) {
+    const res = cur();
+    if (!NET3D.feats) { NET3D.feats = []; for (let k = 0; k < P; k++) { const g = pieceLL(k), co = new Array(g.length / 2); for (let i = 0; i < g.length; i += 2) co[i / 2] = [g[i], g[i + 1]]; NET3D.feats.push({ type: 'Feature', properties: { c: '', w: 1 }, geometry: { type: 'LineString', coordinates: co } }); }
+      NET3D.comm = CF.map(f => { const g = dec(f.g), co = []; for (let i = 0; i < g.length; i += 2) co.push([g[i], g[i + 1]]); return { type: 'Feature', properties: { c: '', w: 3.2 }, geometry: { type: 'LineString', coordinates: co } }; }); }
+    for (let k = 0; k < P; k++) { const inf = N.inf[k], pr = NET3D.feats[k].properties;
+      if (state.colour === 'distance') { if (res.ded[k] && isExisting(k, state.shared)) { pr.c = res.inMain[k] ? C.ded : C.frag; pr.w = 3.2; } else { pr.c = C.band[bandOf(res.pd[k])]; pr.w = 1.3; } }
+      else if (state.colour === 'comfort') { pr.c = N.rated[k] ? C.comf[N.los[k]] : C.nr; pr.w = inf ? 2.4 : 1.3; } else { pr.c = C.inf[inf]; pr.w = inf ? 2.4 : 1.2; } }
+    const comm = [];
+    if (state.colour === 'distance' && state.scen >= 1) CF.forEach((f, li) => { if (f.first < 0 || !res.con[li]) return; const ft = NET3D.comm[li]; ft.properties.c = res.find(f.first) === res.main ? C.ded : C.frag; comm.push(ft); });
+    const data = { type: 'FeatureCollection', features: NET3D.feats.concat(comm) }; NET3D.sig = sig;
+    if (has) ml3d.getSource('gcm-net').setData(data);
+    else { ml3d.addSource('gcm-net', { type: 'geojson', data, tolerance: 0.6 });
+      ml3d.addLayer({ id: 'gcm-net', type: 'line', source: 'gcm-net', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': ['interpolate', ['linear'], ['zoom'], 11, ['*', ['get', 'w'], 0.5], 15, ['*', ['get', 'w'], 1.3], 18, ['*', ['get', 'w'], 3]] } }, ml3d.getLayer('gcm-route-case') ? 'gcm-route-case' : undefined); }
+  }
+  ml3d.setLayoutProperty('gcm-net', 'visibility', EXP.on ? 'visible' : 'none');
+  ml3d.setPaintProperty('gcm-net', 'line-opacity', RT.result && RT.result.m ? 0.55 : 0.95);
+}
+// route pins in 3D, draggable as on the flat map
+let mk3 = [];
+function sync3dMarkers() {
+  mk3.forEach(m => m.remove()); mk3 = []; if (!ml3d || !EXP.on || !window.maplibregl) return;
+  const add = (pt, label, cls, onMove) => { const d = document.createElement('div'); d.className = 'rt-pin ' + cls; d.innerHTML = '<span>' + label + '</span>'; d.title = 'Drag to move';
+    const m = new maplibregl.Marker({ element: d, draggable: true, anchor: 'center' }).setLngLat([pt.lng, pt.lat]).addTo(ml3d);
+    m.on('dragend', () => { const ll = m.getLngLat(); if (!inArea(ll.lat, ll.lng)) { outsideArea(); syncMarkers(); return; } onMove(makePt(ll.lat, ll.lng)); syncMarkers(); buildRoute(); }); mk3.push(m); };
+  if (RT.start) add(RT.start, 'A', 'start', p => { RT.start = p; });
+  RT.stops.forEach((s, i) => add(s, String(i + 1), 'stop', p => { RT.stops[i] = p; }));
+  if (RT.end) add(RT.end, 'B', 'end', p => { RT.end = p; });
+}
+// in 3D: a still right click (or a long press) opens the route menu; a click picks the street; tilting flat returns to 2D
+let menu3 = null;
+const menu3dClose = () => { if (menu3) { menu3.remove(); menu3 = null; } };
+function menu3dAt(x, y) {
+  menu3dClose(); const ll = ml3d.unproject([x, y]); const box = routeMenu(ll.lat, ll.lng, 'rt-menu3d', menu3dClose);
+  box.style.left = x + 'px'; box.style.top = y + 'px'; $('fly3d').append(box); menu3 = box; const f = box.querySelector('button'); if (f) f.focus({ preventScroll: true });
+}
+function wire3d() {
+  const cc = ml3d.getCanvasContainer(); let r3 = null, lp = 0;
+  cc.addEventListener('contextmenu', e => e.preventDefault());
+  cc.addEventListener('pointerdown', e => { if (!EXP.on) return; menu3dClose(); const b = cc.getBoundingClientRect();
+    if (e.pointerType === 'touch') { r3 = { x: e.clientX, y: e.clientY, touch: true }; clearTimeout(lp); lp = setTimeout(() => { if (r3 && r3.touch && !r3.moved) { menu3dAt(r3.x - b.left, r3.y - b.top); r3 = null; } }, 550); return; }
+    r3 = (e.button === 2 || (e.button === 0 && e.ctrlKey)) ? { x: e.clientX, y: e.clientY } : null; });
+  cc.addEventListener('pointermove', e => { if (r3 && Math.hypot(e.clientX - r3.x, e.clientY - r3.y) > 6) { r3.moved = true; clearTimeout(lp); } });
+  window.addEventListener('pointerup', e => { clearTimeout(lp); if (!r3 || !EXP.on) { r3 = null; return; } const r = r3; r3 = null; if (r.touch || r.moved) return;
+    const b = cc.getBoundingClientRect(); menu3dAt(e.clientX - b.left, e.clientY - b.top); });
+  ml3d.on('click', ev => { if (!EXP.on || (ev.originalEvent && ev.originalEvent.ctrlKey)) return; menu3dClose();
+    const mpp = 40075016.7 * Math.cos(ev.lngLat.lat * D2R) / (512 * 2 ** ml3d.getZoom()), k = nearest(mx(ev.lngLat.lng), my(ev.lngLat.lat), mtoU((isPhone() ? 22 : 12) * mpp));
+    select({ lat: ev.lngLat.lat, lng: ev.lngLat.lng }, k < 0 ? -1 : k); });
+  ml3d.on('pitchend', ev => { if (ev && ev.originalEvent && EXP.on && !FLY.on && ml3d.getPitch() < 3) closeExplore(); }); // only when you flatten it yourself
 }
 const lerpAngle = (a, b, t) => { const d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 const RIDERS = [ // lean is the torso's angle forward from upright
@@ -2704,7 +2780,7 @@ function flyStep(dt, force) {
 }
 function flyLoop(now) { if (!FLY.on) return; const dt = FLY.t ? Math.min(0.1, (now - FLY.t) / 1000) : 0; FLY.t = now; flyStep(dt); FLY.raf = requestAnimationFrame(flyLoop); }
 function startFly() {
-  if (!RT.result || !RT.result.prof) return; if (EXP.on) closeExplore();
+  if (!RT.result || !RT.result.prof) return; FLY.back3d = EXP.on; if (EXP.on) closeExplore();
   FLY.on = true; FLY.playing = true; FLY.d = 0; FLY.t = 0; map.closePopup(); SWEAT_HIDE = false; sgLast = -1; appEl.classList.add('flying'); if (isPhone()) { SHEET.before = SHEET.state; setSheet('mini'); }
   $('fly-bar').hidden = false; $('fly-play').textContent = 'Pause'; $('music-dock').hidden = false; flyMk.setIcon(L.divIcon({ className: 'fly-pin', html: riderHTML(RT.conf), iconSize: [0, 0] })); flyMk.addTo(map); hoverMk.remove();
   load3dRider().then(() => { if (R3.ok && FLY.on) { setRider3D(RT.conf); refreshRider(); } });
@@ -2715,7 +2791,7 @@ function startFly() {
   cancelAnimationFrame(FLY.raf); FLY.raf = requestAnimationFrame(flyLoop);
 }
 function stopFly() {
-  if (!FLY.on) return; appEl.classList.remove('flying'); if (isPhone()) setSheet(SHEET.before && SHEET.before !== 'mini' ? SHEET.before : 'peek'); stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
+  if (!FLY.on) return; appEl.classList.remove('flying'); if (FLY.back3d) { FLY.back3d = false; setTimeout(() => openExplore({ pitch: 50 }), 0); } if (isPhone()) setSheet(SHEET.before && SHEET.before !== 'mini' ? SHEET.before : 'peek'); stopMusic(); { const md = document.getElementById('music-dock'); if (md) md.hidden = true; } FLY.on = false; FLY.playing = false; cancelAnimationFrame(FLY.raf);
   const fb = document.getElementById('fly-bar'); if (fb) fb.hidden = true; close3d(); { const sg = document.getElementById('sweat-gauge'); if (sg) sg.hidden = true; }
   if (map.options) map.options.touchZoom = true;
   flyMk.remove(); if (RT.result) fitRoute();
@@ -2741,19 +2817,18 @@ $('fly-play').addEventListener('click', () => {
 });
 $('fly-speed').addEventListener('change', e => { FLY.speed = +e.target.value; });
 $('fly-stop').addEventListener('click', stopFly);
-$('map-3d').addEventListener('click', () => { if (EXP.on) closeExplore(); else openExplore(); });
-$('exp-close').addEventListener('click', closeExplore);
-$('exp-ex').addEventListener('input', e => { TERR.exp = +e.target.value; $('exp-ex-v').textContent = TERR.exp + '×'; try { localStorage.setItem('gcm-ex-exp', TERR.exp); } catch (x) {} applyTerrain(); });
+$('map-3d').addEventListener('click', () => { if (EXP.on) $('exp-close').click(); else openExplore({ pitch: 50 }); });
+$('exp-close').addEventListener('click', () => { if (ml3d && EXP.on) ml3d.easeTo({ pitch: 0, bearing: 0, duration: 450 }); setTimeout(closeExplore, 470); });
+$('exp-ex').addEventListener('input', e => setEx(+e.target.value));
 const setR3Col = v => { R3COL = v; $('exp-col').value = v; $('fly-col').value = v; set3dRoute(); };
 $('exp-col').addEventListener('change', e => setR3Col(e.target.value));
 $('fly-col').addEventListener('change', e => setR3Col(e.target.value));
-$('exp-style').addEventListener('change', e => { $('fly-style').value = e.target.value; $('fly-style').dispatchEvent(new Event('change')); });
 $('exp-bld').addEventListener('change', bldVisible);
-const syncFlyEx = () => { $('fly-ex').value = TERR.ride; $('fly-ex-v').textContent = TERR.ride ? TERR.ride + '×' : 'flat'; $('fly-photo').disabled = FLY.style !== 'sat'; };
+const syncFlyEx = () => { $('fly-ex').value = TERR.ex; $('fly-ex-v').textContent = TERR.ex ? TERR.ex + '×' : 'flat'; $('exp-ex').value = Math.max(1, TERR.ex); $('exp-ex-v').textContent = (TERR.ex || 1) + '×'; $('fly-photo').disabled = FLY.style !== 'sat'; };
 syncFlyEx();
-$('fly-ex').addEventListener('input', e => { TERR.ride = +e.target.value; try { localStorage.setItem('gcm-ex-ride2', TERR.ride); } catch (x) {} syncFlyEx(); applyTerrain(); });
+$('fly-ex').addEventListener('input', e => setEx(+e.target.value));
 $('fly-3d').addEventListener('change', e => { FLY.three = e.target.checked; if (!FLY.on) return; if (FLY.three) open3d(flyPoint(FLY.d)); else { close3d(); flyStep(0, true); } });
-$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; $('exp-style').value = FLY.style; syncFlyEx(); if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } });
+$('fly-style').addEventListener('change', e => { FLY.style = e.target.value; syncFlyEx(); if (ml3d) { ml3dReady = false; PB.layer = null; ml3d.setStyle(style3d()); } });
 $('fly-photo').addEventListener('change', e => { PB.on = e.target.checked; PB.failed = false; if (PB.on) load3dRider().then(addPhoto); else removePhoto(); });
 document.addEventListener('keydown', e => { if (!FLY.on || e.target.matches('input, select, textarea')) return; if (e.key === ' ') { e.preventDefault(); $('fly-play').click(); } if (e.key === 'Escape') stopFly(); });
 map.on('dragstart', () => { if (FLY.on) FLY.b2.drag = true; });
