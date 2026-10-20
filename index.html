@@ -1657,6 +1657,14 @@ function drawRoute(ctx, sc, ox, oy, bw) {
 // markers and the right-click menu
 function pinIcon(label, cls) { return L.divIcon({ className: 'rt-pin ' + cls, html: '<span>' + label + '</span>', iconSize: [26, 26], iconAnchor: [13, 13] }); }
 function makePt(lat, lng) { return { lat, lng, node: nodeFor(lat, lng) }; }
+// the study area is Glasgow City (the dashed boundary): route points can't go outside it, where there is no data
+function inArea(lat, lng) {
+  const px = mx(lng), py = my(lat); let inside = false;
+  BND.forEach(m => { for (let i = 0, j = m.length - 2; i < m.length; j = i, i += 2) { const xi = m[i], yi = m[i + 1], xj = m[j], yj = m[j + 1];
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside; } });
+  return inside;
+}
+const outsideArea = () => toast('That point is outside Glasgow, where this map has no data. Choose somewhere inside the dashed city boundary.');
 function routeNear(latlng) {
   const R = RT.result; if (!R || !R.m) return false;
   const px = mx(latlng.lng), py = my(latlng.lat), tol = 12 / Math.pow(2, map.getZoom()); let best = Infinity;
@@ -1673,17 +1681,19 @@ function syncMarkers() {
   RT.markers.forEach(mk => mk.remove()); RT.markers = [];
   if (RT.start || RT.end) { selMarker.remove(); entryMarker.remove(); } else if (sel) { selMarker.addTo(map); }
   const add = (pt, label, cls, onMove) => { const mk = L.marker([pt.lat, pt.lng], { icon: pinIcon(label, cls), draggable: true, keyboard: false, title: 'Drag to move' }).addTo(map);
-    mk.on('dragend', () => { const ll = mk.getLatLng(); onMove(makePt(ll.lat, ll.lng)); syncMarkers(); buildRoute(); }); RT.markers.push(mk); };
+    mk.on('dragend', () => { const ll = mk.getLatLng(); if (!inArea(ll.lat, ll.lng)) { outsideArea(); syncMarkers(); return; } onMove(makePt(ll.lat, ll.lng)); syncMarkers(); buildRoute(); }); RT.markers.push(mk); };
   if (RT.start) add(RT.start, 'A', 'start', p => { RT.start = p; });
   RT.stops.forEach((s, i) => add(s, String(i + 1), 'stop', p => { RT.stops[i] = p; }));
   if (RT.end) add(RT.end, 'B', 'end', p => { RT.end = p; });
 }
-function setStart(lat, lng) { if (RT.demo) { RT.end = null; RT.stops = []; RT.demo = false; } RT.start = makePt(lat, lng); syncMarkers(); buildRoute(); }
+function setStart(lat, lng) { if (!inArea(lat, lng)) { outsideArea(); return; } if (RT.demo) { RT.end = null; RT.stops = []; RT.demo = false; } RT.start = makePt(lat, lng); syncMarkers(); buildRoute(); }
 function setEnd(lat, lng) {
+  if (!inArea(lat, lng)) { outsideArea(); return; }
   if (!RT.start && sel) RT.start = makePt(sel.lat, sel.lng);
   RT.demo = false; RT.end = makePt(lat, lng); syncMarkers(); buildRoute(); fitRoute();
 }
 function addStop(lat, lng) {
+  if (!inArea(lat, lng)) { outsideArea(); return; }
   const p = makePt(lat, lng), seq = pts(); if (seq.length < 2) return;
   const dd = (a, b) => metresLL(a.lng, a.lat, b.lng, b.lat); let best = 0, bc = Infinity;
   for (let i = 0; i + 1 < seq.length; i++) { const c = dd(seq[i], p) + dd(p, seq[i + 1]) - dd(seq[i], seq[i + 1]); if (c < bc) { bc = c; best = i; } }
@@ -2568,7 +2578,7 @@ function readHash() {
   syncControls(); cache.clear(); update(true);
   const ll = s => { const a = (s || '').split(',').map(Number); return a.length >= 2 && a.every(isFinite) ? a : null; };
   const mv = ll(p.get('m')); if (mv) map.setView([mv[0], mv[1]], mv[2] || 14);
-  if (p.has('r')) { const pts = p.get('r').split('_').map(ll).filter(Boolean);
+  if (p.has('r')) { const all = p.get('r').split('_').map(ll).filter(Boolean), pts = all.filter(q => inArea(q[0], q[1])); if (pts.length < all.length) setTimeout(() => toast('Part of that shared route was outside Glasgow, so it has been left out.'), 600);
     RT.avoid = p.get('av') !== '0';
     if (pts.length >= 2) { { const rc = Number(p.get('rc')), old = { protected: 2, balanced: 3, direct: 4 }[p.get('rm')]; RT.conf = p.has('rc') && [0, 1, 2, 3, 4].includes(rc) ? rc : old != null ? old : 1; } RT.start = makePt(pts[0][0], pts[0][1]); RT.end = makePt(pts[pts.length - 1][0], pts[pts.length - 1][1]); RT.stops = pts.slice(1, -1).map(a => makePt(a[0], a[1])); syncMarkers(); buildRoute(); showTab('route'); } }
   const pl = ll(p.get('p')); if (pl) { select.quiet = !!p.has('r'); select(L.latLng(pl[0], pl[1])); select.quiet = false; }
