@@ -1,0 +1,53 @@
+Sense check for the path links: routes with the links (after) against the same page without them (before).
+Run on the build of 21 October 2026, 17:30. Reference trips first, then checks, then 56 random trips at four confidence levels.
+
+heights loaded True True
+
+REFERENCE TRIPS (before -> after)
+  Kelvinside Avenue to Hinshaw Street [children]: 3.386 -> 1.75 km, protected 68 -> 92%, steps 1 | Forth and Clyde Canal Glasgow Spur Towpath 1273, Garscube Link 257, (path) 146
+  Kelvinside Avenue to Hinshaw Street [cautious]: 1.507 -> 1.75 km, protected 0 -> 92%, steps 1 | Forth and Clyde Canal Glasgow Spur Towpath 1273, Garscube Link 257, (path) 146
+  Kelvinside Avenue to Hinshaw Street [steady]: 1.507 -> 0.957 km, protected 0 -> 2%, steps 1 | (path) 229, Dalmally Street 205, Braeside Street 150
+  Kelvinside Avenue to Hinshaw Street [very conf.]: 1.507 -> 0.843 km, protected 0 -> 2%, steps 0 | Maryhill Road 446, (path) 201, Garscube Road 108
+  Nitshill to Knightswood [children]: 13.909 -> 12.448 km, protected 48 -> 44%, steps 0 | (path) 2941, NCN7 1200, Clyde Tunnel 1053
+  Nitshill to Knightswood [cautious]: 12.795 -> 12.448 km, protected 44 -> 44%, steps 0 | (path) 2941, NCN7 1200, Clyde Tunnel 1053
+  Nitshill to Knightswood [steady]: 12.764 -> 11.213 km, protected 46 -> 42%, steps 0 | (path) 2435, Clyde Tunnel 1053, Anniesland Road 783
+  Nitshill to Knightswood [very conf.]: 9.296 -> 9.178 km, protected 18 -> 17%, steps 0 | (path) 1191, A739 1076, Clyde Tunnel 1053
+  Partick to Kelvinbridge [children]: 3.191 -> 3.218 km, protected 75 -> 74%, steps 0 | (path) 741, Kelvin Walkway 602, WCW to Kelvin Hall 387
+  Partick to Kelvinbridge [cautious]: 3.191 -> 3.218 km, protected 75 -> 74%, steps 0 | (path) 741, Kelvin Walkway 602, WCW to Kelvin Hall 387
+  Partick to Kelvinbridge [very conf.]: 2.708 -> 2.708 km, protected 5 -> 5%, steps 0 | (path) 647, Sunlight Way 576, Beith Street 478
+  Whiteinch to Kelvinbridge [children]: 5.224 -> 5.424 km, protected 56 -> 54%, steps 0 | (path) 1356, Kelvin Walkway 602, WCW to Kelvin Hall 387
+  Whiteinch to Kelvinbridge [cautious]: 5.156 -> 5.156 km, protected 55 -> 55%, steps 0 | (path) 1104, Kelvin Walkway 602, WCW to Kelvin Hall 387
+  Kirkintilloch to George Square [cautious]: 16.761 -> 16.758 km, protected 82 -> 82%, steps 0 | Forth and Clyde Canal Towpath 10683, Forth and Clyde Canal Glasgow Spur Towpath 3002, (path) 728
+  Paisley Abbey to Partick [children]: 15.354 -> 14.198 km, protected 58 -> 55%, steps 0 | (path) 8606, Langlands Drive 557, Abercorn Street 537
+  Paisley Abbey to Partick [steady]: 12.791 -> 10.846 km, protected 52 -> 23%, steps 0 | (path) 2536, Chirnside Road 767, Kinpurnie Road 526
+  Paisley Abbey to Partick [very conf.]: 9.679 -> 9.506 km, protected 21 -> 20%, steps 0 | Glasgow Road 3124, Langlands Road 1795, Paisley Road West 801
+  On the towpath at Ruchill to Raeberry Street [cautious]: 2.203 -> 2.203 km, protected 93 -> 93%, steps 0 | Forth and Clyde Canal Glasgow Spur Towpath 1738, Garscube Link 257, Hinshaw Street 144
+  Jordanhill to George Square [children]: 9.364 -> 9.364 km, protected 59 -> 59%, steps 0 | (path) 4514, Victoria Park Nature Walk 741, Pointhouse Road 581
+  Jordanhill to George Square [steady]: 8.093 -> 8.084 km, protected 48 -> 47%, steps 0 | (path) 1085, Sauchiehall Street 1055, WCW to Kelvin Hall 499
+  Jordanhill to George Square [very conf.]: 7.063 -> 7.063 km, protected 0 -> 0%, steps 0 | Crow Road 1339, Argyle Street 1194, Dumbarton Road 1171
+  Southside: Shawlands to Gorbals [children]: 4.497 -> 4.334 km, protected 63 -> 62%, steps 0 | (path) 1570, Queen's Park 786, Victoria Road 478
+  Southside: Shawlands to Gorbals [steady]: 3.916 -> 3.7 km, protected 61 -> 61%, steps 0 | (path) 1821, Pollokshaws Road 546, Queen's Park 519
+  Southside: Shawlands to Gorbals [very conf.]: 3.593 -> 3.401 km, protected 19 -> 24%, steps 0 | Pollokshaws Road 2098, (path) 897, Crown Street 194
+  East: Dennistoun to Glasgow Green [children]: 3.818 -> 2.633 km, protected 41 -> 25%, steps 0 | (path) 858, Onslow Drive 346, Melbourne Street 339
+  East: Dennistoun to Glasgow Green [steady]: 3.236 -> 2.633 km, protected 42 -> 25%, steps 0 | (path) 858, Onslow Drive 346, Melbourne Street 339
+  East: Dennistoun to Glasgow Green [very conf.]: 2.382 -> 2.27 km, protected 1 -> 0%, steps 0 | (path) 461, Bellgrove Street 344, Green Street 335
+
+CHECKS
+  PASS Kelvinside Avenue to Hinshaw Street [children] goes along the canal (towpath 1273 m)
+  PASS Kelvinside Avenue to Hinshaw Street [cautious] goes along the canal (towpath 1273 m)
+  PASS Nitshill to Knightswood [children] uses the Clyde Tunnel or is no more than 10% longer (12.448 vs 13.909 km)
+  PASS Nitshill to Knightswood [cautious] uses the Clyde Tunnel or is no more than 10% longer (12.448 vs 12.795 km)
+  PASS Nitshill to Knightswood [steady] uses the Clyde Tunnel or is no more than 10% longer (11.213 vs 12.764 km)
+  PASS Partick to Kelvinbridge [children] at least 70% protected (74%)
+  PASS Kirkintilloch to George Square [cautious] stays on the canal past Cadder
+  PASS a pin on the towpath starts on the towpath
+  NOTE Kelvinside Avenue to Hinshaw Street [children] uses 1 flight(s) of steps
+  NOTE Kelvinside Avenue to Hinshaw Street [cautious] uses 1 flight(s) of steps
+
+RANDOM TRIPS: 224 compared
+  children  : changed 46/56 | shorter 39, longer 7 | median change -456 m | >25% and >500 m longer: 0 | using steps 5
+  cautious  : changed 44/56 | shorter 39, longer 5 | median change -406 m | >25% and >500 m longer: 0 | using steps 7
+  steady    : changed 44/56 | shorter 35, longer 9 | median change -261 m | >25% and >500 m longer: 1 | using steps 8
+       worse: 55.8996,-4.2516 -> 55.8696,-4.3083: 6.389 -> 8.736 km
+  very conf.: changed 43/56 | shorter 38, longer 5 | median change -137 m | >25% and >500 m longer: 0 | using steps 7
+  FAIL very confident never longer than before (worst 169 m)

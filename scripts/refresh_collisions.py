@@ -60,7 +60,7 @@ def col(r, *names):
 def main():
     t0 = time.time(); page = (ROOT / 'index.html').read_text()
     m = re.search(r'(<script id="net-data" type="application/json">)(.*?)(</script>)', page, flags=re.S); N = json.loads(m.group(2))
-    P = len(N['pu']); OUT = N.get('out') or [0] * P
+    P = len(N['pu']); OUT = N.get('out') or [0] * P; LNK = N.get('lnk') or [0] * P
     city = Polygon(dec(N['boundary'][0])); area = Polygon(dec(N['region'][0])) if N.get('region') else city
     W0, S0, E0, N0 = area.bounds
     y0 = int(sys.argv[1]) if len(sys.argv) > 1 else 2016; y1 = int(sys.argv[2]) if len(sys.argv) > 2 else 9999
@@ -87,7 +87,7 @@ def main():
     def match(lon, lat, in_city):
         e, n = T(lon, lat); pt = Point(e, n); best = None
         for k in tree.query_ball_point((e, n), 400):
-            if bool(OUT[k]) == in_city: continue
+            if bool(OUT[k]) == in_city or LNK[k]: continue   # links and their copies carry none
             d = lines[k].distance(pt)
             if d > 25: continue
             sc = d - (5 if road[k] else 0)
@@ -112,7 +112,7 @@ def main():
                         f=sum(1 for c in sub if c[2] == 3), nm=' and '.join(x for x, _ in nm.most_common(2))))
     hot.sort(key=lambda h: (-h['n'], -h['ksi']))
     # risk against the cycling each Glasgow street carries (N.bpd: modelled bikes a day, already floored)
-    E = np.array([max(1, v) for v in N['bpd']], float); cityk = np.array([not o for o in OUT])
+    E = np.array([max(1, v) for v in N['bpd']], float); cityk = np.array([not o and not l for o, l in zip(OUT, LNK)])
     w = np.zeros(P)
     for k, v in agg.items(): w[k] = v[0] + 3 * v[1] + 6 * v[2]
     rbar = w[cityk].sum() / E[cityk].sum(); RR = (w + 1) / (rbar * E + 1)

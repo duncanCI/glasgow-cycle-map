@@ -52,21 +52,22 @@ def num(v):
     m = re.match(r'(\d+)', str(v)); return float(m.group(1)) if m else None
 
 def osm_attrs(bbox):
+    """Attributes for every way in the box: the ids first, then 500 at a time (paging by offset can stop short)."""
     G = json.dumps({'xmin': bbox[0], 'ymin': bbox[1], 'xmax': bbox[2], 'ymax': bbox[3], 'spatialReference': {'wkid': 4326}})
-    def page(off):
-        p = dict(where='highway IS NOT NULL', geometry=G, geometryType='esriGeometryEnvelope', inSR=4326, spatialRel='esriSpatialRelIntersects',
-                 outFields=FIELDS, returnGeometry='false', resultOffset=off, resultRecordCount=2000, orderByFields='OBJECTID', f='json')
+    ids = requests.get(OSM, params=dict(where='highway IS NOT NULL', geometry=G, geometryType='esriGeometryEnvelope', inSR=4326,
+                                        spatialRel='esriSpatialRelIntersects', returnIdsOnly='true', f='json'), timeout=120).json()['objectIds']
+    def chunk(c):
         for _ in range(4):
-            try: return [f['attributes'] for f in requests.get(OSM, params=p, timeout=90).json()['features']]
-            except Exception as e: err = e; time.sleep(2)
-        raise err
-    out = []; off = 0
+            try:
+                r = requests.post(OSM, data=dict(objectIds=','.join(map(str, c)), outFields=FIELDS, returnGeometry='false', f='json'), timeout=120).json()
+                if 'features' in r: return [f['attributes'] for f in r['features']]
+            except Exception: pass
+            time.sleep(3)
+        raise RuntimeError('attribute fetch failed')
+    out = []
     with cf.ThreadPoolExecutor(6) as ex:
-        while True:
-            batch = list(ex.map(page, range(off, off + 12000, 2000))); n = 0
-            for b in batch: out += b; n += len(b)
-            if n < 12000: break
-            off += 12000
+        for b in ex.map(chunk, [ids[i:i + 500] for i in range(0, len(ids), 500)]): out += b
+    print('ways listed', len(ids), '| fetched', len(out))
     return {str(int(a['osm_id'])): a for a in out if a.get('osm_id') is not None}
 
 def main(cbd_path):
