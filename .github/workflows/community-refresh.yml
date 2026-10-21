@@ -10,7 +10,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: weekly-refresh      # never two runs at once, so they can't push over each other
+  group: site-data          # one data job at a time across all three workflows, so they queue rather than push over each other
   cancel-in-progress: false
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
             echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Weekly refresh of the community cycle map and crossing data"
-            git push
+            ok=0; for i in 1 2 3; do if git pull --rebase --autostash && git push; then ok=1; break; fi; sleep 10; done; [ "$ok" = 1 ]   # fail the job if it never got pushed
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
 
