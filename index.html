@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-575HJDF19mu1z1ed5p5pY9gBvBW9LsBvynh0uS2d9Bo=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vNGOmIfgrCha0ApPIIQtyRb1hUjM3PIx1NTb9KPbvnc=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -697,7 +697,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 21 October 2026, 11:00</p>
+      <p class="note" id="build-id">Version: 21 October 2026, 12:00</p>
     </section>
     </div>
   </aside>
@@ -1585,6 +1585,12 @@ const ELEV = (() => { try { const j = JSON.parse(document.getElementById('elev-d
 // water are spanned in a straight line here, and the Clyde Tunnel's foot and cycle tunnels dip to their real depth.
 const RELIEF = { on: false }, RELIEF2 = { on: false };
 const TUNNEL_LOW = -18; // metres above sea level at the lowest point of the Clyde Tunnel's foot and cycle tunnels, about 20 m below the river surface
+let DEMV = 0;
+function demRefresh() {
+  DEMV++;
+  try { const s = ml3d && ml3d.getSource('gcm-dem'); if (s && s.setTiles && s.tiles && String(s.tiles[0]).startsWith('gcmdem://')) s.setTiles(['gcmdem://{z}/{x}/{y}?v=' + DEMV]); } catch (e) {}
+  if (PB.layer && FLY.lastP && !PB.busy) { PB.centre = null; buildPhoto(FLY.lastP.lon, FLY.lastP.lat); }
+}
 async function loadGrid(name, into) {
   const [mr, br] = await Promise.all([fetch('data/' + name + '.json'), fetch('data/' + name + '.bin')]);
   if (!mr.ok || !br.ok) return false;
@@ -1600,7 +1606,7 @@ const gridZ = (G2, lon, lat) => { const gx = (lon - G2.x0) / G2.dx, gy = (lat - 
   if (!a || !b || !c || !d) return undefined; if (a === G2.water || b === G2.water || c === G2.water || d === G2.water) return NaN;
   const fx = gx - i, fy = gy - j; return ((a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy) / G2.scale - G2.off; };
 async function loadRelief() {
-  if (OUT.some(v => v)) loadGrid('relief-region', RELIEF2).then(ok => { if (ok) { computeClimb(); if (RT.result && RT.start && RT.end) buildRoute(); } }).catch(() => {});
+  if (OUT.some(v => v)) loadGrid('relief-region', RELIEF2).then(ok => { if (ok) { demRefresh(); computeClimb(); if (RT.result && RT.start && RT.end) buildRoute(); } }).catch(() => {});
   try {
     const [mr, br] = await Promise.all([fetch('data/relief.json'), fetch('data/relief.bin')]);
     if (!mr.ok || !br.ok) return;
@@ -1609,7 +1615,7 @@ async function loadRelief() {
     const q = new Uint16Array(buf); if (q.length !== meta.nx * meta.ny) return;
     for (let r = 0; r < meta.ny; r++) { const o = r * meta.nx; for (let c = 1; c < meta.nx; c++) q[o + c] = (q[o + c - 1] + q[o + c]) & 0xFFFF; }
     Object.assign(RELIEF, meta, { q, on: true });
-    const go = () => { computeClimb(); if (RT.result && RT.start && RT.end) buildRoute(); };
+    const go = () => { demRefresh(); computeClimb(); if (RT.result && RT.start && RT.end) buildRoute(); };
     if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 50);
   } catch (e) { /* the embedded grid stays in use */ }
 }
@@ -1681,6 +1687,7 @@ const climbPen = (e, from, lvl) => {
 function elevAt(lon, lat) {
   if (!ELEV) return 0;
   const gx = (lon - ELEV.x0) / ELEV.dx, gy = (lat - ELEV.y0) / ELEV.dy, w = ELEV.nx, z = ELEV.z;
+  if (gx < -1 || gy < -1 || gx > w || gy > ELEV.ny) return NaN; // beyond the city's grid: unknown, never its edge repeated
   const i = Math.max(0, Math.min(w - 2, Math.floor(gx))), j = Math.max(0, Math.min(ELEV.ny - 2, Math.floor(gy)));
   const tx = Math.min(1, Math.max(0, gx - i)), ty = Math.min(1, Math.max(0, gy - j));
   const a = z[j * w + i], b = z[j * w + i + 1], c = z[(j + 1) * w + i], d = z[(j + 1) * w + i + 1];
@@ -2285,7 +2292,7 @@ function on3dStyle() { setTimeout(attrib3dSmall, 300);
   const st = ml3d.getStyle() || { layers: [] }, src = ml3d.getSource('openmaptiles') ? 'openmaptiles' : ml3d.getSource('omt') ? 'omt' : null;
   if (src && !st.layers.some(l => l.type === 'fill-extrusion')) ml3d.addLayer({ id: 'gcm-buildings', type: 'fill-extrusion', source: src, 'source-layer': 'building', minzoom: 13,
     paint: { 'fill-extrusion-color': FLY.style === 'sat' ? '#efeae0' : '#d8d2c6', 'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8], 'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0], 'fill-extrusion-opacity': FLY.style === 'sat' ? 0.78 : 0.88 } });
-  try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', ...(typeof OffscreenCanvas !== 'undefined' && addDemProtocol() ? { tiles: ['gcmdem://{z}/{x}/{y}'], tileSize: 512, maxzoom: 14 } : { tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 14 }), encoding: 'terrarium' }); } catch (e) {}
+  try { if (!ml3d.getSource('gcm-dem')) ml3d.addSource('gcm-dem', { type: 'raster-dem', ...(typeof OffscreenCanvas !== 'undefined' && addDemProtocol() ? { tiles: ['gcmdem://{z}/{x}/{y}?v=' + DEMV], tileSize: 512, maxzoom: 14 } : { tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, maxzoom: 14 }), encoding: 'terrarium' }); } catch (e) {}
   ml3dReady = true; NET3D.sig = ''; applyTerrain(); set3dRoute(); if (EXP.on) { set3dNetworkNow(); sync3dMarkers(); } if (FLY.on) flyStep(0, true);
   load3dRider().then(() => { if (photoWanted()) addPhoto(); });
 }
