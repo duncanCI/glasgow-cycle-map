@@ -1,0 +1,15 @@
+{
+ "x0": -4.5215,
+ "y0": 55.70913,
+ "dx": 0.0005,
+ "dy": 0.00028,
+ "nx": 1157,
+ "ny": 1046,
+ "off": 20.0,
+ "scale": 10.0,
+ "none": 0,
+ "water": 1,
+ "coding": "gzip, row deltas mod 65536, uint16 little-endian",
+ "source": "Scottish Public Sector LiDAR DTM (Phases 5, 6, 3, 4) at its 16 m overview, gaps from Mapzen terrarium tiles",
+ "credit": "Crown copyright Scottish Government and Fugro, Open Government Licence v3.0"
+}

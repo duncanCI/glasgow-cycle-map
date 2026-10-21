@@ -1,0 +1,42 @@
+name: Fetch the collisions around Glasgow
+
+on:
+  workflow_dispatch:       # run from the Actions tab; the national data is published once a year (September)
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: collisions-region
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0, pinned to its exact commit
+
+      - name: Bike collisions in the area around the city, from the DfT's national STATS19 data
+        run: python3 scripts/fetch_collisions_region.py
+
+      - name: Commit
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/collisions-region.json
+          if git diff --cached --quiet; then
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Collisions around Glasgow from the national STATS19 data"
+            git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ask GitHub Pages to rebuild
+        if: steps.commit.outputs.pushed == 'true'
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
+        env:
+          GH_TOKEN: ${{ github.token }}

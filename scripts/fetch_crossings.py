@@ -19,6 +19,15 @@ from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / 'data' / 'crossings.json'
 S, W, N, E = 55.78, -4.40, 55.93, -4.07
+try:  # with the streets around Glasgow added (build_region.py), cover that area too
+    import re as _re, json as _json
+    _N = _json.loads(_re.search(r'<script id="net-data" type="application/json">(.*?)</script>', open(Path(__file__).resolve().parent.parent / 'index.html').read(), flags=_re.S).group(1))
+    if _N.get('region'):
+        _a = _N['region'][0]; _x = _y = 0; _pts = []
+        for _i in range(0, len(_a), 2): _x += _a[_i]; _y += _a[_i + 1]; _pts.append((_x / 1e5, _y / 1e5))
+        W, E = min(p[0] for p in _pts), max(p[0] for p in _pts); S, N = min(p[1] for p in _pts), max(p[1] for p in _pts)
+except Exception as _e:
+    print('staying with the city box:', _e)
 OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
 COUNCIL = ('https://services2.arcgis.com/Ne8d9gKn5SJ3eAaw/arcgis/rest/services/MyMapService_1/FeatureServer/0/query'
            '?where=1%3D1&outFields=SITETYPE,TYPESUMMAR,SITELOCATI&outSR=4326&f=json')
