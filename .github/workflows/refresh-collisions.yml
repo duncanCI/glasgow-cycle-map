@@ -14,15 +14,22 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0, pinned to its exact commit
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (Node 24), pinned to its exact commit
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0, pinned to its exact commit
+        with:
+          python-version: '3.12'
+
+      - name: Libraries the script uses
+        run: python -m pip install --quiet numpy scipy shapely pyproj
 
       - name: Bike collisions for Glasgow and the area around it, from the DfT's national STATS19 data
-        run: python3 scripts/refresh_collisions.py
+        run: python scripts/refresh_collisions.py
 
       - name: Keep the page's security policy in step with its script
-        run: python3 scripts/csp.py
+        run: python scripts/csp.py
 
       - name: Commit
         id: commit

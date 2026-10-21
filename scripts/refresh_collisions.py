@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parent.parent
 BASE = 'https://data.dft.gov.uk/road-accidents-safety-data/'
 FILES = {'collision': 'dft-road-casualty-statistics-collision-1979-latest-published-year.csv',
          'vehicle': 'dft-road-casualty-statistics-vehicle-1979-latest-published-year.csv'}
+FALLBACK = {'collision': 'dft-road-casualty-statistics-collision-last-5-years.csv',
+            'vehicle': 'dft-road-casualty-statistics-vehicle-last-5-years.csv'}
 UA = {'User-Agent': 'glasgow-cycle-map (github.com/duncanCI/glasgow-cycle-map)'}
 W = {1: 1, 2: 3, 3: 6}   # slight, serious, fatal
 T = pyproj.Transformer.from_crs(4326, 27700, always_xy=True).transform
@@ -39,8 +41,16 @@ def rows(kind):
     if local:
         with open(Path(local) / FILES[kind], encoding='utf-8-sig', newline='') as f: yield from csv.DictReader(f)
         return
-    with urllib.request.urlopen(urllib.request.Request(BASE + FILES[kind], headers=UA), timeout=300) as r:
-        yield from csv.DictReader(io.TextIOWrapper(r, encoding='utf-8-sig', newline=''))
+    for name in (FILES[kind], FALLBACK[kind]):
+        try:
+            r = urllib.request.urlopen(urllib.request.Request(BASE + name, headers=UA), timeout=300)
+        except Exception as e:
+            print(f'could not open {BASE + name}: {e}', flush=True); continue
+        print('reading', BASE + name, flush=True)
+        if name == FALLBACK[kind]: print('  (the last five years only: earlier years are not in this file)', flush=True)
+        with r: yield from csv.DictReader(io.TextIOWrapper(r, encoding='utf-8-sig', newline=''))
+        return
+    raise SystemExit(f'No {kind} file could be downloaded from {BASE}')
 
 def col(r, *names):
     for n in names:
