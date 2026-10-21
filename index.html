@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vNGOmIfgrCha0ApPIIQtyRb1hUjM3PIx1NTb9KPbvnc=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-8y1lI7Ofj95Ny4yO1gbKZd07XqhOkcrzZnGILi3CcYg=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -697,7 +697,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 21 October 2026, 12:00</p>
+      <p class="note" id="build-id">Version: 21 October 2026, 12:30</p>
     </section>
     </div>
   </aside>
@@ -2349,10 +2349,14 @@ function makePhotoLayer(THREE) {
     },
     render(gl, matrix) {
       if (!this.group) return;
-      this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix).multiply(this.model);
+      // MapLibre 4 gives custom layers a matrix without the terrain's camera offset (the stretched ground height
+      // under the map centre), while it draws the terrain with it: take it off, or the buildings float by that much
+      const el = (this.map.transform && this.map.transform.elevation) || 0;
+      this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix).multiply(new THREE.Matrix4().makeTranslation(0, 0, -el * (this.mpu || 0))).multiply(this.model);
       this.renderer.resetState(); this.renderer.render(this.scene, this.camera);
     },
-    setGroup(group, model) {
+    setGroup(group, model, mpu) {
+      this.mpu = mpu;
       if (this.group) { this.scene.remove(this.group); this.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); } }); }
       this.group = group; this.model = model; if (group) this.scene.add(group); this.map.triggerRepaint();
     }
@@ -2406,7 +2410,7 @@ async function buildPhoto(lon, lat) {
     mesh(pp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(pc, 3)), new T.MeshBasicMaterial({ vertexColors: true, side: T.DoubleSide }));
     mesh(wp, geo => geo.setAttribute('color', new T.Float32BufferAttribute(wc, 3)), new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide }));
     if (!grp.children.length) { plainBuildings(true); PB.lastBuild = performance.now() - 1800; return; } // building tiles not in yet: keep the plain ones and try again soon
-    PB.layer.setGroup(grp, new T.Matrix4().makeTranslation(o.x, o.y, o.z).scale(new T.Vector3(s, -s, s)));
+    PB.layer.setGroup(grp, new T.Matrix4().makeTranslation(o.x, o.y, o.z).scale(new T.Vector3(s, -s, s)), s);
     PB.centre = [lon, lat]; plainBuildings(false);
   } catch (e) {
     PB.failed = true; removePhoto();
