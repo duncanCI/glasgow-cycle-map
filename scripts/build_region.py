@@ -24,7 +24,7 @@ from scipy.spatial import cKDTree
 ROOT = Path(__file__).resolve().parent.parent
 RING_M = 8000
 OSM = 'https://services-eu1.arcgis.com/zci5bUiJ8olAal7N/arcgis/rest/services/OpenStreetMap_Highways_for_Europe/FeatureServer/0/query'
-FIELDS = 'osm_id,name,ref,highway,oneway,oneway_bicycle,cycleway,bicycle,access,bridge,tunnel,layer,covered,lanes,maxspeed'
+FIELDS = 'osm_id,name,ref,highway,service,oneway,oneway_bicycle,cycleway,bicycle,access,bridge,tunnel,layer,covered,lanes,maxspeed'
 LOS = {'High': 0, 'Medium': 1, 'Low': 2, 'Should not be used (mixed traffic)': 3}
 INF = {'Mixed Traffic Street': 0, 'Painted Cycle Lane': 1, 'Segregated Track (narrow)': 2, 'Segregated Track (wide)': 3, 'Off Road Cycleway': 4, 'Shared Footway': 5}
 VOL = {'0 to 999': 0, '1000 to 1999': 1, '2000 to 3999': 2, '4000+': 3}
@@ -84,7 +84,20 @@ def main(cbd_path):
     df['name'] = [get(o, 'name') or get(o, 'ref') or '' for o in df.oid]
     df = df[~df.highway.isin(NO_BIKES)]
     df = df[~df.oid.map(lambda o: str(get(o, 'bicycle')).lower() in ('no', 'dismount') or str(get(o, 'access')).lower() in ('no', 'private'))]
-    df = df[~((df.highway == 'service') & (df.name == '') & (df['Infrastructure type'] == 'Mixed Traffic Street'))]
+    # unnamed service roads: most are driveways and car-park aisles that lead nowhere, but some carry the only link
+    # between paths (a canal towpath to the road over its bridge, say). Keep one when it joins the rest of the network
+    # at two or more places, or meets a path, cycleway or track; drop it when it only hangs off a single point.
+    cand = (df.highway == 'service') & (df.name == '') & (df['Infrastructure type'] == 'Mixed Traffic Street')
+    vkey = lambda c: (round(c[0], 2), round(c[1], 2))
+    def verts(geom): return set(vkey(c) for g in getattr(geom, 'geoms', [geom]) for c in g.coords)
+    kept_v, path_v = set(), set()
+    for hw, geom in zip(df.highway[~cand], df.geometry[~cand]):
+        v = verts(geom); kept_v |= v
+        if hw in ('cycleway', 'footway', 'path', 'track', 'bridleway', 'pedestrian', 'steps'): path_v |= v
+    keep = [len(verts(geom) & kept_v) >= 2 or bool(verts(geom) & path_v) for geom in df.geometry[cand]]
+    drop = df[cand].index[[not k for k in keep]]
+    print('unnamed service roads: kept as links', sum(keep), '| dropped', len(drop))
+    df = df.drop(index=drop)
     # only the part outside the city: Glasgow keeps its own streets
     df['geometry'] = df.geometry.intersection(ring27)
     df = df[~df.geometry.is_empty].explode(index_parts=False).reset_index(drop=True)
