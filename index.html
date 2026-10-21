@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-LkrQVqP017zZ0JebZJe+StBdSU+uBfpdzrkfDKY9G3k=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-B97hLz+f9e2qE1QnY8+lex/au4Up/doi3HdwFttmEZY=' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' https:; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How far is protected cycling from your door? Glasgow</title>
 <meta name="description" content="An interactive map of Glasgow's protected cycle network: how far each street is from it, how much of it joins up, and what the council's plans would change.">
@@ -697,7 +697,7 @@ dialog#compare{max-width:640px;width:calc(100% - 32px);border:1.5px solid var(--
           <details><summary>Privacy</summary>
         <p class="note">This page has no cookies, no tracking and no analytics, and nothing you do here is sent to the person who made it. Your settings (theme, panel size, layers) are kept in your own browser. To draw the map, your browser fetches map tiles, satellite imagery and 3D map data from the services named under Sources; those services see your IP address, as with any website. Live radio comes from Radio Swiss Classic or Nightride FM only when you choose it. The AI assistant runs on your own device. A shared route link contains its start, end and stops to about 10 metres, so think before sharing a route that starts at your home.</p>
       </details>
-      <p class="note" id="build-id">Version: 21 October 2026, 12:45</p>
+      <p class="note" id="build-id">Version: 21 October 2026, 13:15</p>
     </section>
     </div>
   </aside>
@@ -798,6 +798,8 @@ const P = N.pu.length;
 // streets beyond the city boundary (out to 8 km), for routes that cross it: routed over, drawn, never counted in
 // any Glasgow figure
 const OUT = N.out ? Uint8Array.from(N.out) : new Uint8Array(P);
+// the years the collision data covers, for every label that mentions them
+const CR_YRS = N.crashInfo ? (N.crashInfo.y0 === N.crashInfo.y1 ? String(N.crashInfo.y0) : N.crashInfo.y0 + ' to ' + N.crashInfo.y1) : '2016 to 2023';
 const NCITY = (N.regionInfo && N.regionInfo.cityNodes) || Infinity; // street nodes from here on are outside the city
 const STAGE = ['Built', 'Under construction', 'In design', 'Proposed cycle street', 'Indicative only, no design yet', 'Deferred'];
 const LOSNAME = ['High', 'Medium', 'Low', 'Should not be used'];
@@ -1343,7 +1345,7 @@ function renderLegend() {
   if (state.plan) addX(C.plan, 'City Network plan (dashes show stage)', null, 'chk-plan');
   if (state.owl) addX(C.ow, 'Quiet one-way street, no contraflow', 'dash', 'chk-ow');
   if (state.hot) { head('Bike collision hotspots', 'chk-hot'); lg.append(el('div', 'lg-note', 'The figure is collision risk against the city average for the cycling there: 4× means four times. Hover or tap one for the counts.')); add(C.hot, 'At least 5 times the city risk for the cycling there', 'box'); add(C.hot2, 'Under 5 times the city risk', 'box'); }
-  if (state.crash) { head('Bike collisions, 2016 to 2023', 'chk-crash'); add(C.crs[0], 'Slight', 'box'); add(C.crs[1], 'Serious', 'box'); add(C.crs[2], 'Fatal', 'box'); }
+  if (state.crash) { head('Bike collisions, ' + CR_YRS, 'chk-crash'); add(C.crs[0], 'Slight', 'box'); add(C.crs[1], 'Serious', 'box'); add(C.crs[2], 'Fatal', 'box'); }
   if (state.mll) addX(C.ml, 'Possible missing link, check on the ground', 'thick', 'chk-ml');
   if (state.comm) { head('Community map', 'chk-comm'); ['built', 'progress', 'planned', 'onhold', 'quiet'].forEach(s => add(CCOL[s], CSTATUS[s], s === 'planned' || s === 'onhold' ? 'dash' : null)); }
   if (state.strips) add(C.strip, 'Painted lane with imagery check', 'dash');
@@ -1370,7 +1372,7 @@ function placePopup() {
   line('Layout', INFNAME[N.inf[k]] + (N.rated[k] ? ', ' + STRESS[N.los[k]].toLowerCase() + ' from traffic' : ''));
   line('To protection', !r ? 'unknown' : !isFinite(r.accessM) ? 'no way without a busy road' : r.accessM < 1 ? 'on the main protected network' : fmtM(r.accessM) + ' on unprotected streets');
   if (N.bpd) line('Cycling', 'about ' + N.bpd[k].toLocaleString('en-GB') + ' bikes a day');
-  const c = CRC.get(k); if (c) line('Bike collisions', (c[0] + c[1] + c[2]) + ' on this stretch, 2016 to 2023' + (CRR.has(k) ? ', risk ' + timesAvg(CRR.get(k)).replace(' for the cycling it carries', '') : ''));
+  const c = CRC.get(k); if (c) line('Bike collisions', (c[0] + c[1] + c[2]) + ' on this stretch, ' + CR_YRS + (CRR.has(k) ? ', risk ' + timesAvg(CRR.get(k)).replace(' for the cycling it carries', '') : ''));
   const ci = N.cn[k]; line('Plans', ci >= 0 ? STAGE[N.cnInfo[ci].st] + (N.cnInfo[ci].st > 0 ? (N.cg[ci] ? ', in the 2032 programme' : ', not in the 2032 programme') : '') : 'no planned route');
   const act = el('div', 'actions');
   const b = (t, f, cls) => { const x = el('button', 'chip' + (cls ? ' ' + cls : ''), t); x.type = 'button'; x.addEventListener('click', f); act.append(x); };
@@ -1430,7 +1432,7 @@ function renderCard(msg) {
   { const c = CRC.get(k) || [0, 0, 0], nm = N.names[N.nm[k]]; let sN = 0, sK = 0; if (nm && namePieces.has(nm)) namePieces.get(nm).forEach(q => { const d = CRC.get(q); if (d) { sN += d[0] + d[1] + d[2]; sK += d[1] + d[2]; } });
     const here = c[0] + c[1] + c[2];
     if (N.bpd) fact('Cycling here', 'About ' + N.bpd[k].toLocaleString('en-GB') + ' bikes a day, modelled and scaled to council counters.');
-    if (here || sN) fact('Bike collisions, 2016 to 2023', here + ' on this stretch' + (c[1] + c[2] ? ' (' + (c[1] + c[2]) + ' serious or fatal)' : '') + (nm && sN > here ? ', ' + sN + ' along ' + nm + (sK ? ' (' + sK + ' serious or fatal)' : '') : '') + '.' + (here && CRR.has(k) ? ' Risk on this stretch is ' + timesAvg(CRR.get(k)) + '.' : ''));
+    if (here || sN) fact('Bike collisions, ' + CR_YRS, here + ' on this stretch' + (c[1] + c[2] ? ' (' + (c[1] + c[2]) + ' serious or fatal)' : '') + (nm && sN > here ? ', ' + sN + ' along ' + nm + (sK ? ' (' + sK + ' serious or fatal)' : '') : '') + '.' + (here && CRR.has(k) ? ' Risk on this stretch is ' + timesAvg(CRR.get(k)) + '.' : ''));
     const px = mx(sel.lng), py = my(sel.lat), h = HOT.find(q => Math.hypot(q.x - px, q.y - py) < mtoU(90));
     if (h) fact('Collision hotspot', h.n + ' bike collisions within 50 m of ' + (h.nm || 'here') + ', ' + h.ksi + ' serious or fatal, with about ' + (h.bpd || 0).toLocaleString('en-GB') + ' bikes a day passing through. That is ' + (h.rr ? timesAvg(h.rr) : 'unknown against the cycling here') + '.', h.rr >= 5 ? C.hot : C.hot2); }
   { const MORE = ['Speed limit', 'Modelled traffic', 'One-way', 'Cycling here', 'Community map', 'City Network plan', 'Listed constraints'];
@@ -1747,7 +1749,7 @@ if (N.crp) for (let i = 0; i < N.crp.length; i += 4) { const k = N.crp[i], c = [
 const CRASH = []; if (N.crash) for (let i = 0; i < N.crash.length; i += 4) CRASH.push({ x: mx(N.crash[i] / 1e5), y: my(N.crash[i + 1] / 1e5), s: N.crash[i + 2], yr: 2000 + N.crash[i + 3] });
 const HOT = (N.hot || []).map(h => Object.assign({ x: mx(h.lng), y: my(h.lat) }, h));
 const SEVW = ['', 'Slight', 'Serious', 'Fatal'];
-const hotText = h => h.n + ' bike collisions recorded within 50 m, 2016 to 2023, ' + h.ksi + ' of them serious or fatal. About ' + (h.bpd || 0).toLocaleString('en-GB') + ' bikes a day pass through, which makes the risk ' + (h.rr ? timesAvg(h.rr) : 'unknown') + '.';
+const hotText = h => h.n + ' bike collisions recorded within 50 m, ' + CR_YRS + ', ' + h.ksi + ' of them serious or fatal. About ' + Math.max(1, h.bpd || 0).toLocaleString('en-GB') + ' bikes a day pass through, which makes the risk ' + (h.rr ? timesAvg(h.rr) : 'unknown') + '.';
 const hotLayer = L.layerGroup(), crashLayer = L.layerGroup();
 let hazardsBuilt = false;
 function crashMarker(lo, la, s, yr) {

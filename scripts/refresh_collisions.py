@@ -117,11 +117,15 @@ def main():
     for k, v in agg.items(): w[k] = v[0] + 3 * v[1] + 6 * v[2]
     rbar = w[cityk].sum() / E[cityk].sum(); RR = (w + 1) / (rbar * E + 1)
     N['rr'] = [x for k in np.where((w > 0) & cityk)[0] for x in (int(k), round(float(RR[k]), 2))]
-    cx, cy = mids[:, 0], mids[:, 1]
+    # the cycling through each hotspot: every city street whose line passes within 50 m (not just those whose
+    # midpoint does, which misses long stretches of main road), halved because a bike passing through a junction
+    # rides two of its arms; never below the network's floor (the 5th percentile of modelled cycling)
+    pos = E[cityk & (E > 1)]; floor = max(1.0, float(np.percentile(pos, 5))) if len(pos) else 1.0
     for h in hot:
-        x, y = T(h['lng'], h['lat']); near = np.where((np.hypot(cx - x, cy - y) < 50) & cityk)[0]
-        eb = E[near].sum() / 2 if len(near) else 1; hw = h['n'] - h['ksi'] + 3 * (h['ksi'] - h['f']) + 6 * h['f']
-        h['bpd'] = int(round(eb)); h['rr'] = round(float((hw + 1) / (rbar * eb + 1)), 1)
+        x, y = T(h['lng'], h['lat']); pt = Point(x, y)
+        near = [k for k in tree.query_ball_point((x, y), 600) if cityk[k] and lines[k].distance(pt) < 50]
+        eb = max(floor, E[near].sum() / 2) if near else floor; hw = h['n'] - h['ksi'] + 3 * (h['ksi'] - h['f']) + 6 * h['f']
+        h['bpd'] = int(eb + 0.5); h['rr'] = round(float((hw + 1) / (rbar * eb + 1)), 1)
     N['hot'] = hot
     cnt = lambda sel: dict(n=len(sel), slight=sum(1 for c in sel if c[2] == 1), serious=sum(1 for c in sel if c[2] == 2), fatal=sum(1 for c in sel if c[2] == 3))
     N['crashInfo'] = dict(y0=years[0] if years else y0, y1=years[-1] if years else y1, city=cnt([c for c in C if c[4]]), area=cnt([c for c in C if not c[4]]),
