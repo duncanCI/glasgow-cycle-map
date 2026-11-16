@@ -1,14 +1,14 @@
 {
-  "checked": "2026-11-09",
-  "changed": "2026-11-02",
-  "sha256": "6ad02d9051e5c6b05b7f2e118a14fbe7b1fa9e5562a07c3f8a69068a51d78d4b",
-  "lines": 1235,
+  "checked": "2026-11-16",
+  "changed": "2026-11-16",
+  "sha256": "3f7e2fc036349713d1b03135ff492ae110c80ced784443db213eb5c7b2f3bfa6",
+  "lines": 1245,
   "km": {
-    "built": 184.0,
-    "quiet": 132.3,
+    "built": 186.5,
+    "quiet": 132.8,
     "other": 11.4,
-    "planned": 223.1,
-    "progress": 52.2,
+    "planned": 222.8,
+    "progress": 51.4,
     "onhold": 13.3
   },
   "source": "https://www.google.com/maps/d/viewer?mid=1DSSERLE1fpX9_ze779MfZS4d3KctbV0",
