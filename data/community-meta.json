@@ -1,13 +1,13 @@
 {
-  "checked": "2026-11-16",
-  "changed": "2026-11-16",
-  "sha256": "3f7e2fc036349713d1b03135ff492ae110c80ced784443db213eb5c7b2f3bfa6",
+  "checked": "2026-11-23",
+  "changed": "2026-11-23",
+  "sha256": "08433c18fc37a32c35cf56eaf88f3c9368d8a91b4315f2538b407b11a6c587f2",
   "lines": 1245,
   "km": {
-    "built": 186.5,
+    "built": 186.9,
     "quiet": 132.8,
     "other": 11.4,
-    "planned": 222.8,
+    "planned": 222.4,
     "progress": 51.4,
     "onhold": 13.3
   },
